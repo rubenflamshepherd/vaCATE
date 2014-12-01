@@ -44,7 +44,7 @@ y = np.array (y_series)
 class MainFrame(wx.Frame):
     """ The main frame of the application
     """
-    title = 'Compartmental Analysis of Tracer Efflux (CATE): Data Analyzer'
+    title = 'Compartmental Analysis of Tracer Efflux: Data Analyzer'
     
     def __init__(self):
         wx.Frame.__init__(self, None, -1, self.title)
@@ -53,15 +53,15 @@ class MainFrame(wx.Frame):
         self.create_status_bar()
         self.create_main_panel()
         
-        # Default analysis of data is an objective regression
-		# using the last 2 data points
+        # Default analysis of data is an objective regression using the last
+        # 4 data points
         self.obj_textbox.SetValue ('2')        
         
         self.draw_figure()
 
     def create_menu(self):
         """ Creating a file menu that allows saving of graphs to .pngs, opening
-        of a help dialogue, or quitting the application
+        of a help dialog, or quitting the application
         Notes: adapted from original program, pseudo-useless
         """
         
@@ -135,8 +135,8 @@ class MainFrame(wx.Frame):
         self.vbox.Add(self.toolbar, 0, wx.EXPAND)
         self.vbox.AddSpacer(10)
                 
-        # Text labels describing regresssion inputs
-        self.obj_title = wx.StaticText (self.panel, id=-1, label="Objective Regression",style=wx.ALIGN_CENTER, name="")
+        # Text labels describing regression inputs
+        self.obj_title = wx.StaticText (self.panel, label="Objective Regression",style=wx.ALIGN_CENTER, name="")
         self.obj_label = wx.StaticText (self.panel, id=-1, label="Number of points to use:",style=wx.ALIGN_CENTER, name="")
         self.subj_title = wx.StaticText (self.panel, id=-1, label="Subjective Regression",style=wx.ALIGN_CENTER, name="")
         self.subj1_label = wx.StaticText (self.panel, id=-1, label="First Point:",style=wx.ALIGN_CENTER, name="")
@@ -151,13 +151,14 @@ class MainFrame(wx.Frame):
                             style=wx.TE_PROCESS_ENTER)
         
         self.subj_p1_1textbox = wx.TextCtrl(
-                    self.panel, 
-                    size=(50,-1),
-                    style=wx.TE_PROCESS_ENTER)        
-        self.subj_p1_2textbox = wx.TextCtrl(
-                    self.panel, 
-                    size=(50,-1),
-                    style=wx.TE_PROCESS_ENTER)
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_PROCESS_ENTER)        
+	
+	self.subj_p1_2textbox = wx.TextCtrl(
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_PROCESS_ENTER)
         
         self.subj_p2_1textbox = wx.TextCtrl(
                     self.panel, 
