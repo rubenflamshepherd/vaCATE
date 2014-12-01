@@ -214,7 +214,7 @@ class MainFrame(wx.Frame):
         
         # Alignment flags (for adding things to spacers) and fonts
         flags = wx.ALIGN_RIGHT | wx.ALL | wx.ALIGN_CENTER_VERTICAL
-        text_box_flag = wx.ALIGN_CENTER | wx.ALL | wx.ALIGN_CENTER_VERTICAL
+        box_flag = wx.ALIGN_CENTER | wx.ALL | wx.ALIGN_CENTER_VERTICAL
         button_flag = wx.ALIGN_BOTTOM
         title_font = wx.Font (8, wx.DEFAULT, wx.NORMAL, wx.BOLD)
         widget_title_font = wx.Font (8, wx.DEFAULT, wx.NORMAL, wx.NORMAL, True)
@@ -228,11 +228,11 @@ class MainFrame(wx.Frame):
         
         # Adding objective widgets to objective sizer
         self.vbox_obj = wx.BoxSizer(wx.VERTICAL)
-        self.vbox_obj.Add (self.obj_title, 0, border=3, flag=text_box_flag)
+        self.vbox_obj.Add (self.obj_title, 0, border=3, flag=box_flag)
         self.vbox_obj.AddSpacer(7)
-        self.vbox_obj.Add (self.obj_label, 0, border=3, flag=text_box_flag)
+        self.vbox_obj.Add (self.obj_label, 0, border=3, flag=box_flag)
         self.vbox_obj.AddSpacer(5)
-        self.vbox_obj.Add (self.obj_textbox, 0, border=3, flag=text_box_flag)
+        self.vbox_obj.Add (self.obj_textbox, 0, border=3, flag=box_flag)
         self.vbox_obj.AddSpacer(5)
         self.vbox_obj.Add (self.obj_drawbutton, 0, border=3, flag=button_flag)
         
@@ -241,40 +241,44 @@ class MainFrame(wx.Frame):
         self.gridbox_subj.Add (wx.StaticText (self.panel, id=-1, label=""),
 	                       0, border=3, flag=flags)
         self.gridbox_subj.Add (self.subj1_label, 0, border=3,
-	                       flag=text_box_flag)
+	                       flag=box_flag)
         self.gridbox_subj.Add (self.subj2_label, 0, border=3,
-	                       flag=text_box_flag)
+	                       flag=box_flag)
                 
         self.gridbox_subj.Add (wx.StaticText (self.panel, label="Phase I:"),
 	                       0, border=3, flag=flags)        
         self.gridbox_subj.Add (self.subj_p1_1textbox, 0, border=3,
-	                       flag=text_box_flag)
+	                       flag=box_flag)
         self.gridbox_subj.Add (self.subj_p1_2textbox, 0, border=3,
-	                       flag=text_box_flag)
+	                       flag=box_flag)
                 
         self.gridbox_subj.Add (wx.StaticText (self.panel, label="Phase II:"),
 	                       0, border=3, flag=flags)        
         self.gridbox_subj.Add (self.subj_p2_1textbox, 0, border=3,
-	                       flag=text_box_flag)
+	                       flag=box_flag)
         self.gridbox_subj.Add (self.subj_p2_2textbox, 0, border=3,
-	                       flag=text_box_flag)
+	                       flag=box_flag)
                 
         self.gridbox_subj.Add (wx.StaticText (self.panel, label="Phase III:"),
 	                       0, border=3, flag=flags)        
-        self.gridbox_subj.Add (self.subj_p3_1textbox, 0, border=3, flag=text_box_flag)
-        self.gridbox_subj.Add (self.subj_p3_2textbox, 0, border=3, flag=text_box_flag)
+        self.gridbox_subj.Add (self.subj_p3_1textbox, 0, border=3,
+	                       flag=box_flag)
+        self.gridbox_subj.Add (self.subj_p3_2textbox, 0, border=3,
+	                       flag=box_flag)
                 
         self.vbox_subj = wx.BoxSizer(wx.VERTICAL)
-        self.vbox_subj.Add (self.subj_title, 0, border=3, flag=text_box_flag)
-        self.vbox_subj.Add (self.gridbox_subj, 0, border=3, flag=text_box_flag)
-        self.vbox_subj.Add (self.subj_drawbutton, 0, border=3, flag=text_box_flag)
-        self.vbox_subj.Add (self.subj_disclaimer, 0, border=3, flag=text_box_flag)
+        self.vbox_subj.Add (self.subj_title, 0, border=3, flag=box_flag)
+        self.vbox_subj.Add (self.gridbox_subj, 0, border=3, flag=box_flag)
+        self.vbox_subj.Add (self.subj_drawbutton, 0, border=3,
+	                    flag=box_flag)
+        self.vbox_subj.Add (self.subj_disclaimer, 0, border=3,
+	                    flag=box_flag)
         
-        # Creating data output widgets to data output gridsizers
+        # Creating widgets for data output
         self.data_p1_int = wx.TextCtrl(
-                    self.panel, 
-                    size=(50,-1),
-                    style=wx.TE_READONLY)
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_READONLY)
         self.data_p1_slope = wx.TextCtrl(
             self.panel, 
             size=(50,-1),
@@ -285,9 +289,9 @@ class MainFrame(wx.Frame):
             style=wx.TE_READONLY)
         
         self.data_p2_int = wx.TextCtrl(
-                            self.panel, 
-                            size=(50,-1),
-                            style=wx.TE_READONLY)
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_READONLY)
         self.data_p2_slope = wx.TextCtrl(
             self.panel, 
             size=(50,-1),
@@ -298,9 +302,9 @@ class MainFrame(wx.Frame):
             style=wx.TE_READONLY)                   
         
         self.data_p3_int = wx.TextCtrl(
-                            self.panel, 
-                            size=(50,-1),
-                            style=wx.TE_READONLY)
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_READONLY)
         self.data_p3_slope = wx.TextCtrl(
             self.panel, 
             size=(50,-1),
@@ -308,35 +312,43 @@ class MainFrame(wx.Frame):
         self.data_p3_r2 = wx.TextCtrl(
             self.panel, 
             size=(50,-1),
-            style=wx.TE_READONLY)                   
+            style=wx.TE_READONLY)
+	
+	# Creating labels for data output
+	empty_text = wx.StaticText (self.panel, label = "")
+	slope_text = wx.StaticText (self.panel, label="Slope")
+	intercept_text = wx.StaticText(self.panel, label = "Intercept")
+	r2_text = wx.StaticText (self.panel, label = "R^2")
+	p1_text = wx.StaticText (self.panel, label = "Phase I: ")
+	p2_text = wx.StaticText (self.panel, label = "Phase II: ")
+	p3_text = wx.StaticText (self.panel, label = "Phase II: ")
         
-        # Adding data output widgets to data output gridsizers
+        # Adding data output widgets to data output gridsizers        
+        self.gridbox_data = wx.GridSizer (rows=4, cols=4, hgap=1, vgap=1)
         
-        self.gridbox_linedata = wx.GridSizer (rows=4, cols=4, hgap=1, vgap=1)
-        
-        self.gridbox_linedata.Add (wx.StaticText (self.panel, id=-1, label=""), 0, border=3, flag=flags)
-        self.gridbox_linedata.Add (wx.StaticText (self.panel, id=-1, label="Slope"), 0, border=3, flag=text_box_flag)
-        self.gridbox_linedata.Add (wx.StaticText (self.panel, id=-1, label="Intercept"), 0, border=3, flag=text_box_flag)
-        self.gridbox_linedata.Add (wx.StaticText (self.panel, id=-1, label=u"R2"), 0, border=3, flag=text_box_flag)
+        self.gridbox_data.Add (empty_text, 0, border=3, flag=flags)
+        self.gridbox_data.Add (slope_text, 0, border=3, flag=box_flag)
+        self.gridbox_data.Add (intercept_text, 0, border=3, flag=box_flag)
+        self.gridbox_data.Add (r2_text, 0, border=3, flag=box_flag)
 
-        self.gridbox_linedata.Add (wx.StaticText (self.panel, id=-1, label="Phase I: "), 0, border=3, flag=flags)
-        self.gridbox_linedata.Add (self.data_p1_slope, 0, border=3, flag=text_box_flag)
-        self.gridbox_linedata.Add (self.data_p1_int, 0, border=3, flag=text_box_flag)
-        self.gridbox_linedata.Add (self.data_p1_r2, 0, border=3, flag=text_box_flag)
+        self.gridbox_data.Add (p1_text, 0, border=3, flag=flags)
+        self.gridbox_data.Add (self.data_p1_slope, 0, border=3, flag=box_flag)
+        self.gridbox_data.Add (self.data_p1_int, 0, border=3, flag=box_flag)
+        self.gridbox_data.Add (self.data_p1_r2, 0, border=3, flag=box_flag)
         
-        self.gridbox_linedata.Add (wx.StaticText (self.panel, id=-1, label="Phase II: "), 0, border=3, flag=flags)
-        self.gridbox_linedata.Add (self.data_p2_slope, 0, border=3, flag=text_box_flag)
-        self.gridbox_linedata.Add (self.data_p2_int, 0, border=3, flag=text_box_flag)
-        self.gridbox_linedata.Add (self.data_p2_r2, 0, border=3, flag=text_box_flag)        
+        self.gridbox_data.Add (p2_text, 0, border=3, flag=flags)
+        self.gridbox_data.Add (self.data_p2_slope, 0, border=3, flag=box_flag)
+        self.gridbox_data.Add (self.data_p2_int, 0, border=3, flag=box_flag)
+        self.gridbox_data.Add (self.data_p2_r2, 0, border=3, flag=box_flag)        
         
-        self.gridbox_linedata.Add (wx.StaticText (self.panel, id=-1, label="Phase III: "), 0, border=3, flag=flags)
-        self.gridbox_linedata.Add (self.data_p3_slope, 0, border=3, flag=text_box_flag)
-        self.gridbox_linedata.Add (self.data_p3_int, 0, border=3, flag=text_box_flag)
-        self.gridbox_linedata.Add (self.data_p3_r2, 0, border=3, flag=text_box_flag)
+        self.gridbox_data.Add (p3_text, 0, border=3, flag=flags)
+        self.gridbox_data.Add (self.data_p3_slope, 0, border=3, flag=box_flag)
+        self.gridbox_data.Add (self.data_p3_int, 0, border=3, flag=box_flag)
+        self.gridbox_data.Add (self.data_p3_r2, 0, border=3, flag=box_flag)
         
         self.vbox_linedata = wx.BoxSizer(wx.VERTICAL)
-        self.vbox_linedata.Add (self.linedata_title, 0, border=3, flag=text_box_flag)
-        self.vbox_linedata.Add (self.gridbox_linedata, 0, border=3, flag=text_box_flag)
+        self.vbox_linedata.Add (self.linedata_title, 0, border=3, flag=box_flag)
+        self.vbox_linedata.Add (self.gridbox_data, 0, border=3, flag=box_flag)
         
         # Build the widgets and the sizer contain(s) containing them all
         self.slider_label = wx.StaticText(self.panel, -1, "Point Radius", style=wx.ALIGN_CENTER)
@@ -349,9 +361,9 @@ class MainFrame(wx.Frame):
         self.slider_width.SetTickFreq(10, 1)
         self.Bind(wx.EVT_COMMAND_SCROLL_THUMBTRACK, self.on_slider_width, self.slider_width)        
         self.vbox_widgets = wx.BoxSizer(wx.VERTICAL)
-        self.vbox_widgets.Add(self.cb_grid, 0, border=3, flag=text_box_flag)
-        self.vbox_widgets.Add(self.slider_label, 0, flag=text_box_flag)
-        self.vbox_widgets.Add(self.slider_width, 0, border=3, flag=text_box_flag)
+        self.vbox_widgets.Add(self.cb_grid, 0, border=3, flag=box_flag)
+        self.vbox_widgets.Add(self.slider_label, 0, flag=box_flag)
+        self.vbox_widgets.Add(self.slider_width, 0, border=3, flag=box_flag)
         
         self.xy_clicked_label = wx.StaticText(self.panel, -1, "Last point clicked", style=wx.ALIGN_CENTER)
         self.xy_clicked_label.SetFont (widget_title_font)
@@ -384,7 +396,7 @@ class MainFrame(wx.Frame):
         self.hbox_num_clicked.Add (self.num_clicked_label, 0, flag=flags)
         self.hbox_num_clicked.Add (self.num_clicked_data, 0, flag=flags)        
         
-        self.vbox_widgets.Add(self.xy_clicked_label, 0, flag=text_box_flag)
+        self.vbox_widgets.Add(self.xy_clicked_label, 0, flag=box_flag)
         self.vbox_widgets.Add(self.hbox_x_clicked, 0, flag=flags)
         self.vbox_widgets.Add(self.hbox_y_clicked, 0, flag=flags)
         self.vbox_widgets.Add(self.hbox_num_clicked, 0, flag=flags)
