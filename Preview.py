@@ -136,13 +136,34 @@ class MainFrame(wx.Frame):
         self.vbox.AddSpacer(10)
                 
         # Text labels describing regression inputs
-        self.obj_title = wx.StaticText (self.panel, label="Objective Regression",style=wx.ALIGN_CENTER, name="")
-        self.obj_label = wx.StaticText (self.panel, id=-1, label="Number of points to use:",style=wx.ALIGN_CENTER, name="")
-        self.subj_title = wx.StaticText (self.panel, id=-1, label="Subjective Regression",style=wx.ALIGN_CENTER, name="")
-        self.subj1_label = wx.StaticText (self.panel, id=-1, label="First Point:",style=wx.ALIGN_CENTER, name="")
-        self.subj2_label = wx.StaticText (self.panel, id=-1, label="Last Point:",style=wx.ALIGN_CENTER, name="")
-        self.subj_disclaimer = wx.StaticText (self.panel, id=-1, label="Points are numbered from left to right",style=wx.ALIGN_CENTER, name="")
-        self.linedata_title = wx.StaticText (self.panel, id=-1, label="Regression Parameters",style=wx.ALIGN_CENTER, name="")
+        self.obj_title = wx.StaticText (
+	    self.panel,
+	    label="Objective Regression",
+	    style=wx.ALIGN_CENTER)
+        self.obj_label = wx.StaticText (
+	    self.panel,
+	    label="Number of points to use:",
+	    style=wx.ALIGN_CENTER)
+        self.subj_title = wx.StaticText (
+	    self.panel,
+	    label="Subjective Regression",
+	    style=wx.ALIGN_CENTER)
+        self.subj1_label = wx.StaticText (
+	    self.panel,
+	    label="First Point:",
+	    style=wx.ALIGN_CENTER)
+        self.subj2_label = wx.StaticText (
+	    self.panel,
+	    label="Last Point:",
+	    style=wx.ALIGN_CENTER)
+        self.subj_disclaimer = wx.StaticText (
+	    self.panel,
+	    label="Points are numbered from left to right",
+	    style=wx.ALIGN_CENTER)
+        self.linedata_title = wx.StaticText (
+	    self.panel,
+	    label="Regression Parameters",
+	    style=wx.ALIGN_CENTER)
         
         # Text boxs for collecting regression parameter input
         self.obj_textbox = wx.TextCtrl(
@@ -180,15 +201,18 @@ class MainFrame(wx.Frame):
                     
         
         # Buttons for identifying collect regression parameter event
-        self.obj_drawbutton = wx.Button(self.panel, -1, "Draw Objective Regresssion")
+        self.obj_drawbutton = wx.Button(self.panel, -1,
+	                                "Draw Objective Regresssion")
         self.Bind(wx.EVT_BUTTON, self.on_obj_draw, self.obj_drawbutton)
         
-        self.subj_drawbutton = wx.Button(self.panel, -1, "Draw Subjective Regression")
+        self.subj_drawbutton = wx.Button(self.panel, -1,
+	                                 "Draw Subjective Regression")
         self.Bind(wx.EVT_BUTTON, self.on_subj_draw, self.subj_drawbutton)
         self.line = wx.StaticLine(self.panel, -1, style=wx.LI_VERTICAL)
         self.line2 = wx.StaticLine(self.panel, -1, style=wx.LI_VERTICAL)
         self.line3 = wx.StaticLine(self.panel, -1, style=wx.LI_VERTICAL)
         
+        # Alignment flags (for adding things to spacers) and fonts
         flags = wx.ALIGN_RIGHT | wx.ALL | wx.ALIGN_CENTER_VERTICAL
         text_box_flag = wx.ALIGN_CENTER | wx.ALL | wx.ALIGN_CENTER_VERTICAL
         button_flag = wx.ALIGN_BOTTOM
@@ -196,6 +220,7 @@ class MainFrame(wx.Frame):
         widget_title_font = wx.Font (8, wx.DEFAULT, wx.NORMAL, wx.NORMAL, True)
         disclaimer_font = wx.Font (6, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
         
+        # Setting fonts
         self.obj_title.SetFont(title_font)
         self.subj_title.SetFont(title_font)
         self.linedata_title.SetFont(title_font)
@@ -213,19 +238,29 @@ class MainFrame(wx.Frame):
         
         # Adding subjective widgets to subjective sizer
         self.gridbox_subj = wx.GridSizer (rows=4, cols=3, hgap=1, vgap=1)
-        self.gridbox_subj.Add (wx.StaticText (self.panel, id=-1, label=""), 0, border=3, flag=flags)
-        self.gridbox_subj.Add (self.subj1_label, 0, border=3, flag=text_box_flag)
-        self.gridbox_subj.Add (self.subj2_label, 0, border=3, flag=text_box_flag)
+        self.gridbox_subj.Add (wx.StaticText (self.panel, id=-1, label=""),
+	                       0, border=3, flag=flags)
+        self.gridbox_subj.Add (self.subj1_label, 0, border=3,
+	                       flag=text_box_flag)
+        self.gridbox_subj.Add (self.subj2_label, 0, border=3,
+	                       flag=text_box_flag)
                 
-        self.gridbox_subj.Add (wx.StaticText (self.panel, id=-1, label="Phase I:"), 0, border=3, flag=flags)        
-        self.gridbox_subj.Add (self.subj_p1_1textbox, 0, border=3, flag=text_box_flag)
-        self.gridbox_subj.Add (self.subj_p1_2textbox, 0, border=3, flag=text_box_flag)
+        self.gridbox_subj.Add (wx.StaticText (self.panel, label="Phase I:"),
+	                       0, border=3, flag=flags)        
+        self.gridbox_subj.Add (self.subj_p1_1textbox, 0, border=3,
+	                       flag=text_box_flag)
+        self.gridbox_subj.Add (self.subj_p1_2textbox, 0, border=3,
+	                       flag=text_box_flag)
                 
-        self.gridbox_subj.Add (wx.StaticText (self.panel, id=-1, label="Phase II:"), 0, border=3, flag=flags)        
-        self.gridbox_subj.Add (self.subj_p2_1textbox, 0, border=3, flag=text_box_flag)
-        self.gridbox_subj.Add (self.subj_p2_2textbox, 0, border=3, flag=text_box_flag)
+        self.gridbox_subj.Add (wx.StaticText (self.panel, label="Phase II:"),
+	                       0, border=3, flag=flags)        
+        self.gridbox_subj.Add (self.subj_p2_1textbox, 0, border=3,
+	                       flag=text_box_flag)
+        self.gridbox_subj.Add (self.subj_p2_2textbox, 0, border=3,
+	                       flag=text_box_flag)
                 
-        self.gridbox_subj.Add (wx.StaticText (self.panel, id=-1, label="Phase III:"), 0, border=3, flag=flags)        
+        self.gridbox_subj.Add (wx.StaticText (self.panel, label="Phase III:"),
+	                       0, border=3, flag=flags)        
         self.gridbox_subj.Add (self.subj_p3_1textbox, 0, border=3, flag=text_box_flag)
         self.gridbox_subj.Add (self.subj_p3_2textbox, 0, border=3, flag=text_box_flag)
                 
