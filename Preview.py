@@ -146,9 +146,9 @@ class MainFrame(wx.Frame):
         
         # Text boxs for collecting regression parameter input
         self.obj_textbox = wx.TextCtrl(
-                            self.panel, 
-                            size=(50,-1),
-                            style=wx.TE_PROCESS_ENTER)
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_PROCESS_ENTER)
         
         self.subj_p1_1textbox = wx.TextCtrl(
 	    self.panel, 
@@ -161,22 +161,22 @@ class MainFrame(wx.Frame):
 	    style=wx.TE_PROCESS_ENTER)
         
         self.subj_p2_1textbox = wx.TextCtrl(
-                    self.panel, 
-                    size=(50,-1),
-                    style=wx.TE_PROCESS_ENTER)        
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_PROCESS_ENTER)        
         self.subj_p2_2textbox = wx.TextCtrl(
-                    self.panel, 
-                    size=(50,-1),
-                    style=wx.TE_PROCESS_ENTER)
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_PROCESS_ENTER)
         
         self.subj_p3_1textbox = wx.TextCtrl(
-                    self.panel, 
-                    size=(50,-1),
-                    style=wx.TE_PROCESS_ENTER)        
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_PROCESS_ENTER)        
         self.subj_p3_2textbox = wx.TextCtrl(
-                    self.panel, 
-                    size=(50,-1),
-                    style=wx.TE_PROCESS_ENTER)        
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_PROCESS_ENTER)        
                     
         
         # Buttons for identifying collect regression parameter event
