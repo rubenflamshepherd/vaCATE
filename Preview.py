@@ -44,7 +44,7 @@ y = np.array (y_series)
 class MainFrame(wx.Frame):
     """ The main frame of the application
     """
-    title = 'Compartmental Analysis of Tracer Efflux: Data Analyzer'
+    title = 'Compartmental Analysis of Tracer Efflux (CATE): Data Analyzer'
     
     def __init__(self):
         wx.Frame.__init__(self, None, -1, self.title)
@@ -53,15 +53,15 @@ class MainFrame(wx.Frame):
         self.create_status_bar()
         self.create_main_panel()
         
-        # Default analysis of data is an objective regression using the last
-        # 4 data points
+        # Default analysis of data is an objective regression
+		# using the last 2 data points
         self.obj_textbox.SetValue ('2')        
         
         self.draw_figure()
 
     def create_menu(self):
         """ Creating a file menu that allows saving of graphs to .pngs, opening
-        of a help dialog, or quitting the application
+        of a help dialogue, or quitting the application
         Notes: adapted from original program, pseudo-useless
         """
         
