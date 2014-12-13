@@ -472,9 +472,7 @@ class MainFrame(wx.Frame):
         self.plot_phase3.set_ylabel (u"Log cpm released/g RFW/min")
         self.plot_phase3.set_xlim (left = 0)
         self.plot_phase3.set_ylim (bottom = 0)
-        
-        
-        # Getting linear regression data
+                
         # OBJECTIVE REGRESSION
 	num_points_obj = self.obj_textbox.GetValue ()
 	num_points_obj = int (num_points_obj)
@@ -483,13 +481,10 @@ class MainFrame(wx.Frame):
 	    self.obj_textbox.SetValue ('2')
 	    
 	# Getting parameters from regression of p3
-	x1_p3, x2_p3, y1_p3, y2_p3, r2, slope, intercept, reg_end_index =\
+	x1_p3, x2_p3, y1_p3, y2_p3, r2_p3, slope_p3, intercept_p3, reg_end_index =\
             Operations.obj_regression_p3 (self.x, self.y, num_points_obj)
+	print slope_p3
 	
-	# Unpacking parameters of p3 regression            
-	intercept_p3 = intercept[3]
-	slope_p3 = slope [3]
-	r2_p3 = r2[3]
 	# Setting the series' involved in linear regression
 	x_p3 = self.x [reg_end_index+3:] 
 	y_p3 = self.y [reg_end_index+3:]            

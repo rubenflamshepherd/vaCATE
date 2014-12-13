@@ -101,19 +101,26 @@ def obj_regression_p12 (elution_ends, log_efflux, last_used_index):
   
     
 def obj_regression_p3 (elution_ends, log_efflux, num_points_reg):     
-    ''' Figuring out R^2 (coefficient of determination) and parameters of linear regression.
-    Linear regression determines the parameters of the third phase of exchange (p3)
+    ''' Figuring out R^2 (correlation) and parameters of linear regression.
+    Linear regression gives the data about the 3rd phase of exchange (p3)
     
     elutions_ends is the times elutions WERE CHANGED. 
     elution_starts would be times elutions ADDED.
     
-    Points for the linear regression are returned as well as the lists containing the regression
+    Line parameters for the linear regression are returned as well as the lists containing the regression
     parameters for ALL the regressions done in the objective regression
     
     In the lists, the first three entries are parameters from regressions that are 
     discarded (r2 was decreasing).
     
     Parameters of interest are at the 4th index of each list (List[3])
+    
+    INPUT:
+    X series (list) - elution end points (min)
+    Y series (list) - normalized efflux data (log cpm/g RFW)
+    
+    RETURNED:
+    Line parameters for the linear regression (x1, x2, y1, y2, r2, slope; ints)
     '''
     
     # Lists to store the values from the SERIES of regressions.
@@ -122,6 +129,8 @@ def obj_regression_p3 (elution_ends, log_efflux, num_points_reg):
     slope = []
     intercept = []
     start_index = int(len (log_efflux) - num_points_reg)
+    
+    print elution_ends[start_index]
     reg_dec = False # Variable to track if regression should continue
     
     current_index = start_index
@@ -147,7 +156,7 @@ def obj_regression_p3 (elution_ends, log_efflux, num_points_reg):
     # Write points for graphing equation of linear regression
     x1, x2, y1, y2 = grab_x_ys (elution_ends, intercept [3], slope[3])
     
-    return x1, x2, y1, y2, r2, slope, intercept, current_index
+    return x1, x2, y1, y2, r2[3], slope [3], intercept [3], current_index
 
 def subj_regression (elution_ends, log_efflux, reg_start, reg_end): 
     ''' Doing a custom regression on a data set wherein
@@ -178,4 +187,5 @@ def subj_regression (elution_ends, log_efflux, reg_start, reg_end):
     return x1, x2, y1, y2, r2, slope, intercept
     
 if __name__ == '__main__':
-    obj_regression_p12 (x_series, y_series, 9)
+    test = obj_regression_p3 (x_series, y_series, 2)
+    print test [5]
