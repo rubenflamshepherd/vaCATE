@@ -166,8 +166,7 @@ class MainFrame(wx.Frame):
 	    style=wx.ALIGN_CENTER)
         
         # Text boxs for collecting regression parameter input
-        self.obj_textbox = wx.TextCtrl(
-	    self.panel, 
+        self.obj_textbox = wx.TextCtrl(self.panel, 
 	    size=(50,-1),
 	    style=wx.TE_PROCESS_ENTER)
         
@@ -351,7 +350,13 @@ class MainFrame(wx.Frame):
         self.vbox_linedata.Add (self.gridbox_data, 0, border=3, flag=box_flag)
         
         # Build the widgets and the sizer contain(s) containing them all
-        self.slider_label = wx.StaticText(self.panel, -1, "Point Radius", style=wx.ALIGN_CENTER)
+	
+	# Build slider to adjust point radius
+        self.slider_label = wx.StaticText(
+	    self.panel,
+	    -1,
+	    "Point Radius",
+	    style=wx.ALIGN_CENTER)
         self.slider_label.SetFont (widget_title_font)
         self.slider_width = wx.Slider(self.panel, -1, 
             value=40, 
@@ -365,24 +370,44 @@ class MainFrame(wx.Frame):
         self.vbox_widgets.Add(self.slider_label, 0, flag=box_flag)
         self.vbox_widgets.Add(self.slider_width, 0, border=3, flag=box_flag)
         
-        self.xy_clicked_label = wx.StaticText(self.panel, -1, "Last point clicked", style=wx.ALIGN_CENTER)
+        # Build widget that displays information about last widget clicked
+	
+	# Creating the 'last clicked' items
+        self.xy_clicked_label = wx.StaticText(
+	    self.panel,
+	    -1,
+	    "Last point clicked",
+	    style=wx.ALIGN_CENTER)
         self.xy_clicked_label.SetFont (widget_title_font)
-        self.x_clicked_label = wx.StaticText(self.panel, -1, "Elution Time (x): ", style=wx.ALIGN_CENTER)
-        self.y_clicked_label = wx.StaticText(self.panel, -1, "Log cpm (y): ", style=wx.ALIGN_CENTER)
-        self.num_clicked_label = wx.StaticText(self.panel, -1, "Point Number: ", style=wx.ALIGN_CENTER)
+        self.x_clicked_label = wx.StaticText(
+	    self.panel,
+	    -1,
+	    "Elution Time (x): ",
+	    style=wx.ALIGN_CENTER)
+        self.y_clicked_label = wx.StaticText(
+	    self.panel,
+	    -1,
+	    "Log cpm (y): ",
+	    style=wx.ALIGN_CENTER)
+        self.num_clicked_label = wx.StaticText(
+	    self.panel,
+	    -1,
+	    "Point Number: ",
+	    style=wx.ALIGN_CENTER)
         self.x_clicked_data = wx.TextCtrl(
-                            self.panel, 
-                            size=(50,-1),
-                            style=wx.TE_READONLY)
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_READONLY)
         self.y_clicked_data = wx.TextCtrl(
-                            self.panel, 
-                            size=(50,-1),
-                            style=wx.TE_READONLY)
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_READONLY)
         self.num_clicked_data = wx.TextCtrl(
-                                    self.panel, 
-                                    size=(50,-1),
-                                    style=wx.TE_READONLY)        
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_READONLY)        
         
+        # Assembling the 'last clicked' items into sizers
         self.hbox_x_clicked = wx.BoxSizer(wx.HORIZONTAL)
         self.hbox_x_clicked.AddSpacer(10)
         self.hbox_x_clicked.Add (self.x_clicked_label, 0, flag=flags)
@@ -401,7 +426,7 @@ class MainFrame(wx.Frame):
         self.vbox_widgets.Add(self.hbox_y_clicked, 0, flag=flags)
         self.vbox_widgets.Add(self.hbox_num_clicked, 0, flag=flags)
         
-        # Sizers for custom regression fields, under presented figure
+        # Assembling items for subjective regression field into sizers
         self.hbox_regres = wx.BoxSizer(wx.HORIZONTAL)        
         self.hbox_regres.Add (self.vbox_obj)
         self.hbox_regres.AddSpacer(5)
