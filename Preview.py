@@ -555,16 +555,25 @@ class MainFrame(wx.Frame):
                 self.data_p2_int.SetValue ('')
                 self.data_p2_r2.SetValue ('') 
                 
-            if self.subj_p3_1textbox.GetValue () != '' and self.subj_p3_2textbox.GetValue () != '':
-                sub_p3_start = int(self.subj_p3_1textbox.GetValue ()) - 1 # We get position in the series fromm the user; must convert to indexs 
+            if self.subj_p3_1textbox.GetValue () != ''\
+	       and self.subj_p3_2textbox.GetValue () != '':
+		# Get series position as user input;must convert to indexs 
+                sub_p3_start = int(self.subj_p3_1textbox.GetValue ()) - 1
                 sub_p3_end = int(self.subj_p3_2textbox.GetValue ()) - 1
-                x1_p3, x2_p3, y1_p3, y2_p3, r2_p3, slope_p3, intercept_p3 = Operations.subj_regression (x, y, sub_p3_start, sub_p3_end)
+                x1_p3, x2_p3, y1_p3, y2_p3, r2_p3, slope_p3, intercept_p3 =\
+		    Operations.subj_regression (x, y, sub_p3_start, sub_p3_end)
                 # Drawing the subj linear regression line
-                self.line_p3 = matplotlib.lines.Line2D ([x1_p3,x2_p3], [y1_p3,y2_p3], ls = '-', color = 'r', label = 'Phase III')
+                self.line_p3 = matplotlib.lines.Line2D (
+		    [x1_p3,x2_p3],
+		    [y1_p3,y2_p3],
+		    ls = '-',
+		    color = 'r',
+		    label = 'Phase III')
                 self.plot_phase3.add_line (self.line_p3)
             
                 # setting the series involved in linear regression
-                x_p3 = x [sub_p3_start: sub_p3_end + 1] # Last index is not inclusive!
+		# Last index is not inclusive!
+                x_p3 = x [sub_p3_start: sub_p3_end + 1] 
                 y_p3 = y [sub_p3_start: sub_p3_end + 1]
                 
                 # Graphing p3 linear regression        
@@ -592,22 +601,26 @@ class MainFrame(wx.Frame):
                 self.obj_textbox.SetValue ('2')
                 
             # Getting parameters from regression of p3
-            #r2_p1, slope_p1, intercept_p1 = reg_p1_raw [6], reg_p1_raw [7], reg_p1_raw [8]
-            x1_p3, x2_p3, y1_p3, y2_p3, r2, slope, intercept, reg_end_index = Operations.obj_regression_p3 (x, y, num_points_obj)
+            x1_p3, x2_p3, y1_p3, y2_p3, r2, slope, intercept, reg_end_index =\
+	        Operations.obj_regression_p3 (x, y, num_points_obj)
             # p3 is plotted later so that the legend entries are in order
                         
             # Getting parameters from regression of p1-2
             last_used_index = reg_end_index + 3
-            reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (x, y, last_used_index)
+            reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (
+	        x,
+	        y,
+	        last_used_index)
             
             # Unpacking parameters of p1 regression
             x_p1 = reg_p1_raw [0]
             y_p1 = reg_p1_raw [1]
             x1_p1, x2_p1 = reg_p1_raw [2], reg_p1_raw [3]
             y1_p1, y2_p1 = reg_p1_raw [4], reg_p1_raw [5]
-            r2_p1, slope_p1, intercept_p1 = reg_p1_raw [6], reg_p1_raw [7], reg_p1_raw [8]
+            r2_p1, slope_p1, intercept_p1 =\
+	        reg_p1_raw [6], reg_p1_raw [7], reg_p1_raw [8]
             
-            # redefine second point in the p1 regression line to extend to x-axis
+            # Redefine 2nd point in the p1 regression line to extend to x-axis
             y2_p1 = 0
             x2_p1 = -intercept_p1/slope_p1
             
@@ -620,7 +633,12 @@ class MainFrame(wx.Frame):
                         edgecolors = 'k',
                         facecolors = 'k'
                     )
-            self.line_p1 = matplotlib.lines.Line2D ([x1_p1,x2_p1], [y1_p1,y2_p1], color = 'r', ls = '--', label = 'Phase I')
+            self.line_p1 = matplotlib.lines.Line2D (
+	        [x1_p1,x2_p1],
+	        [y1_p1,y2_p1],
+	        color = 'r',
+	        ls = '--',
+	        label = 'Phase I')
             self.plot_phase3.add_line (self.line_p1)            
             
             # Unpacking parameters of p2 regression
@@ -628,9 +646,10 @@ class MainFrame(wx.Frame):
             y_p2 = reg_p2_raw [1]
             x1_p2, x2_p2 = reg_p2_raw [2], reg_p2_raw [3]
             y1_p2, y2_p2 = reg_p2_raw [4], reg_p2_raw [5]
-            r2_p2, slope_p2, intercept_p2 = reg_p2_raw [6], reg_p2_raw [7], reg_p2_raw [8]
+            r2_p2, slope_p2, intercept_p2 =\
+	        reg_p2_raw [6], reg_p2_raw [7], reg_p2_raw [8]
             
-            # redefine second point in the p2 regression line to extend to x-axis
+            # Redefine 2nd point in the p2 regression line to extend to x-axis
             x2_p2 = x [-1]
             y2_p2 = slope_p2 * x2_p2 + intercept_p2
             
@@ -643,14 +662,20 @@ class MainFrame(wx.Frame):
                         edgecolors = 'k',
                         facecolors = 'k'
                     )
-            self.line_p2 = matplotlib.lines.Line2D ([x1_p2,x2_p2], [y1_p2,y2_p2], color = 'r', ls = ':', label = 'Phase II')
+            self.line_p2 = matplotlib.lines.Line2D (
+	        [x1_p2,x2_p2],
+	        [y1_p2,y2_p2],
+	        color = 'r',
+	        ls = ':',
+	        label = 'Phase II')
             self.plot_phase3.add_line (self.line_p2)              
                         
             # Unpacking parameters of p3 regression            
             intercept_p3 = intercept[3]
             slope_p3 = slope [3]
             r2_p3 = r2[3]
-            x_p3 = x [reg_end_index+3:] # setting the series' involved in linear regression
+	    # Setting the series' involved in linear regression
+            x_p3 = x [reg_end_index+3:] 
             y_p3 = y [reg_end_index+3:]            
             
             # Graphing the p3 series and regression line
@@ -662,10 +687,16 @@ class MainFrame(wx.Frame):
                         edgecolors = 'k',
                         facecolors = 'k'
                     )            
-            self.line_p3 = matplotlib.lines.Line2D ([x1_p3,x2_p3], [y1_p3,y2_p3], color = 'r', ls = '-', label = 'Phase III')
+            self.line_p3 = matplotlib.lines.Line2D (
+	        [x1_p3,x2_p3],
+	        [y1_p3,y2_p3],
+	        color = 'r',
+	        ls = '-',
+	        label = 'Phase III')
             self.plot_phase3.add_line (self.line_p3)
             
-            # Distiguishing the intial points used to start the regression and plotting them (solid red)
+            # Distiguishing the intial points used to start the regression
+	    # and plotting them (solid red)
             x_init = x[len(x) - num_points_obj:] 
             y_init = y[len(x) - num_points_obj:]
             self.plot_phase3.scatter(
