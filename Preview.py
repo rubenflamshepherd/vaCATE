@@ -364,7 +364,10 @@ class MainFrame(wx.Frame):
             maxValue=200,
             style=wx.SL_AUTOTICKS | wx.SL_LABELS)
         self.slider_width.SetTickFreq(10, 1)
-        self.Bind(wx.EVT_COMMAND_SCROLL_THUMBTRACK, self.on_slider_width, self.slider_width)        
+        self.Bind(
+	    wx.EVT_COMMAND_SCROLL_THUMBTRACK,
+	    self.on_slider_width,
+	    self.slider_width)        
         self.vbox_widgets = wx.BoxSizer(wx.VERTICAL)
         self.vbox_widgets.Add(self.cb_grid, 0, border=3, flag=box_flag)
         self.vbox_widgets.Add(self.slider_label, 0, flag=box_flag)
@@ -476,16 +479,25 @@ class MainFrame(wx.Frame):
         # Getting linear regression data
         num_points_obj = self.obj_textbox.GetValue ()
         if num_points_obj == '': # SUBJECTIVE REGRESSION
-            if self.subj_p1_1textbox.GetValue () != '' and self.subj_p1_2textbox.GetValue () != '':
-                sub_p1_start = int(self.subj_p1_1textbox.GetValue ()) - 1 # We get position in the series fromm the user; must convert to indexs 
+            if self.subj_p1_1textbox.GetValue () != ''\
+	       and self.subj_p1_2textbox.GetValue () != '':
+                # Get series position as user input;must convert to indexs 
+                sub_p1_start = int(self.subj_p1_1textbox.GetValue ()) - 1 
                 sub_p1_end = int(self.subj_p1_2textbox.GetValue ()) - 1
-                x1_p1, x2_p1, y1_p1, y2_p1, r2_p1, slope_p1, intercept_p1 = Operations.subj_regression (x, y, sub_p1_start, sub_p1_end)
+                x1_p1, x2_p1, y1_p1, y2_p1, r2_p1, slope_p1, intercept_p1 = \
+		    Operations.subj_regression (x, y, sub_p1_start, sub_p1_end)
                 # Drawing the subj linear regression line
-                self.line_p1 = matplotlib.lines.Line2D ([x1_p1,x2_p1], [y1_p1,y2_p1], ls = '--', color = 'r', label = 'Phase I')
+                self.line_p1 = matplotlib.lines.Line2D (
+		    [x1_p1,x2_p1],
+		    [y1_p1,y2_p1],
+		    ls = '--',
+		    color = 'r',
+		    label = 'Phase I')
                 self.plot_phase3.add_line (self.line_p1)
             
-                # setting the series involved in linear regression
-                x_p1 = x [sub_p1_start: sub_p1_end + 1] # Last index is not inclusive!
+                # Setting the series involved in linear regression
+		# Last index is not inclusive!
+                x_p1 = x [sub_p1_start: sub_p1_end + 1] 
                 y_p1 = y [sub_p1_start: sub_p1_end + 1]
                 
                 # Graphing p1 linear regression        
@@ -505,16 +517,25 @@ class MainFrame(wx.Frame):
                 self.data_p1_int.SetValue ('')
                 self.data_p1_r2.SetValue ('')                
                 
-            if self.subj_p2_1textbox.GetValue () != '' and self.subj_p2_2textbox.GetValue () != '':
-                sub_p2_start = int(self.subj_p2_1textbox.GetValue ()) - 1 # We get position in the series fromm the user; must convert to indexs 
+            if self.subj_p2_1textbox.GetValue () != ''\
+	       and self.subj_p2_2textbox.GetValue () != '':
+		# Get series position as user input;must convert to indexs 
+                sub_p2_start = int(self.subj_p2_1textbox.GetValue ()) - 1
                 sub_p2_end = int(self.subj_p2_2textbox.GetValue ()) - 1
-                x1_p2, x2_p2, y1_p2, y2_p2, r2_p2, slope_p2, intercept_p2 = Operations.subj_regression (x, y, sub_p2_start, sub_p2_end)
+                x1_p2, x2_p2, y1_p2, y2_p2, r2_p2, slope_p2, intercept_p2 =\
+		    Operations.subj_regression (x, y, sub_p2_start, sub_p2_end)
                 # Drawing the subj linear regression line
-                self.line_p2 = matplotlib.lines.Line2D ([x1_p2,x2_p2], [y1_p2,y2_p2], ls = ':', color = 'r', label = 'Phase II')
+                self.line_p2 = matplotlib.lines.Line2D (
+		    [x1_p2,x2_p2],
+		    [y1_p2,y2_p2],
+		    ls = ':',
+		    color = 'r',
+		    label = 'Phase II')
                 self.plot_phase3.add_line (self.line_p2)
             
-                # setting the series involved in linear regression
-                x_p2 = x [sub_p2_start: sub_p2_end + 1] # Last index is not inclusive!
+                # Setting the series involved in linear regression
+		# Last index is not inclusive!
+                x_p2 = x [sub_p2_start: sub_p2_end + 1] 
                 y_p2 = y [sub_p2_start: sub_p2_end + 1]
                 
                 # Graphing p2 linear regression        
