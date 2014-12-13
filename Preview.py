@@ -477,249 +477,132 @@ class MainFrame(wx.Frame):
         
         
         # Getting linear regression data
-        num_points_obj = self.obj_textbox.GetValue ()
-        if num_points_obj == '': # SUBJECTIVE REGRESSION
-            if self.subj_p1_1textbox.GetValue () != ''\
-	       and self.subj_p1_2textbox.GetValue () != '':
-                # Get series position as user input;must convert to indexs 
-                sub_p1_start = int(self.subj_p1_1textbox.GetValue ()) - 1 
-                sub_p1_end = int(self.subj_p1_2textbox.GetValue ()) - 1
-                x1_p1, x2_p1, y1_p1, y2_p1, r2_p1, slope_p1, intercept_p1 = \
-		    Operations.subj_regression (x, y, sub_p1_start, sub_p1_end)
-                # Drawing the subj linear regression line
-                self.line_p1 = matplotlib.lines.Line2D (
-		    [x1_p1,x2_p1],
-		    [y1_p1,y2_p1],
-		    ls = '--',
-		    color = 'r',
-		    label = 'Phase I')
-                self.plot_phase3.add_line (self.line_p1)
-            
-                # Setting the series involved in linear regression
-		# Last index is not inclusive!
-                x_p1 = x [sub_p1_start: sub_p1_end + 1] 
-                y_p1 = y [sub_p1_start: sub_p1_end + 1]
-                
-                # Graphing p1 linear regression        
-                self.plot_phase3.scatter(
-                            x_p1,
-                            y_p1,
-                            s = self.slider_width.GetValue(),
-                            alpha = 0.25,
-                            edgecolors = 'k',
-                            facecolors = 'k'
-                        )
-                self.data_p1_slope.SetValue ('%0.3f'%(slope_p1))
-                self.data_p1_int.SetValue ('%0.3f'%(intercept_p1))
-                self.data_p1_r2.SetValue ('%0.3f'%(r2_p1))
-            else:
-                self.data_p1_slope.SetValue ('')
-                self.data_p1_int.SetValue ('')
-                self.data_p1_r2.SetValue ('')                
-                
-            if self.subj_p2_1textbox.GetValue () != ''\
-	       and self.subj_p2_2textbox.GetValue () != '':
-		# Get series position as user input;must convert to indexs 
-                sub_p2_start = int(self.subj_p2_1textbox.GetValue ()) - 1
-                sub_p2_end = int(self.subj_p2_2textbox.GetValue ()) - 1
-                x1_p2, x2_p2, y1_p2, y2_p2, r2_p2, slope_p2, intercept_p2 =\
-		    Operations.subj_regression (x, y, sub_p2_start, sub_p2_end)
-                # Drawing the subj linear regression line
-                self.line_p2 = matplotlib.lines.Line2D (
-		    [x1_p2,x2_p2],
-		    [y1_p2,y2_p2],
-		    ls = ':',
-		    color = 'r',
-		    label = 'Phase II')
-                self.plot_phase3.add_line (self.line_p2)
-            
-                # Setting the series involved in linear regression
-		# Last index is not inclusive!
-                x_p2 = x [sub_p2_start: sub_p2_end + 1] 
-                y_p2 = y [sub_p2_start: sub_p2_end + 1]
-                
-                # Graphing p2 linear regression        
-                self.plot_phase3.scatter(
-                            x_p2,
-                            y_p2,
-                            s = self.slider_width.GetValue(),
-                            alpha = 0.5,
-                            edgecolors = 'k',
-                            facecolors = 'k'
-                        )
-                self.data_p2_slope.SetValue ('%0.3f'%(slope_p2))
-                self.data_p2_int.SetValue ('%0.3f'%(intercept_p2))
-                self.data_p2_r2.SetValue ('%0.3f'%(r2_p2))
-            else:
-                self.data_p2_slope.SetValue ('')
-                self.data_p2_int.SetValue ('')
-                self.data_p2_r2.SetValue ('') 
-                
-            if self.subj_p3_1textbox.GetValue () != ''\
-	       and self.subj_p3_2textbox.GetValue () != '':
-		# Get series position as user input;must convert to indexs 
-                sub_p3_start = int(self.subj_p3_1textbox.GetValue ()) - 1
-                sub_p3_end = int(self.subj_p3_2textbox.GetValue ()) - 1
-                x1_p3, x2_p3, y1_p3, y2_p3, r2_p3, slope_p3, intercept_p3 =\
-		    Operations.subj_regression (x, y, sub_p3_start, sub_p3_end)
-                # Drawing the subj linear regression line
-                self.line_p3 = matplotlib.lines.Line2D (
-		    [x1_p3,x2_p3],
-		    [y1_p3,y2_p3],
-		    ls = '-',
-		    color = 'r',
-		    label = 'Phase III')
-                self.plot_phase3.add_line (self.line_p3)
-            
-                # setting the series involved in linear regression
-		# Last index is not inclusive!
-                x_p3 = x [sub_p3_start: sub_p3_end + 1] 
-                y_p3 = y [sub_p3_start: sub_p3_end + 1]
-                
-                # Graphing p3 linear regression        
-                self.plot_phase3.scatter(
-                            x_p3,
-                            y_p3,
-                            s = self.slider_width.GetValue(),
-                            alpha = 0.75,
-                            edgecolors = 'k',
-                            facecolors = 'k'
-                        )
-                self.data_p3_slope.SetValue ('%0.3f'%(slope_p3))
-                self.data_p3_int.SetValue ('%0.3f'%(intercept_p3))
-                self.data_p3_r2.SetValue ('%0.3f'%(r2_p3))
-            else:
-                self.data_p3_slope.SetValue ('')
-                self.data_p3_int.SetValue ('')
-                self.data_p3_r2.SetValue ('') 
-            
-                                   
-        else: # OBJECTIVE REGRESSION
-            num_points_obj = int (num_points_obj)
-            if num_points_obj < 2:
-                num_points_obj = 2
-                self.obj_textbox.SetValue ('2')
-                
-            # Getting parameters from regression of p3
-            x1_p3, x2_p3, y1_p3, y2_p3, r2, slope, intercept, reg_end_index =\
-	        Operations.obj_regression_p3 (x, y, num_points_obj)
-            # p3 is plotted later so that the legend entries are in order
-                        
-            # Getting parameters from regression of p1-2
-            last_used_index = reg_end_index + 3
-            reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (
-	        x,
-	        y,
-	        last_used_index)
-            
-            # Unpacking parameters of p1 regression
-            x_p1 = reg_p1_raw [0]
-            y_p1 = reg_p1_raw [1]
-            x1_p1, x2_p1 = reg_p1_raw [2], reg_p1_raw [3]
-            y1_p1, y2_p1 = reg_p1_raw [4], reg_p1_raw [5]
-            r2_p1, slope_p1, intercept_p1 =\
-	        reg_p1_raw [6], reg_p1_raw [7], reg_p1_raw [8]
-            
-            # Redefine 2nd point in the p1 regression line to extend to x-axis
-            y2_p1 = 0
-            x2_p1 = -intercept_p1/slope_p1
-            
-            # Graphing the p1 series and regression line
-            self.plot_phase3.scatter(
-                        x_p1,
-                        y_p1,
-                        s = self.slider_width.GetValue(),
-                        alpha = 0.25,
-                        edgecolors = 'k',
-                        facecolors = 'k'
-                    )
-            self.line_p1 = matplotlib.lines.Line2D (
-	        [x1_p1,x2_p1],
-	        [y1_p1,y2_p1],
-	        color = 'r',
-	        ls = '--',
-	        label = 'Phase I')
-            self.plot_phase3.add_line (self.line_p1)            
-            
-            # Unpacking parameters of p2 regression
-            x_p2 = reg_p2_raw [0]
-            y_p2 = reg_p2_raw [1]
-            x1_p2, x2_p2 = reg_p2_raw [2], reg_p2_raw [3]
-            y1_p2, y2_p2 = reg_p2_raw [4], reg_p2_raw [5]
-            r2_p2, slope_p2, intercept_p2 =\
-	        reg_p2_raw [6], reg_p2_raw [7], reg_p2_raw [8]
-            
-            # Redefine 2nd point in the p2 regression line to extend to x-axis
-            x2_p2 = x [-1]
-            y2_p2 = slope_p2 * x2_p2 + intercept_p2
-            
-            # Graphing the p2 series and regression line
-            self.plot_phase3.scatter(
-                        x_p2,
-                        y_p2,
-                        s = self.slider_width.GetValue(),
-                        alpha = 0.50,
-                        edgecolors = 'k',
-                        facecolors = 'k'
-                    )
-            self.line_p2 = matplotlib.lines.Line2D (
-	        [x1_p2,x2_p2],
-	        [y1_p2,y2_p2],
-	        color = 'r',
-	        ls = ':',
-	        label = 'Phase II')
-            self.plot_phase3.add_line (self.line_p2)              
-                        
-            # Unpacking parameters of p3 regression            
-            intercept_p3 = intercept[3]
-            slope_p3 = slope [3]
-            r2_p3 = r2[3]
-	    # Setting the series' involved in linear regression
-            x_p3 = x [reg_end_index+3:] 
-            y_p3 = y [reg_end_index+3:]            
-            
-            # Graphing the p3 series and regression line
-            self.plot_phase3.scatter(
-                        x_p3,
-                        y_p3,
-                        s = self.slider_width.GetValue(),
-                        alpha = 0.75,
-                        edgecolors = 'k',
-                        facecolors = 'k'
-                    )            
-            self.line_p3 = matplotlib.lines.Line2D (
-	        [x1_p3,x2_p3],
-	        [y1_p3,y2_p3],
-	        color = 'r',
-	        ls = '-',
-	        label = 'Phase III')
-            self.plot_phase3.add_line (self.line_p3)
-            
-            # Distiguishing the intial points used to start the regression
-	    # and plotting them (solid red)
-            x_init = x[len(x) - num_points_obj:] 
-            y_init = y[len(x) - num_points_obj:]
-            self.plot_phase3.scatter(
-                        x_init,
-                        y_init,
-                        s = self.slider_width.GetValue(),
-                        alpha = 0.5,
-                        edgecolors = 'r',
-                        facecolors = 'r'
-                    )            
-        
-            # Outputting the data from the linear regressions
-            self.data_p1_slope.SetValue ('%0.3f'%(slope_p1))
-            self.data_p1_int.SetValue ('%0.3f'%(intercept_p1))
-            self.data_p1_r2.SetValue ('%0.3f'%(r2_p1))
-            
-            self.data_p2_slope.SetValue ('%0.3f'%(slope_p2))
-            self.data_p2_int.SetValue ('%0.3f'%(intercept_p2))
-            self.data_p2_r2.SetValue ('%0.3f'%(r2_p2))        
-            
-            self.data_p3_slope.SetValue ('%0.3f'%(slope_p3))
-            self.data_p3_int.SetValue ('%0.3f'%(intercept_p3))
-            self.data_p3_r2.SetValue ('%0.3f'%(r2_p3))         
+        # OBJECTIVE REGRESSION
+	num_points_obj = int (num_points_obj)
+	if num_points_obj < 2:
+	    num_points_obj = 2
+	    self.obj_textbox.SetValue ('2')
+	    
+	# Getting parameters from regression of p3
+	x1_p3, x2_p3, y1_p3, y2_p3, r2, slope, intercept, reg_end_index =\
+            Operations.obj_regression_p3 (x, y, num_points_obj)
+	# p3 is plotted later so that the legend entries are in order
+		    
+	# Getting parameters from regression of p1-2
+	last_used_index = reg_end_index + 3
+	reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (
+            x,
+            y,
+            last_used_index)
+	
+	# Unpacking parameters of p1 regression
+	x_p1 = reg_p1_raw [0]
+	y_p1 = reg_p1_raw [1]
+	x1_p1, x2_p1 = reg_p1_raw [2], reg_p1_raw [3]
+	y1_p1, y2_p1 = reg_p1_raw [4], reg_p1_raw [5]
+	r2_p1, slope_p1, intercept_p1 =\
+            reg_p1_raw [6], reg_p1_raw [7], reg_p1_raw [8]
+	
+	# Redefine 2nd point in the p1 regression line to extend to x-axis
+	y2_p1 = 0
+	x2_p1 = -intercept_p1/slope_p1
+	
+	# Graphing the p1 series and regression line
+	self.plot_phase3.scatter(
+                    x_p1,
+                    y_p1,
+                    s = self.slider_width.GetValue(),
+                    alpha = 0.25,
+                    edgecolors = 'k',
+                    facecolors = 'k'
+                )
+	self.line_p1 = matplotlib.lines.Line2D (
+            [x1_p1,x2_p1],
+            [y1_p1,y2_p1],
+            color = 'r',
+            ls = '--',
+            label = 'Phase I')
+	self.plot_phase3.add_line (self.line_p1)            
+	
+	# Unpacking parameters of p2 regression
+	x_p2 = reg_p2_raw [0]
+	y_p2 = reg_p2_raw [1]
+	x1_p2, x2_p2 = reg_p2_raw [2], reg_p2_raw [3]
+	y1_p2, y2_p2 = reg_p2_raw [4], reg_p2_raw [5]
+	r2_p2, slope_p2, intercept_p2 =\
+            reg_p2_raw [6], reg_p2_raw [7], reg_p2_raw [8]
+	
+	# Redefine 2nd point in the p2 regression line to extend to x-axis
+	x2_p2 = x [-1]
+	y2_p2 = slope_p2 * x2_p2 + intercept_p2
+	
+	# Graphing the p2 series and regression line
+	self.plot_phase3.scatter(
+                    x_p2,
+                    y_p2,
+                    s = self.slider_width.GetValue(),
+                    alpha = 0.50,
+                    edgecolors = 'k',
+                    facecolors = 'k'
+                )
+	self.line_p2 = matplotlib.lines.Line2D (
+            [x1_p2,x2_p2],
+            [y1_p2,y2_p2],
+            color = 'r',
+            ls = ':',
+            label = 'Phase II')
+	self.plot_phase3.add_line (self.line_p2)              
+		    
+	# Unpacking parameters of p3 regression            
+	intercept_p3 = intercept[3]
+	slope_p3 = slope [3]
+	r2_p3 = r2[3]
+	# Setting the series' involved in linear regression
+	x_p3 = x [reg_end_index+3:] 
+	y_p3 = y [reg_end_index+3:]            
+	
+	# Graphing the p3 series and regression line
+	self.plot_phase3.scatter(
+                    x_p3,
+                    y_p3,
+                    s = self.slider_width.GetValue(),
+                    alpha = 0.75,
+                    edgecolors = 'k',
+                    facecolors = 'k'
+                )            
+	self.line_p3 = matplotlib.lines.Line2D (
+            [x1_p3,x2_p3],
+            [y1_p3,y2_p3],
+            color = 'r',
+            ls = '-',
+            label = 'Phase III')
+	self.plot_phase3.add_line (self.line_p3)
+	
+	# Distiguishing the intial points used to start the regression
+	# and plotting them (solid red)
+	x_init = x[len(x) - num_points_obj:] 
+	y_init = y[len(x) - num_points_obj:]
+	self.plot_phase3.scatter(
+                    x_init,
+                    y_init,
+                    s = self.slider_width.GetValue(),
+                    alpha = 0.5,
+                    edgecolors = 'r',
+                    facecolors = 'r'
+                )            
+    
+	# Outputting the data from the linear regressions
+	self.data_p1_slope.SetValue ('%0.3f'%(slope_p1))
+	self.data_p1_int.SetValue ('%0.3f'%(intercept_p1))
+	self.data_p1_r2.SetValue ('%0.3f'%(r2_p1))
+	
+	self.data_p2_slope.SetValue ('%0.3f'%(slope_p2))
+	self.data_p2_int.SetValue ('%0.3f'%(intercept_p2))
+	self.data_p2_r2.SetValue ('%0.3f'%(r2_p2))        
+	
+	self.data_p3_slope.SetValue ('%0.3f'%(slope_p3))
+	self.data_p3_int.SetValue ('%0.3f'%(intercept_p3))
+	self.data_p3_r2.SetValue ('%0.3f'%(r2_p3))         
         
         # Adding our legend
         self.plot_phase3.legend(loc='upper right')
