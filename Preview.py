@@ -38,17 +38,15 @@ from matplotlib import pyplot as plt
 x_series = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.5, 13.0, 14.5, 16.0, 17.5, 19.0, 20.5, 22.0, 23.5, 25.0, 27.0, 29.0, 31.0, 33.0, 35.0, 37.0, 39.0, 41.0, 43.0, 45.0]
 y_series = [5.134446324653075, 4.532511080497156, 3.9647696512150836, 3.6692523925695686, 3.509950796085591, 3.3869391729764766, 3.287809993163619, 3.230048067964903, 3.169204739621747, 3.1203409378545346, 2.95145986473132, 2.8916143915841324, 2.8589559610792583, 2.8463057128814175, 2.8413779879066166, 2.7532261939625293, 2.750050822474359, 2.6735829597693206, 2.7024903224651338, 2.661606690643107, 2.5998423959455335, 2.57889496358432, 2.5921979525818397, 2.557187996704314, 2.529320391444595, 2.558194007072854, 2.4833719392530966, 2.5557756556810562, 2.4045248209763437, 2.4642132678099204]
 
-x = np.array (x_series)
-y = np.array (y_series)
-
 class MainFrame(wx.Frame):
     """ The main frame of the application
     """
     title = 'Compartmental Analysis of Tracer Efflux: Data Analyzer'
     
-    def __init__(self):
+    def __init__(self, x_series, y_series):
         wx.Frame.__init__(self, None, -1, self.title)
-        
+        self.x = np.array (x_series)
+	self.y = np.array (y_series)
         self.create_menu()
         self.create_status_bar()
         self.create_main_panel()
@@ -460,8 +458,8 @@ class MainFrame(wx.Frame):
         
         # Graphing complete log efflux data set
         self.plot_phase3.scatter(
-            x,
-            y,
+            self.x,
+            self.y,
             s = self.slider_width.GetValue(),
             alpha = 0.5,
             edgecolors = 'k',
@@ -486,15 +484,15 @@ class MainFrame(wx.Frame):
 	    
 	# Getting parameters from regression of p3
 	x1_p3, x2_p3, y1_p3, y2_p3, r2, slope, intercept, reg_end_index =\
-            Operations.obj_regression_p3 (x, y, num_points_obj)
+            Operations.obj_regression_p3 (self.x, self.y, num_points_obj)
 	
 	# Unpacking parameters of p3 regression            
 	intercept_p3 = intercept[3]
 	slope_p3 = slope [3]
 	r2_p3 = r2[3]
 	# Setting the series' involved in linear regression
-	x_p3 = x [reg_end_index+3:] 
-	y_p3 = y [reg_end_index+3:]            
+	x_p3 = self.x [reg_end_index+3:] 
+	y_p3 = self.y [reg_end_index+3:]            
 	
 	# Graphing the p3 series and regression line
 	self.plot_phase3.scatter(
@@ -515,8 +513,8 @@ class MainFrame(wx.Frame):
 	
 	# Distiguishing the intial points used to start the regression
 	# and plotting them (solid red)
-	x_init = x[len(x) - num_points_obj:] 
-	y_init = y[len(x) - num_points_obj:]
+	x_init = self.x[len(self.x) - num_points_obj:] 
+	y_init = self.y[len(self.x) - num_points_obj:]
 	self.plot_phase3.scatter(
                     x_init,
                     y_init,
@@ -529,8 +527,8 @@ class MainFrame(wx.Frame):
 	# Getting parameters from regression of p1-2
 	last_used_index = reg_end_index + 3
 	reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (
-            x,
-            y,
+            self.x,
+            self.y,
             last_used_index)
 	
 	# Unpacking parameters of p1 regression
@@ -541,7 +539,7 @@ class MainFrame(wx.Frame):
 	r2_p1, slope_p1, intercept_p1 =\
             reg_p1_raw [6], reg_p1_raw [7], reg_p1_raw [8]
 	
-	# Redefine 2nd point in the p1 regression line to extend to x-axis
+	# Redefine 2nd point in the p1 regression line to extend to self.x-axis
 	y2_p1 = 0
 	x2_p1 = -intercept_p1/slope_p1
 	
@@ -571,7 +569,7 @@ class MainFrame(wx.Frame):
             reg_p2_raw [6], reg_p2_raw [7], reg_p2_raw [8]
 	
 	# Redefine 2nd point in the p2 regression line to extend to x-axis
-	x2_p2 = x [-1]
+	x2_p2 = self.x [-1]
 	y2_p2 = slope_p2 * x2_p2 + intercept_p2
 	
 	# Graphing the p2 series and regression line
@@ -641,10 +639,10 @@ class MainFrame(wx.Frame):
         # only a small amount here.
         # 
         ind = event.ind
-        x_clicked = np.take(x, ind)
+        x_clicked = np.take(self.x, ind)
         
-        self.x_clicked_data.SetValue ('%0.2f'%(np.take(x, ind)[0]))
-        self.y_clicked_data.SetValue ('%0.3f'%(np.take(y, ind)[0]))
+        self.x_clicked_data.SetValue ('%0.2f'%(np.take(self.x, ind)[0]))
+        self.y_clicked_data.SetValue ('%0.3f'%(np.take(self.y, ind)[0]))
         self.num_clicked_data.SetValue ('%0.0f'%(ind[0]+1))
         
     def on_save_plot(self, event):
@@ -695,7 +693,7 @@ class MainFrame(wx.Frame):
 
 if __name__ == '__main__':
     app = wx.PySimpleApp()
-    app.frame = MainFrame()
+    app.frame = MainFrame(x_series, y_series)
     app.frame.Show()
     app.frame.Center()
     app.MainLoop()
