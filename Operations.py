@@ -3,6 +3,9 @@ import numpy
 x_series = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.5, 13.0, 14.5, 16.0, 17.5, 19.0, 20.5, 22.0, 23.5, 25.0, 27.0, 29.0, 31.0, 33.0, 35.0, 37.0, 39.0, 41.0, 43.0, 45.0]
 y_series = [5.134446324653075, 4.532511080497156, 3.9647696512150836, 3.6692523925695686, 3.509950796085591, 3.3869391729764766, 3.287809993163619, 3.230048067964903, 3.169204739621747, 3.1203409378545346, 2.95145986473132, 2.8916143915841324, 2.8589559610792583, 2.8463057128814175, 2.8413779879066166, 2.7532261939625293, 2.750050822474359, 2.6735829597693206, 2.7024903224651338, 2.661606690643107, 2.5998423959455335, 2.57889496358432, 2.5921979525818397, 2.557187996704314, 2.529320391444595, 2.558194007072854, 2.4833719392530966, 2.5557756556810562, 2.4045248209763437, 2.4642132678099204]
 
+def antilog (x):
+    return 10 ** x
+
 def grab_x_ys (elution_ends, intercept, slope):
     ''' outputs two pairs of x,y coordinates for plotting a regression line
     all inputs are LISTS
@@ -14,6 +17,48 @@ def grab_x_ys (elution_ends, intercept, slope):
     y2 = slope * last_elution + intercept
     
     return x1, x2, y1, y2
+
+def p12_curve_stripped (elution_ends, log_efflux, last_used_index, slope, intercept):
+    '''
+    Curve-strip p1 and p2 (in the same list) according to p3 data
+    
+    INPUT:
+    elution_ends (x-series; list) - elution end points (min)
+    log_efflux (y-series; list) - normalized efflux data (log cpm/g RFW)
+    last_used_index is the first right-most point used in the p3 regression
+        - used as end index for p2 because [x:y] y IS NOT INCLUSIVE
+    
+    RETURNED:
+    p12_x (x-series; list) - elution_ends limited to range of p1 and p2
+    corrected_p12_y (y-series; list) - corrected (curve-stripped) efflux data
+    '''
+    # Broader x and y series containing both p1 and p2
+    p12_x = elution_ends[:last_used_index]
+    p12_y = log_efflux [:last_used_index]
+    
+    # Calculating p3 data from extrapolation of p3 linear regression into p1/2
+
+    # Container for p3 data in p1/2 range
+    p3_extrapolated_raw = []
+    
+    for x1 in range (0, len(p12_x)):
+        extrapolated_x = (slope * x1) + intercept
+        p3_extrapolated_raw.append (extrapolated_x)
+        
+    # Antilog extrapolated p3 data and p1/2 data, subtract them, and relog them
+    
+    # Container for curve-stripped p1/2 data
+    corrected_p12_y = []
+    
+    for value in range (0, len (p12_y)):
+        curve_stripped_y_raw = \
+            (antilog (p12_y [value]) - antilog (p3_extrapolated_raw [value]))
+        print curve_stripped_y_raw
+        corrected_p12_y.append (curve_stripped_y_raw)
+        
+    #return p12_x, corrected_p12_y    
+    return p12_x, p3_extrapolated_raw
+
 
 def linear_regression (x, y):
     # Linear regression of current set of values, returns m, b of y=mx+b

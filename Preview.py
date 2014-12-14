@@ -533,27 +533,46 @@ class MainFrame(wx.Frame):
 	r2_p2, slope_p2, intercept_p2 =\
             reg_p2_raw [6], reg_p2_raw [7], reg_p2_raw [8]
 	
-	# Redefine 2nd point in the p2 regression line to extend to x-axis
-	x2_p2 = self.x [-1]
-	y2_p2 = slope_p2 * x2_p2 + intercept_p2
-	
 	# Graphing the p2 series and regression line
+	
+	# Graphing ghost (uncorrected data) of p1 and p2
 	self.plot_phase2.scatter(
-                    x_p2,
-                    y_p2,
+                    self.x [:reg_end_index],
+                    self.y [:reg_end_index],
                     s = self.slider_width.GetValue(),
                     alpha = 0.50,
                     edgecolors = 'k',
-                    facecolors = 'k'
+                    facecolors = 'w'
                 )
+	
 	self.line_p2 = matplotlib.lines.Line2D (
             [x1_p2,x2_p2],
             [y1_p2,y2_p2],
             color = 'r',
             ls = ':',
             label = 'Phase II')
-	self.plot_phase2.add_line (self.line_p2)    	
+	self.plot_phase2.add_line (self.line_p2)
 	
+	# Getting p1/p2 curve-stripped data
+	p12_curve_stripped_x, p12_curve_stripped_y = \
+	    Operations.p12_curve_stripped (
+	        self.x,
+	        self.y,
+	        reg_end_index,
+	        slope_p3,
+	        intercept_p3)
+		
+	# Graphing curve-stripped (corrected) phase I and II data NOT COMPLETE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	self.plot_phase2.scatter(
+		            p12_curve_stripped_x,
+		            p12_curve_stripped_y,
+		            s = self.slider_width.GetValue(),
+		            alpha = 0.50,
+		            edgecolors = 'k',
+		            facecolors = 'r'
+	                    )
+		                
+	            
 	# Unpacking parameters of p1 regression
 	x_p1 = reg_p1_raw [0]
 	y_p1 = reg_p1_raw [1]
