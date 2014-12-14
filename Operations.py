@@ -36,7 +36,13 @@ def linear_regression (x, y):
 def obj_regression_p12 (elution_ends, log_efflux, last_used_index):     
     ''' Figuring out the best regression lines for phases 1 and 2
     
+    INPUT:
+    elution_ends (x-series; list) - elution end points (min)
+    log_efflux (y-series; list) - normalized efflux data (log cpm/g RFW)
     last_used_index is the first right-most point not used in the p3 regression
+    
+    RETURNED:
+    FILL IN 
     '''
     x = elution_ends[:last_used_index]
     y = log_efflux [:last_used_index]
@@ -116,8 +122,8 @@ def obj_regression_p3 (elution_ends, log_efflux, num_points_reg):
     Parameters of interest are at the 4th index of each list (List[3])
     
     INPUT:
-    X series (list) - elution end points (min)
-    Y series (list) - normalized efflux data (log cpm/g RFW)
+    elution_ends (x-series; list) - elution end points (min)
+    log_efflux (y-series; list) - normalized efflux data (log cpm/g RFW)
     
     RETURNED:
     Line parameters for the linear regression (x1, x2, y1, y2, r2, slope; ints)
@@ -147,16 +153,20 @@ def obj_regression_p3 (elution_ends, log_efflux, num_points_reg):
         # Checking to see if you are out of the third phase of exchange
         # (has R^2 decreased 3 consecutive times)
         if len (r2) <= 3:
-            current_index -= 1 # Extending the series of values included in the analysis/regression
+            # Extending the x+y series of values included in the regression
+            current_index -= 1
         elif r2[0] < r2[1] and r2[1] < r2[2] and r2[2] < r2[3]:
             reg_dec = True
         else:
-            current_index -= 1 # Extending the series of values included in the analysis/regression
+            # Extending the x+y series of values included in the regression
+            current_index -= 1
     
     # Write points for graphing equation of linear regression
     x1, x2, y1, y2 = grab_x_ys (elution_ends, intercept [3], slope[3])
     
-    return x1, x2, y1, y2, r2[3], slope [3], intercept [3], current_index
+    # current_index, r2, slope, and intercept are corrected considering
+    # that the last 3 regressions done with decreasing R^2s
+    return x1, x2, y1, y2, r2[3], slope [3], intercept [3], current_index + 3
 
 def subj_regression (elution_ends, log_efflux, reg_start, reg_end): 
     ''' Doing a custom regression on a data set wherein

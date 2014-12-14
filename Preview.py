@@ -485,8 +485,8 @@ class MainFrame(wx.Frame):
             Operations.obj_regression_p3 (self.x, self.y, num_points_obj)
 		
 	# Setting the series' involved in linear regression
-	x_p3 = self.x [reg_end_index+3:] 
-	y_p3 = self.y [reg_end_index+3:]            
+	x_p3 = self.x [reg_end_index:] 
+	y_p3 = self.y [reg_end_index:]            
 	
 	# Graphing the p3 series and regression line
 	self.plot_phase3.scatter(
@@ -519,7 +519,7 @@ class MainFrame(wx.Frame):
                 )	
 			    
 	# Getting parameters from regression of p1-2
-	last_used_index = reg_end_index + 3
+	last_used_index = reg_end_index
 	reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (
             self.x,
             self.y,
