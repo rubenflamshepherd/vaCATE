@@ -469,6 +469,7 @@ class MainFrame(wx.Frame):
         
         # Setting axes labels/limits
         self.plot_phase3.set_xlabel ('Elution time (min)')
+	self.plot_phase2.set_xlabel ('Elution time (min)')
         self.plot_phase3.set_ylabel (u"Log cpm released/g RFW/min")
         self.plot_phase3.set_xlim (left = 0)
         self.plot_phase3.set_ylim (bottom = 0)
@@ -524,35 +525,6 @@ class MainFrame(wx.Frame):
             self.y,
             reg_end_index)
 	
-	# Unpacking parameters of p1 regression
-	x_p1 = reg_p1_raw [0]
-	y_p1 = reg_p1_raw [1]
-	x1_p1, x2_p1 = reg_p1_raw [2], reg_p1_raw [3]
-	y1_p1, y2_p1 = reg_p1_raw [4], reg_p1_raw [5]
-	r2_p1, slope_p1, intercept_p1 =\
-            reg_p1_raw [6], reg_p1_raw [7], reg_p1_raw [8]
-	
-	# Redefine 2nd point in the p1 regression line to extend to self.x-axis
-	y2_p1 = 0
-	x2_p1 = -intercept_p1/slope_p1
-	
-	# Graphing the p1 series and regression line
-	self.plot_phase3.scatter(
-                    x_p1,
-                    y_p1,
-                    s = self.slider_width.GetValue(),
-                    alpha = 0.25,
-                    edgecolors = 'k',
-                    facecolors = 'k'
-                )
-	self.line_p1 = matplotlib.lines.Line2D (
-            [x1_p1,x2_p1],
-            [y1_p1,y2_p1],
-            color = 'r',
-            ls = '--',
-            label = 'Phase I')
-	self.plot_phase3.add_line (self.line_p1)            
-	
 	# Unpacking parameters of p2 regression
 	x_p2 = reg_p2_raw [0]
 	y_p2 = reg_p2_raw [1]
@@ -566,7 +538,7 @@ class MainFrame(wx.Frame):
 	y2_p2 = slope_p2 * x2_p2 + intercept_p2
 	
 	# Graphing the p2 series and regression line
-	self.plot_phase3.scatter(
+	self.plot_phase2.scatter(
                     x_p2,
                     y_p2,
                     s = self.slider_width.GetValue(),
@@ -580,11 +552,39 @@ class MainFrame(wx.Frame):
             color = 'r',
             ls = ':',
             label = 'Phase II')
-	self.plot_phase3.add_line (self.line_p2)              
-		    
-	            
+	self.plot_phase2.add_line (self.line_p2)    	
+	
+	# Unpacking parameters of p1 regression
+	x_p1 = reg_p1_raw [0]
+	y_p1 = reg_p1_raw [1]
+	x1_p1, x2_p1 = reg_p1_raw [2], reg_p1_raw [3]
+	y1_p1, y2_p1 = reg_p1_raw [4], reg_p1_raw [5]
+	r2_p1, slope_p1, intercept_p1 =\
+            reg_p1_raw [6], reg_p1_raw [7], reg_p1_raw [8]
+	
+	# Redefine 2nd point in the p1 regression line to extend to self.x-axis
+	y2_p1 = 0
+	x2_p1 = -intercept_p1/slope_p1
+	
+	# Graphing the p1 series and regression line
+	self.plot_phase1.scatter(
+                    x_p1,
+                    y_p1,
+                    s = self.slider_width.GetValue(),
+                    alpha = 0.25,
+                    edgecolors = 'k',
+                    facecolors = 'k'
+                )
+	self.line_p1 = matplotlib.lines.Line2D (
+            [x1_p1,x2_p1],
+            [y1_p1,y2_p1],
+            color = 'r',
+            ls = '--',
+            label = 'Phase I')
+	self.plot_phase1.add_line (self.line_p1)            
+          
     
-	# Outputting the data from the linear regressions
+	# Outputting the data from the linear regressions to widgets
 	self.data_p1_slope.SetValue ('%0.3f'%(slope_p1))
 	self.data_p1_int.SetValue ('%0.3f'%(intercept_p1))
 	self.data_p1_r2.SetValue ('%0.3f'%(r2_p1))
@@ -597,8 +597,10 @@ class MainFrame(wx.Frame):
 	self.data_p3_int.SetValue ('%0.3f'%(intercept_p3))
 	self.data_p3_r2.SetValue ('%0.3f'%(r2_p3))         
         
-        # Adding our legend
-        self.plot_phase3.legend(loc='upper right')
+        # Adding our legends
+        self.plot_phase1.legend(loc='upper right')
+	self.plot_phase2.legend(loc='upper right')
+	self.plot_phase3.legend(loc='upper right')
         self.fig.subplots_adjust(bottom = 0.13, left = 0.10)
         self.canvas.draw()
         

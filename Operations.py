@@ -43,74 +43,67 @@ def obj_regression_p12 (elution_ends, log_efflux, last_used_index):
         - used as end index for p2 because [x:y] y IS NOT INCLUSIVE
     
     RETURNED:
-    FILL IN 
+    best (according to R^2) p1 and p2 linear regressions as
+    p1, p2 (tuple of two lists) where:
+    p_ = [x series, y series, x1, x2, y1, y2, r2, slope, intercept]
     '''
     # Broader x and y series containing both p1 and p2
     x = elution_ends[:last_used_index]
     y = log_efflux [:last_used_index]
         
-    # Initialize the indexs for the first regressions
-    p1_end_index = 2
-    p2_start_index = 2
+    # Initialize the index(s) for the first regressions
+    demarcation_index = 2
     current_high_r2 = 0 # Tracking highest summed R^2 from p1 and p2
         
-    while p2_start_index < last_used_index - 1: 
+    while demarcation_index < last_used_index - 1: 
         # Correcting loop end (last_used_index - 1) 
-        # as otherwise x2_current = x [p2_start_index:] is only 1 entry.
-        # Last index in lists is not inclusive!        
+        # as otherwise x2_current = x [demarcation_index:] is only 1 entry.
+        # Last index in lists is not inclusive!
+        # So we can use one var to track end and start indexs of p1/2 regression
         
         # Setting current series for p1 regression
-        x1_current = x [:p1_end_index]
-        y1_current = y [:p1_end_index]
+        x1_current = x [:demarcation_index]
+        y1_current = y [:demarcation_index]
         # Setting current series for p2 regression
-        x2_current = x [p2_start_index:]
-        y2_current = y [p2_start_index:]     
+        x2_current = x [demarcation_index:]
+        y2_current = y [demarcation_index:]     
         
         # Doing the current set of regressions
         current_p1_regression = linear_regression (x1_current, y1_current)
         current_p2_regression = linear_regression (x2_current, y2_current)
     
-        r2_1 = current_p1_regression[0]        
-        slope_1= current_p1_regression[1]
-        intercept_1= current_p1_regression[2]
+        current_r2_p1 = current_p1_regression[0]        
         
-        r2_2 = current_p2_regression[0]        
-        slope_2= current_p2_regression[1]
-        intercept_2= current_p2_regression[2]
+        current_r2_p2 = current_p2_regression[0]        
         
-        if r2_1 + r2_2 > current_high_r2:
-            current_high_r2 = r2_1 + r2_2
+        # Checking to see if our last R^2 is higher than highest R^2
+        if current_r2_p1 + current_r2_p2 > current_high_r2:
+            # If it is the new highest R^2 we store p1/2 regression parameters
+            current_high_r2 = current_r2_p1 + current_r2_p2
     
             best_x1 = x1_current
             best_y1 = y1_current
-            best_r2_1 = r2_1
-            best_slope_1 = slope_1
-            best_intercept_1 = intercept_1
+            best_r2_1 = current_r2_p1
+            best_slope_1 = current_p1_regression[1]
+            best_intercept_1 = current_p1_regression[2]
             
             best_x2 = x2_current
             best_y2 = y2_current
-            best_r2_2 = r2_2
-            best_slope_2 = slope_2
-            best_intercept_2 = intercept_2
-        # Moving the index counters forward
-        p1_end_index += 1
-        p2_start_index += 1
-    # END OF LOOP
-    
+            best_r2_2 = current_r2_p2
+            best_slope_2 = current_p2_regression[1]
+            best_intercept_2 = current_p2_regression[2]
+        # Moving the index counter forward
+        demarcation_index += 1
+        
     # Grabbing parameters from phase 1 regression line
     x1_1, x2_1, y1_1, y2_1 = grab_x_ys (best_x1, best_intercept_1, best_slope_1)
     # Grabbing parameters from phase 2 regression line
     x1_2, x2_2, y1_2, y2_2 = grab_x_ys (best_x2, best_intercept_2, best_slope_2)
     
+    # Packing p1 and p2 for return
     final_regression_p1 = [best_x1, best_y1, x1_1, x2_1, y1_1, y2_1, best_r2_1, best_slope_1, best_intercept_1]
     final_regression_p2 = [best_x2, best_y2, x1_2, x2_2, y1_2, y2_2, best_r2_2, best_slope_2, best_intercept_2]
-    
-    # Convert data in our regression lines from numpy data types to native python ones| PROBABLY NOT NEEDED, FIX THAT TO A PROBLEM THAT WAS COMPLETELY DIFFERENT
-    '''
-    for x in range(3, len(final_regression_p1)):
-        final_regression_p1[x] = numpy.asscalar(numpy.array([final_regression_p1[x]]))
-        final_regression_p2[x] = numpy.asscalar(numpy.array([final_regression_p2[x]]))
-    '''
+
     return final_regression_p1, final_regression_p2
   
     
