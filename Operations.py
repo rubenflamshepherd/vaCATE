@@ -1,4 +1,5 @@
 import numpy
+import math
 
 x_series = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.5, 13.0, 14.5, 16.0, 17.5, 19.0, 20.5, 22.0, 23.5, 25.0, 27.0, 29.0, 31.0, 33.0, 35.0, 37.0, 39.0, 41.0, 43.0, 45.0]
 y_series = [5.134446324653075, 4.532511080497156, 3.9647696512150836, 3.6692523925695686, 3.509950796085591, 3.3869391729764766, 3.287809993163619, 3.230048067964903, 3.169204739621747, 3.1203409378545346, 2.95145986473132, 2.8916143915841324, 2.8589559610792583, 2.8463057128814175, 2.8413779879066166, 2.7532261939625293, 2.750050822474359, 2.6735829597693206, 2.7024903224651338, 2.661606690643107, 2.5998423959455335, 2.57889496358432, 2.5921979525818397, 2.557187996704314, 2.529320391444595, 2.558194007072854, 2.4833719392530966, 2.5557756556810562, 2.4045248209763437, 2.4642132678099204]
@@ -51,15 +52,13 @@ def p12_curve_stripped (elution_ends, log_efflux, last_used_index, slope, interc
     corrected_p12_y = []
     
     for value in range (0, len (p12_y)):
-        curve_stripped_y_raw = \
-            (antilog (p12_y [value]) - antilog (p3_extrapolated_raw [value]))
-        print curve_stripped_y_raw
-        corrected_p12_y.append (curve_stripped_y_raw)
-        
-    #return p12_x, corrected_p12_y    
-    return p12_x, p3_extrapolated_raw
-
-
+        antilog_orig = antilog (p12_y [value])
+        antilog_reg = antilog (p3_extrapolated_raw [value])
+        corrected_p12_x_raw = antilog_orig - antilog_reg
+        corrected_p12_y.append (math.log10 (corrected_p12_x_raw))
+                
+    return p12_x, corrected_p12_y    
+   
 def linear_regression (x, y):
     # Linear regression of current set of values, returns m, b of y=mx+b
     coeffs = numpy.polyfit (x, y, 1)

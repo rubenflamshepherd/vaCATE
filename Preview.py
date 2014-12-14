@@ -45,8 +45,8 @@ class MainFrame(wx.Frame):
     
     def __init__(self, x_series, y_series):
         wx.Frame.__init__(self, None, -1, self.title)
-        self.x = np.array (x_series)
-	self.y = np.array (y_series)
+        self.x = np.array (x_series, dtype = 'float64')
+	self.y = np.array (y_series, dtype = 'float64')
         self.create_menu()
         self.create_status_bar()
         self.create_main_panel()
