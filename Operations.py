@@ -39,25 +39,33 @@ def obj_regression_p12 (elution_ends, log_efflux, last_used_index):
     INPUT:
     elution_ends (x-series; list) - elution end points (min)
     log_efflux (y-series; list) - normalized efflux data (log cpm/g RFW)
-    last_used_index is the first right-most point not used in the p3 regression
+    last_used_index is the first right-most point used in the p3 regression
+        - used as end index for p2 because [x:y] y IS NOT INCLUSIVE
     
     RETURNED:
     FILL IN 
     '''
+    # Broader x and y series containing both p1 and p2
     x = elution_ends[:last_used_index]
     y = log_efflux [:last_used_index]
+        
     # Initialize the indexs for the first regressions
     p1_end_index = 2
     p2_start_index = 2
-    current_high_r2 = 0
-    
-    while p2_start_index < last_used_index - 1: # Correcting as ...
-        # ... otherwise x2_current = x [p2_start_index:] is only 1 entry. Last index is not inclusive
-        # Setting current series
+    current_high_r2 = 0 # Tracking highest summed R^2 from p1 and p2
+        
+    while p2_start_index < last_used_index - 1: 
+        # Correcting loop end (last_used_index - 1) 
+        # as otherwise x2_current = x [p2_start_index:] is only 1 entry.
+        # Last index in lists is not inclusive!        
+        
+        # Setting current series for p1 regression
         x1_current = x [:p1_end_index]
         y1_current = y [:p1_end_index]
+        # Setting current series for p2 regression
         x2_current = x [p2_start_index:]
         y2_current = y [p2_start_index:]     
+        
         # Doing the current set of regressions
         current_p1_regression = linear_regression (x1_current, y1_current)
         current_p2_regression = linear_regression (x2_current, y2_current)
@@ -198,6 +206,6 @@ def subj_regression (elution_ends, log_efflux, reg_start, reg_end):
     
 if __name__ == '__main__':
     test = obj_regression_p3 (x_series, y_series, 2)
-    print test [7]
+    '''print test [7]
     print x_series [test [7]]
-    print y_series [test [7]]
+    print y_series [test [7]]'''

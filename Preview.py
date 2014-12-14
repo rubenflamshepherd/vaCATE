@@ -519,11 +519,10 @@ class MainFrame(wx.Frame):
                 )	
 			    
 	# Getting parameters from regression of p1-2
-	last_used_index = reg_end_index
 	reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (
             self.x,
             self.y,
-            last_used_index)
+            reg_end_index)
 	
 	# Unpacking parameters of p1 regression
 	x_p1 = reg_p1_raw [0]
