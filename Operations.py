@@ -104,7 +104,7 @@ def obj_regression_p3 (elution_ends, log_efflux, num_points_reg):
     ''' Figuring out R^2 (correlation) and parameters of linear regression.
     Linear regression gives the data about the 3rd phase of exchange (p3)
     
-    elutions_ends is the times elutions WERE CHANGED. 
+    elutions_ends is the times elutions WERE CHANGED/REMOVED. 
     elution_starts would be times elutions ADDED.
     
     Line parameters for the linear regression are returned as well as the lists containing the regression
@@ -128,12 +128,12 @@ def obj_regression_p3 (elution_ends, log_efflux, num_points_reg):
     r2 = [] 
     slope = []
     intercept = []
-    start_index = int(len (log_efflux) - num_points_reg)
     
-    print elution_ends[start_index]
-    reg_dec = False # Variable to track if regression should continue
+    # Variable to track current start index for x+y series to be analyzed
+    current_index = int(len (log_efflux) - num_points_reg)
     
-    current_index = start_index
+    # Variable to track if regression should continue
+    reg_dec = False
     
     while reg_dec == False: # R^2 has not decreased 3 consecutive times
         x = elution_ends [current_index:]
@@ -188,4 +188,6 @@ def subj_regression (elution_ends, log_efflux, reg_start, reg_end):
     
 if __name__ == '__main__':
     test = obj_regression_p3 (x_series, y_series, 2)
-    print test [5]
+    print test [7]
+    print x_series [test [7]]
+    print y_series [test [7]]

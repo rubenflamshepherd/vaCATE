@@ -483,8 +483,7 @@ class MainFrame(wx.Frame):
 	# Getting parameters from regression of p3
 	x1_p3, x2_p3, y1_p3, y2_p3, r2_p3, slope_p3, intercept_p3, reg_end_index =\
             Operations.obj_regression_p3 (self.x, self.y, num_points_obj)
-	print slope_p3
-	
+		
 	# Setting the series' involved in linear regression
 	x_p3 = self.x [reg_end_index+3:] 
 	y_p3 = self.y [reg_end_index+3:]            
