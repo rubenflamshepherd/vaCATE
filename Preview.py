@@ -452,8 +452,13 @@ class MainFrame(wx.Frame):
         """ Redraws the figure
         """     
         
-        # clear the axes and redraw the plot anew
+        # Clearing the plots so they can be redran anew
+        self.plot_phase1.clear()
+        self.plot_phase2.clear()
         self.plot_phase3.clear()        
+
+	self.plot_phase1.grid(self.cb_grid.IsChecked())        
+	self.plot_phase2.grid(self.cb_grid.IsChecked())        
         self.plot_phase3.grid(self.cb_grid.IsChecked())        
         
         # Graphing complete log efflux data set
@@ -485,7 +490,7 @@ class MainFrame(wx.Frame):
 	x1_p3, x2_p3, y1_p3, y2_p3, r2_p3, slope_p3, intercept_p3, reg_end_index =\
             Operations.obj_regression_p3 (self.x, self.y, num_points_obj)
 		
-	# Setting the series' involved in linear regression
+	# Setting the x- and y-series' involved in the p3 linear regression
 	x_p3 = self.x [reg_end_index:] 
 	y_p3 = self.y [reg_end_index:]            
 	
@@ -519,23 +524,20 @@ class MainFrame(wx.Frame):
                     facecolors = 'r'
                 )	
 			    
-	# Getting parameters from regression of p1-2
+	# Getting parameters from regression of p1-2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CLEAN UP
 	reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (
             self.x,
             self.y,
             reg_end_index)
 	
-	# Unpacking parameters of p2 regression
-	x_p2 = reg_p2_raw [0]
-	y_p2 = reg_p2_raw [1]
-	x1_p2, x2_p2 = reg_p2_raw [2], reg_p2_raw [3]
-	y1_p2, y2_p2 = reg_p2_raw [4], reg_p2_raw [5]
-	r2_p2, slope_p2, intercept_p2 =\
-            reg_p2_raw [6], reg_p2_raw [7], reg_p2_raw [8]
+	# Unpacking parameters of p1 regression!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLEAN UP
+	x_p1 = reg_p1_raw [0]
+	y_p1 = reg_p1_raw [1]
+		
 	
 	# Graphing the p2 series and regression line
 	
-	# Graphing ghost (uncorrected data) of p1 and p2
+	# Graphing raw uncorrected data of p1 and p2
 	self.plot_phase2.scatter(
                     self.x [:reg_end_index],
                     self.y [:reg_end_index],
@@ -545,15 +547,7 @@ class MainFrame(wx.Frame):
                     facecolors = 'w'
                 )
 	
-	self.line_p2 = matplotlib.lines.Line2D (
-            [x1_p2,x2_p2],
-            [y1_p2,y2_p2],
-            color = 'r',
-            ls = ':',
-            label = 'Phase II')
-	self.plot_phase2.add_line (self.line_p2)
-	
-	# Getting p1/p2 curve-stripped data
+	# Getting p1 + p2 curve-stripped data
 	p12_curve_stripped_x, p12_curve_stripped_y = \
 	    Operations.p12_curve_stripped (
 	        self.x,
@@ -561,45 +555,109 @@ class MainFrame(wx.Frame):
 	        reg_end_index,
 	        slope_p3,
 	        intercept_p3)
-		
-	# Graphing curve-stripped (corrected) phase I and II data NOT COMPLETE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	
+	# Isolating p2 data
+	p2_curve_stripped_x = p12_curve_stripped_x [len (x_p1) :]
+	p2_curve_stripped_y = p12_curve_stripped_y [len (y_p1) :]
+	
+	# Linear regression of isolated p2 data + getting line data
+	r2_p2, slope_p2, intercept_p2 = Operations.linear_regression (
+	    p2_curve_stripped_x,
+	    p2_curve_stripped_y)
+	x1_p2, x2_p2, y1_p2, y2_p2 = Operations.grab_x_ys(
+	    p2_curve_stripped_x,
+	    intercept_p2,
+	    slope_p2)
+	    
+	# Graphing curve-stripped (corrected) phase I and II data, isolated
+	# p2 data and line of best fit
 	self.plot_phase2.scatter(
-		            p12_curve_stripped_x,
-		            p12_curve_stripped_y,
-		            s = self.slider_width.GetValue(),
-		            alpha = 0.50,
-		            edgecolors = 'k',
-		            facecolors = 'r'
-	                    )
+	    p12_curve_stripped_x,
+	    p12_curve_stripped_y,
+	    s = self.slider_width.GetValue(),
+	    alpha = 0.50,
+	    edgecolors = 'r',
+	    facecolors = 'w')
+	
+	self.plot_phase2.scatter(
+	    p2_curve_stripped_x,
+	    p2_curve_stripped_y,
+	    s = self.slider_width.GetValue(),
+	    alpha = 0.75,
+	    edgecolors = 'k',
+	    facecolors = 'k')	
+	
+	self.line_p2 = matplotlib.lines.Line2D (
+            [x1_p2,x2_p2],
+            [y1_p2,y2_p2],
+            color = 'r',
+            ls = ':',
+            label = 'Phase II')
+	self.plot_phase2.add_line (self.line_p2)	
 		                
-	            
-	# Unpacking parameters of p1 regression
-	x_p1 = reg_p1_raw [0]
-	y_p1 = reg_p1_raw [1]
-	x1_p1, x2_p1 = reg_p1_raw [2], reg_p1_raw [3]
-	y1_p1, y2_p1 = reg_p1_raw [4], reg_p1_raw [5]
-	r2_p1, slope_p1, intercept_p1 =\
-            reg_p1_raw [6], reg_p1_raw [7], reg_p1_raw [8]
-	
-	# Redefine 2nd point in the p1 regression line to extend to self.x-axis
-	y2_p1 = 0
-	x2_p1 = -intercept_p1/slope_p1
-	
 	# Graphing the p1 series and regression line
+	
+	# Graph raw uncorrected p1 data, p1 data corrected for p3, and p1 data
+	# Corrected for both p2 and p3
 	self.plot_phase1.scatter(
                     x_p1,
                     y_p1,
                     s = self.slider_width.GetValue(),
                     alpha = 0.25,
                     edgecolors = 'k',
-                    facecolors = 'k'
+                    facecolors = 'w'
                 )
+	
+	# Define the p1 x- and y-series corrected for p3
+	p1_curve_stripped_for_p3_x = p12_curve_stripped_x [:len (x_p1)]
+	p1_curve_stripped_for_p3_y = p12_curve_stripped_y [:len (y_p1)]
+	
+	# Graph p1 data corrected for p3
+	self.plot_phase1.scatter(
+	    p1_curve_stripped_for_p3_x,
+	    p1_curve_stripped_for_p3_y,
+	    s = self.slider_width.GetValue(),
+	    alpha = 0.25,
+	    edgecolors = 'r',
+	    facecolors = 'w'
+	)	
+	
+	# Getting and plotting p1 curve-stripped data (for p2 and p3)
+	p1_curve_stripped_x, p1_curve_stripped_y = \
+	    Operations.p12_curve_stripped (
+	        p1_curve_stripped_for_p3_x,
+	        p1_curve_stripped_for_p3_y,
+	        len (p1_curve_stripped_for_p3_x),
+	        slope_p2,
+	        intercept_p2
+	    )
+	
+	self.plot_phase1.scatter(
+	    p1_curve_stripped_x,
+	    p1_curve_stripped_y,
+	    s = self.slider_width.GetValue(),
+	    alpha = 0.75,
+	    edgecolors = 'k',
+	    facecolors = 'k'
+	)
+	
+	# Linear regression on curve-stripped p3 data and plotting line
+	
+	r2_p1, slope_p1, intercept_p1 = Operations.linear_regression (
+	    p1_curve_stripped_x,
+	    p1_curve_stripped_y)
+	x1_p1, x2_p1, y1_p1, y2_p1 = Operations.grab_x_ys(
+	    p1_curve_stripped_x,
+	    intercept_p1,
+	    slope_p1)	
+	
 	self.line_p1 = matplotlib.lines.Line2D (
             [x1_p1,x2_p1],
             [y1_p1,y2_p1],
             color = 'r',
             ls = '--',
-            label = 'Phase I')
+            label = 'Phase I'
+	)
 	self.plot_phase1.add_line (self.line_p1)            
           
     

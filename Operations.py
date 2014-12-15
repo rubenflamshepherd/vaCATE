@@ -9,7 +9,8 @@ def antilog (x):
 
 def grab_x_ys (elution_ends, intercept, slope):
     ''' outputs two pairs of x,y coordinates for plotting a regression line
-    all inputs are LISTS
+    elution_ends is the x-series (list)
+    intrecept and slope are ints
     '''
     last_elution = elution_ends[len(elution_ends) - 1] # value from last y in the series
     x1 = 0
@@ -18,6 +19,28 @@ def grab_x_ys (elution_ends, intercept, slope):
     y2 = slope * last_elution + intercept
     
     return x1, x2, y1, y2
+def p1_curve_stripped (p1_x, p1_y, last_used_index, slope, intercept):
+    '''
+    Curve-strip p1 (in the same list) according to p2 data
+    Note: p1 data coming in (log_efflux) has been corrected for p3 already
+    
+    INPUT:
+    p1_x (x-series; list) - elution end points (min)
+    p1_y (y-series; list) - normalized efflux data (log cpm/g RFW)
+    slope, intercept (ints) - line parameters of p2 regression
+        
+    RETURNED:
+    p12_x (x-series; list) - elution_ends limited to range of p1 and p2
+    corrected_p12_y (y-series; list) - corrected (curve-stripped) efflux data
+    '''
+    # Calculating p1 data from extrapolation of p2 linear regression into p1
+
+    # Container for p3 data in p1/2 range
+    p2_extrapolated_raw = []
+    
+    for x1 in range (0, len(p1_x)):
+        extrapolated_x = (slope * x1) + intercept
+        p2_extrapolated_raw.append (extrapolated_x)    
 
 def p12_curve_stripped (elution_ends, log_efflux, last_used_index, slope, intercept):
     '''
@@ -60,7 +83,9 @@ def p12_curve_stripped (elution_ends, log_efflux, last_used_index, slope, interc
     return p12_x, corrected_p12_y    
    
 def linear_regression (x, y):
-    # Linear regression of current set of values, returns m, b of y=mx+b
+    ''' Linear regression of x and y series (lists)
+    Returns r^2 m, b of y=mx+b
+    '''
     coeffs = numpy.polyfit (x, y, 1)
         
     p = numpy.poly1d(coeffs) # Conversion to "convenience class" in numpy for working with polynomials        
