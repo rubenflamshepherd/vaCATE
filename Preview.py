@@ -163,7 +163,7 @@ class MainFrame(wx.Frame):
 	    label="Regression Parameters",
 	    style=wx.ALIGN_CENTER)
         
-        # Text boxs for collecting regression parameter input
+        # Text boxs for collecting subj/obj regression parameter input
         self.obj_textbox = wx.TextCtrl(self.panel, 
 	    size=(50,-1),
 	    style=wx.TE_PROCESS_ENTER)
@@ -284,6 +284,14 @@ class MainFrame(wx.Frame):
             self.panel, 
             size=(50,-1),
             style=wx.TE_READONLY)
+        self.data_p1_k = wx.TextCtrl(
+            self.panel, 
+            size=(50,-1),
+            style=wx.TE_READONLY)
+        self.data_p1_t05 = wx.TextCtrl(
+            self.panel, 
+            size=(50,-1),
+            style=wx.TE_READONLY)		
         
         self.data_p2_int = wx.TextCtrl(
 	    self.panel, 
@@ -296,7 +304,15 @@ class MainFrame(wx.Frame):
         self.data_p2_r2 = wx.TextCtrl(
             self.panel, 
             size=(50,-1),
-            style=wx.TE_READONLY)                   
+            style=wx.TE_READONLY)
+        self.data_p2_k = wx.TextCtrl(
+            self.panel, 
+            size=(50,-1),
+            style=wx.TE_READONLY)
+        self.data_p2_t05 = wx.TextCtrl(
+            self.panel, 
+            size=(50,-1),
+            style=wx.TE_READONLY)	
         
         self.data_p3_int = wx.TextCtrl(
 	    self.panel, 
@@ -310,6 +326,14 @@ class MainFrame(wx.Frame):
             self.panel, 
             size=(50,-1),
             style=wx.TE_READONLY)
+        self.data_p3_k = wx.TextCtrl(
+            self.panel, 
+            size=(50,-1),
+            style=wx.TE_READONLY)
+        self.data_p3_t05 = wx.TextCtrl(
+            self.panel, 
+            size=(50,-1),
+            style=wx.TE_READONLY)	
 	
 	# Creating labels for data output
 	empty_text = wx.StaticText (self.panel, label = "")
@@ -319,29 +343,40 @@ class MainFrame(wx.Frame):
 	p1_text = wx.StaticText (self.panel, label = "Phase I: ")
 	p2_text = wx.StaticText (self.panel, label = "Phase II: ")
 	p3_text = wx.StaticText (self.panel, label = "Phase II: ")
+	k_text = wx.StaticText (self.panel, label = "k")
+	#halflife_text = wx.StaticText (self.panel, label = u"t\u2080\u002E\u2085")
+	halflife_text = wx.StaticText (self.panel, label = u"t1/2")
         
         # Adding data output widgets to data output gridsizers        
-        self.gridbox_data = wx.GridSizer (rows=4, cols=4, hgap=1, vgap=1)
+        self.gridbox_data = wx.GridSizer (rows=4, cols=6, hgap=1, vgap=1)
         
         self.gridbox_data.Add (empty_text, 0, border=3, flag=flags)
         self.gridbox_data.Add (slope_text, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (intercept_text, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (r2_text, 0, border=3, flag=box_flag)
+	self.gridbox_data.Add (k_text, 0, border=3, flag=box_flag)
+	self.gridbox_data.Add (halflife_text, 0, border=3, flag=box_flag)
 
         self.gridbox_data.Add (p1_text, 0, border=3, flag=flags)
         self.gridbox_data.Add (self.data_p1_slope, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (self.data_p1_int, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (self.data_p1_r2, 0, border=3, flag=box_flag)
+	self.gridbox_data.Add (self.data_p1_k, 0, border=3, flag=box_flag)
+	self.gridbox_data.Add (self.data_p1_t05, 0, border=3, flag=box_flag)
         
         self.gridbox_data.Add (p2_text, 0, border=3, flag=flags)
         self.gridbox_data.Add (self.data_p2_slope, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (self.data_p2_int, 0, border=3, flag=box_flag)
-        self.gridbox_data.Add (self.data_p2_r2, 0, border=3, flag=box_flag)        
+        self.gridbox_data.Add (self.data_p2_r2, 0, border=3, flag=box_flag)
+	self.gridbox_data.Add (self.data_p2_k, 0, border=3, flag=box_flag)
+	self.gridbox_data.Add (self.data_p2_t05, 0, border=3, flag=box_flag)
         
         self.gridbox_data.Add (p3_text, 0, border=3, flag=flags)
         self.gridbox_data.Add (self.data_p3_slope, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (self.data_p3_int, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (self.data_p3_r2, 0, border=3, flag=box_flag)
+	self.gridbox_data.Add (self.data_p3_k, 0, border=3, flag=box_flag)
+	self.gridbox_data.Add (self.data_p3_t05, 0, border=3, flag=box_flag)
         
         self.vbox_linedata = wx.BoxSizer(wx.VERTICAL)
         self.vbox_linedata.Add (self.linedata_title, 0, border=3, flag=box_flag)
