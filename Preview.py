@@ -215,6 +215,8 @@ class MainFrame(wx.Frame):
         button_flag = wx.ALIGN_BOTTOM
         title_font = wx.Font (8, wx.DEFAULT, wx.NORMAL, wx.BOLD)
         widget_title_font = wx.Font (8, wx.DEFAULT, wx.NORMAL, wx.NORMAL, True)
+	parameter_title_font = wx.Font (14, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, "Times New Roman")
+	parameter1_title_font = wx.Font (10, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, "Times New Roman")
         disclaimer_font = wx.Font (6, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
         
         # Setting fonts
@@ -291,7 +293,11 @@ class MainFrame(wx.Frame):
         self.data_p1_t05 = wx.TextCtrl(
             self.panel, 
             size=(50,-1),
-            style=wx.TE_READONLY)		
+            style=wx.TE_READONLY)
+        self.data_p1_efflux = wx.TextCtrl(
+            self.panel, 
+            size=(50,-1),
+            style=wx.TE_READONLY)	
         
         self.data_p2_int = wx.TextCtrl(
 	    self.panel, 
@@ -312,7 +318,11 @@ class MainFrame(wx.Frame):
         self.data_p2_t05 = wx.TextCtrl(
             self.panel, 
             size=(50,-1),
-            style=wx.TE_READONLY)	
+            style=wx.TE_READONLY)
+	self.data_p2_efflux = wx.TextCtrl(
+                self.panel, 
+                size=(50,-1),
+                style=wx.TE_READONLY)		
         
         self.data_p3_int = wx.TextCtrl(
 	    self.panel, 
@@ -333,22 +343,33 @@ class MainFrame(wx.Frame):
         self.data_p3_t05 = wx.TextCtrl(
             self.panel, 
             size=(50,-1),
-            style=wx.TE_READONLY)	
+            style=wx.TE_READONLY)
+	self.data_p3_efflux = wx.TextCtrl(
+                self.panel, 
+                size=(50,-1),
+                style=wx.TE_READONLY)			
 	
 	# Creating labels for data output
 	empty_text = wx.StaticText (self.panel, label = "")
 	slope_text = wx.StaticText (self.panel, label="Slope")
 	intercept_text = wx.StaticText(self.panel, label = "Intercept")
-	r2_text = wx.StaticText (self.panel, label = "R^2")
+	r2_text = wx.StaticText (self.panel, label = u"R\u00B2")
 	p1_text = wx.StaticText (self.panel, label = "Phase I: ")
 	p2_text = wx.StaticText (self.panel, label = "Phase II: ")
-	p3_text = wx.StaticText (self.panel, label = "Phase II: ")
+	p3_text = wx.StaticText (self.panel, label = "Phase III: ")
 	k_text = wx.StaticText (self.panel, label = "k")
-	#halflife_text = wx.StaticText (self.panel, label = u"t\u2080\u002E\u2085")
-	halflife_text = wx.StaticText (self.panel, label = u"t1/2")
-        
+	halflife_text = wx.StaticText (self.panel, label = u"t\u2080\u002E\u2085")
+	efflux_text = wx.StaticText (self.panel, label = u"\u03d5")
+	
+	slope_text.SetFont(parameter1_title_font)
+	intercept_text.SetFont(parameter1_title_font)
+	r2_text.SetFont(parameter1_title_font)
+	k_text.SetFont(parameter1_title_font)
+	halflife_text.SetFont(parameter_title_font)
+        efflux_text.SetFont(parameter_title_font)
+	
         # Adding data output widgets to data output gridsizers        
-        self.gridbox_data = wx.GridSizer (rows=4, cols=6, hgap=1, vgap=1)
+        self.gridbox_data = wx.GridSizer (rows=4, cols=7, hgap=1, vgap=1)
         
         self.gridbox_data.Add (empty_text, 0, border=3, flag=flags)
         self.gridbox_data.Add (slope_text, 0, border=3, flag=box_flag)
@@ -356,6 +377,7 @@ class MainFrame(wx.Frame):
         self.gridbox_data.Add (r2_text, 0, border=3, flag=box_flag)
 	self.gridbox_data.Add (k_text, 0, border=3, flag=box_flag)
 	self.gridbox_data.Add (halflife_text, 0, border=3, flag=box_flag)
+	self.gridbox_data.Add (efflux_text, 0, border=3, flag=box_flag)
 
         self.gridbox_data.Add (p1_text, 0, border=3, flag=flags)
         self.gridbox_data.Add (self.data_p1_slope, 0, border=3, flag=box_flag)
@@ -363,6 +385,7 @@ class MainFrame(wx.Frame):
         self.gridbox_data.Add (self.data_p1_r2, 0, border=3, flag=box_flag)
 	self.gridbox_data.Add (self.data_p1_k, 0, border=3, flag=box_flag)
 	self.gridbox_data.Add (self.data_p1_t05, 0, border=3, flag=box_flag)
+	self.gridbox_data.Add (self.data_p1_efflux, 0, border=3, flag=box_flag)
         
         self.gridbox_data.Add (p2_text, 0, border=3, flag=flags)
         self.gridbox_data.Add (self.data_p2_slope, 0, border=3, flag=box_flag)
@@ -370,6 +393,7 @@ class MainFrame(wx.Frame):
         self.gridbox_data.Add (self.data_p2_r2, 0, border=3, flag=box_flag)
 	self.gridbox_data.Add (self.data_p2_k, 0, border=3, flag=box_flag)
 	self.gridbox_data.Add (self.data_p2_t05, 0, border=3, flag=box_flag)
+	self.gridbox_data.Add (self.data_p2_efflux, 0, border=3, flag=box_flag)
         
         self.gridbox_data.Add (p3_text, 0, border=3, flag=flags)
         self.gridbox_data.Add (self.data_p3_slope, 0, border=3, flag=box_flag)
@@ -377,6 +401,7 @@ class MainFrame(wx.Frame):
         self.gridbox_data.Add (self.data_p3_r2, 0, border=3, flag=box_flag)
 	self.gridbox_data.Add (self.data_p3_k, 0, border=3, flag=box_flag)
 	self.gridbox_data.Add (self.data_p3_t05, 0, border=3, flag=box_flag)
+        self.gridbox_data.Add (self.data_p3_efflux, 0, border=3, flag=box_flag)
         
         self.vbox_linedata = wx.BoxSizer(wx.VERTICAL)
         self.vbox_linedata.Add (self.linedata_title, 0, border=3, flag=box_flag)

@@ -1,3 +1,4 @@
 # Ignoring python modules that have been run
 # and have created temp files
 *.pyc
+*.xlsx
