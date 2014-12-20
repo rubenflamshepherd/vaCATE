@@ -52,7 +52,7 @@ class MainFrame(wx.Frame):
         self.create_main_panel()
         
         # Default analysis of data is an objective regression using the last
-        # 4 data points
+        # 2 data points
         self.obj_textbox.SetValue ('2')        
         
         self.draw_figure()
