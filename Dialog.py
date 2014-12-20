@@ -45,24 +45,19 @@ class MainFrame(wx.Frame):
         self.rootPanel.SetSizer(vbox)
         vbox.Fit(self)
         
+               
         data1 = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Analysis - (2014_11_20).xlsx")
-        #print data1
-        data2 = Operations.basic_CATE_analysis (*data1)
-        print "d2"
-        print data2
-        
-    
-        
-    def grab_data (file):
-        pass
-            
+        frame = Preview.MainFrame (*data1)
+        frame.Show (True)
+        frame.MakeModal (True)
+               
 class MyApp(wx.App):
     def OnInit(self):
         frame = MainFrame(None, -1, 'CATE Data Analyzer')
         frame.SetIcon(wx.Icon('testtube.ico', wx.BITMAP_TYPE_ICO))
         frame.Show(True)
         frame.Center()
-        self.SetTopWindow(frame)
+        #self.SetTopWindow(frame)
         return True
 
 if __name__ == '__main__':

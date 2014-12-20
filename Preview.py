@@ -61,8 +61,7 @@ class MainFrame(wx.Frame):
 	self.elution_cpms_gfactor = temp [0]
 	self.elution_cpms_gRFW = temp [1]
 	self.elution_cpms_log = temp [2]
-	
-        
+	        
         self.x = np.array (self.elution_ends)
 	self.y = np.array (self.elution_cpms_log)
         self.create_menu()
@@ -74,7 +73,7 @@ class MainFrame(wx.Frame):
         self.obj_textbox.SetValue ('2')        
         
         self.draw_figure()
-
+	
     def create_menu(self):
         """ Creating a file menu that allows saving of graphs to .pngs, opening
         of a help dialog, or quitting the application
@@ -525,21 +524,35 @@ class MainFrame(wx.Frame):
     
     def create_status_bar(self):
         self.statusbar = self.CreateStatusBar()
+	
+    def obj_analysis (self):
+		# Getting parameters from regression of p3
+	self.x1_p3, self.x2_p3, self.y1_p3, self.y2_p3, self.r2_p3,\
+	    self.slope_p3, self.intercept_p3, self.reg_end_index =\
+            Operations.obj_regression_p3 (self.x, self.y, self.num_points_obj)
+		
+	# Setting the x- and y-series' involved in the p3 linear regression
+	self.x_p3 = self.x [self.reg_end_index:] 
+	self.y_p3 = self.y [self.reg_end_index:]
+	
+	# # Setting the x/y-series' used start obj regression
+	self.x_reg_start = self.x[len(self.x) - self.num_points_obj:] 
+	self.y_reg_start = self.y[len(self.x) - self.num_points_obj:]	    
 
     def draw_figure(self):
         """ Redraws the figure
         """     
         
-        # Clearing the plots so they can be redran anew
+        # Clearing the plots so they can be redrawn anew
         self.plot_phase1.clear()
         self.plot_phase2.clear()
         self.plot_phase3.clear()        
 
 	self.plot_phase1.grid(self.cb_grid.IsChecked())        
 	self.plot_phase2.grid(self.cb_grid.IsChecked())        
-        self.plot_phase3.grid(self.cb_grid.IsChecked())        
-        
-        # Graphing complete log efflux data set
+        self.plot_phase3.grid(self.cb_grid.IsChecked())
+	
+	# Graphing complete log efflux data set
         self.plot_phase3.scatter(
             self.x,
             self.y,
@@ -559,43 +572,35 @@ class MainFrame(wx.Frame):
                 
         # OBJECTIVE REGRESSION
 	num_points_obj = self.obj_textbox.GetValue ()
-	num_points_obj = int (num_points_obj)
+	self.num_points_obj = int (num_points_obj)
 	if num_points_obj < 2:
 	    num_points_obj = 2
 	    self.obj_textbox.SetValue ('2')
 	    
-	# Getting parameters from regression of p3
-	x1_p3, x2_p3, y1_p3, y2_p3, r2_p3, slope_p3, intercept_p3, reg_end_index =\
-            Operations.obj_regression_p3 (self.x, self.y, num_points_obj)
-		
-	# Setting the x- and y-series' involved in the p3 linear regression
-	x_p3 = self.x [reg_end_index:] 
-	y_p3 = self.y [reg_end_index:]            
-	
+	self.obj_analysis ()
+	    
 	# Graphing the p3 series and regression line
 	self.plot_phase3.scatter(
-                    x_p3,
-                    y_p3,
+                    self.x_p3,
+                    self.y_p3,
                     s = self.slider_width.GetValue(),
                     alpha = 0.75,
                     edgecolors = 'k',
                     facecolors = 'k'
                 )            
-	self.line_p3 = matplotlib.lines.Line2D (
-            [x1_p3,x2_p3],
-            [y1_p3,y2_p3],
+	line_p3 = matplotlib.lines.Line2D (
+            [self.x1_p3, self.x2_p3],
+            [self.y1_p3, self.y2_p3],
             color = 'r',
             ls = '-',
             label = 'Phase III')
-	self.plot_phase3.add_line (self.line_p3)
+	self.plot_phase3.add_line (line_p3)
 	
 	# Distiguishing the intial points used to start the regression
 	# and plotting them (solid red)
-	x_init = self.x[len(self.x) - num_points_obj:] 
-	y_init = self.y[len(self.x) - num_points_obj:]
 	self.plot_phase3.scatter(
-                    x_init,
-                    y_init,
+                    self.x_reg_start,
+                    self.y_reg_start,
                     s = self.slider_width.GetValue(),
                     alpha = 0.5,
                     edgecolors = 'r',
@@ -606,7 +611,7 @@ class MainFrame(wx.Frame):
 	reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (
             self.x,
             self.y,
-            reg_end_index)
+            self.reg_end_index)
 	
 	# Unpacking parameters of p1 regression!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLEAN UP
 	x_p1 = reg_p1_raw [0]
@@ -617,8 +622,8 @@ class MainFrame(wx.Frame):
 	
 	# Graphing raw uncorrected data of p1 and p2
 	self.plot_phase2.scatter(
-                    self.x [:reg_end_index],
-                    self.y [:reg_end_index],
+                    self.x [:self.reg_end_index],
+                    self.y [:self.reg_end_index],
                     s = self.slider_width.GetValue(),
                     alpha = 0.50,
                     edgecolors = 'k',
@@ -630,9 +635,9 @@ class MainFrame(wx.Frame):
 	    Operations.p12_curve_stripped (
 	        self.x,
 	        self.y,
-	        reg_end_index,
-	        slope_p3,
-	        intercept_p3)
+	        self.reg_end_index,
+	        self.slope_p3,
+	        self.intercept_p3)
 	
 	# Isolating p2 data
 	p2_curve_stripped_x = p12_curve_stripped_x [len (x_p1) :]
@@ -748,9 +753,9 @@ class MainFrame(wx.Frame):
 	self.data_p2_int.SetValue ('%0.3f'%(intercept_p2))
 	self.data_p2_r2.SetValue ('%0.3f'%(r2_p2))        
 	
-	self.data_p3_slope.SetValue ('%0.3f'%(slope_p3))
-	self.data_p3_int.SetValue ('%0.3f'%(intercept_p3))
-	self.data_p3_r2.SetValue ('%0.3f'%(r2_p3))         
+	self.data_p3_slope.SetValue ('%0.3f'%(self.slope_p3))
+	self.data_p3_int.SetValue ('%0.3f'%(self.intercept_p3))
+	self.data_p3_r2.SetValue ('%0.3f'%(self.r2_p3))         
         
         # Adding our legends
         self.plot_phase1.legend(loc='upper right')
@@ -842,10 +847,6 @@ class MainFrame(wx.Frame):
 
 
 if __name__ == '__main__':
-    
-    x_series = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.5, 13.0, 14.5, 16.0, 17.5, 19.0, 20.5, 22.0, 23.5, 25.0, 27.0, 29.0, 31.0, 33.0, 35.0, 37.0, 39.0, 41.0, 43.0, 45.0]
-    y_series = [5.134446324653075, 4.532511080497156, 3.9647696512150836, 3.6692523925695686, 3.509950796085591, 3.3869391729764766, 3.287809993163619, 3.230048067964903, 3.169204739621747, 3.1203409378545346, 2.95145986473132, 2.8916143915841324, 2.8589559610792583, 2.8463057128814175, 2.8413779879066166, 2.7532261939625293, 2.750050822474359, 2.6735829597693206, 2.7024903224651338, 2.661606690643107, 2.5998423959455335, 2.57889496358432, 2.5921979525818397, 2.557187996704314, 2.529320391444595, 2.558194007072854, 2.4833719392530966, 2.5557756556810562, 2.4045248209763437, 2.4642132678099204]
-    
     data = [35714.845, 8679.3, 4746.2, 0.6027, 1.00841763438286, 60.0, [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.5, 13.0, 14.5, 16.0, 17.5, 19.0, 20.5, 22.0, 23.5, 25.0, 27.0, 29.0, 31.0, 33.0, 35.0, 37.0, 39.0, 41.0, 43.0, 45.0], [81453.0, 20369.1, 5511.0, 2790.7, 1933.8, 1456.8, 1159.5, 1015.1, 882.4, 788.5, 801.7, 698.5, 647.9, 629.3, 622.2, 507.9, 504.2, 422.8, 451.9, 411.3, 475.7, 453.3, 467.4, 431.2, 404.4, 432.2, 363.8, 429.8, 303.4, 348.1]]
   
     
