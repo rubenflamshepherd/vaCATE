@@ -4,6 +4,27 @@ import math
 x_series = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.5, 13.0, 14.5, 16.0, 17.5, 19.0, 20.5, 22.0, 23.5, 25.0, 27.0, 29.0, 31.0, 33.0, 35.0, 37.0, 39.0, 41.0, 43.0, 45.0]
 y_series = [5.134446324653075, 4.532511080497156, 3.9647696512150836, 3.6692523925695686, 3.509950796085591, 3.3869391729764766, 3.287809993163619, 3.230048067964903, 3.169204739621747, 3.1203409378545346, 2.95145986473132, 2.8916143915841324, 2.8589559610792583, 2.8463057128814175, 2.8413779879066166, 2.7532261939625293, 2.750050822474359, 2.6735829597693206, 2.7024903224651338, 2.661606690643107, 2.5998423959455335, 2.57889496358432, 2.5921979525818397, 2.557187996704314, 2.529320391444595, 2.558194007072854, 2.4833719392530966, 2.5557756556810562, 2.4045248209763437, 2.4642132678099204]
 
+def basic_CATE_analysis (SA, root_cnts, shoot_cnts, root_weight, g_factor,\
+                         load_time, elution_times, elution_cpms):
+    '''Given initial CATE data, return basic CATA analysis (G Factor, normalized
+    for root weight, logged. ------------> add net flux, etc later!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    '''
+    elution_cpms_gfactor = []
+    elution_cpms_gRFW = []
+    elution_cpms_log = []
+    
+    for x in range (0, len (elution_cpms)):
+        elution_cpms_gfactor.append (elution_cpms [x] * g_factor)    
+        
+    for x in range (0, len (elution_cpms_gfactor)):
+        temp = elution_cpms_gfactor [x]/root_weight/\
+                                  (elution_times[x+1]-elution_times[x])
+        elution_cpms_gRFW.append (temp)
+        elution_cpms_log.append (math.log10 (temp))
+        elution_cpms_log
+        
+    return elution_cpms_gfactor,elution_cpms_gRFW, elution_cpms_log
+
 def antilog (x):
     return 10 ** x
 

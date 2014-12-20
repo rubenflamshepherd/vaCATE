@@ -4,8 +4,9 @@ import os,sys
 import time
 
 # Custom modules
-import CATE
+import Excel
 import Preview
+import Operations
 
 # The recommended way to use wx with mpl is with the WXAgg
 # backend. 
@@ -43,6 +44,14 @@ class MainFrame(wx.Frame):
         
         self.rootPanel.SetSizer(vbox)
         vbox.Fit(self)
+        
+        data1 = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Analysis - (2014_11_20).xlsx")
+        #print data1
+        data2 = Operations.basic_CATE_analysis (*data1)
+        print "d2"
+        print data2
+        
+    
         
     def grab_data (file):
         pass
