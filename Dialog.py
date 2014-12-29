@@ -93,34 +93,26 @@ class DialogFrame(wx.Frame):
         self.rootPanel.SetSizer(vbox)
         vbox.Fit(self)
         
-        # Below we are able to show frame from preview module
-        '''
-        data1 = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Analysis - (2014_11_20).xlsx")
-        frame = Preview.MainFrame (*data1)
-        frame.Show (True)
-        frame.MakeModal (True)
-        '''
     def OnClose(self, event): # Event when 'Close' button is pressed
             self.Close()
         
     def OnAnalyze(self, event): # Event when 'Analyze CATE data' button is pushed
-        dlg = wx.FileDialog(self, "Choose a file which contains the data you'd like to perform CATE upon", os.getcwd(), "", "")
+        dlg = wx.FileDialog(self, "Choose the file which contains the data you'd like to perform CATE upon", os.getcwd(), "", "")
         if dlg.ShowModal() == wx.ID_OK:
             directory, filename = dlg.GetDirectory(), dlg.GetFilename()
             
-            individual_inputs, series_inputs = CATE.grab_data (directory, filename)
-            print series_inputs
-            CATE.generate_workbook (directory, individual_inputs, series_inputs)
+            temp_CATE_data = Excel.grab_data (directory, filename)
             dlg.Destroy()
-        elution_times_graph = series_inputs [0][1:]
-        log_efflux_graph = series_inputs [3]
-        print len(elution_times_graph)
-        print len(log_efflux_graph)
-        frame = BarsFrame (series_inputs [0], series_inputs [3])
-
-        frame.Show(True)
-        frame.MakeModal(True)            
+        # Below we are able to show frame from preview module
+        
+        frame = Preview.MainFrame (*temp_CATE_data)
+        frame.Show (True)
+        frame.MakeModal (True)
+                
         #self.Close()                         
+        
+        # to generate FINAL excel file (probably won't be in this module)
+        # CATE.generate_workbook (directory, individual_inputs, series_inputs)
             
     def OnAbout(self, event): # Event when 'About' button is pushed
         dlg = AboutDialog (self, -1, 'About')
