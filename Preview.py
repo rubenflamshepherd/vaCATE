@@ -43,6 +43,7 @@ class MainFrame(wx.Frame):
                          load_time, elution_times, elution_cpms):
         wx.Frame.__init__(self, None, -1, self.title)
 	
+	# Load initial CATE info as attributes of Frame object
 	self.SA = SA
 	self.root_cnts = root_cnts
 	self.shoot_cnts = shoot_cnts
@@ -68,8 +69,7 @@ class MainFrame(wx.Frame):
         self.create_status_bar()
         self.create_main_panel()
         
-        # Default analysis of data is an objective regression using the last
-        # 2 data points
+        # Default analysis:objective regression using the last 2 data points
         self.obj_textbox.SetValue ('2')        
         
         self.draw_figure()
@@ -558,9 +558,41 @@ class MainFrame(wx.Frame):
 	        self.slope_p3,
 	        self.intercept_p3)
 	
-	# Isolating p2 data
+	# Isolating p2 curve stripped data
 	self.x_p2_curvestrippedof_p3 = self.x_p12_curvestrippedof_p3 [len (self.x_p1) :]
-	self.y_p2_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3 [len (self.y_p1) :]	
+	self.y_p2_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3 [len (self.y_p1) :]
+	
+	# Linear regression of isolated p2 data + getting line data
+	self.r2_p2, self.slope_p2, self.intercept_p2 = Operations.linear_regression (
+	    self.x_p2_curvestrippedof_p3,
+	    self.y_p2_curvestrippedof_p3)
+	self.x1_p2, self.x2_p2, self.y1_p2, self.y2_p2 = Operations.grab_x_ys(
+	    self.x_p2_curvestrippedof_p3,
+	    self.intercept_p2,
+	    self.slope_p2)
+	
+	# Define the p1 x- and y-series corrected for p3
+	self.x_p1_curvestrippedof_p3 = self.x_p12_curvestrippedof_p3 [:len (self.x_p1)]
+	self.y_p1_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3 [:len (self.y_p1)]
+	
+	# Getting and plotting p1 curve-stripped data (for p2 and p3)
+	self.x_p1_curvestrippedof_p23, self.y_p1_curvestrippedof_p23 = \
+	    Operations.p12_curve_stripped (
+	        self.x_p1_curvestrippedof_p3,
+	        self.y_p1_curvestrippedof_p3,
+	        len (self.x_p1_curvestrippedof_p3),
+	        self.slope_p2,
+	        self.intercept_p2
+	    )
+	
+	# Linear regression on curve-stripped p3 data and plotting line
+	self.r2_p1, self.slope_p1, self.intercept_p1 = Operations.linear_regression (
+	    self.x_p1_curvestrippedof_p23,
+	    self.y_p1_curvestrippedof_p23)
+	self.x1_p1, self.x2_p1, self.y1_p1, self.y2_p1 = Operations.grab_x_ys(
+	    self.x_p1_curvestrippedof_p23,
+	    self.intercept_p1,
+	    self.slope_p1)	
 
     def draw_figure(self):
         """ Redraws the figure
@@ -642,15 +674,6 @@ class MainFrame(wx.Frame):
                     facecolors = 'w'
                 )
 	
-	# Linear regression of isolated p2 data + getting line data
-	r2_p2, slope_p2, intercept_p2 = Operations.linear_regression (
-	    self.x_p2_curvestrippedof_p3,
-	    self.y_p2_curvestrippedof_p3)
-	x1_p2, x2_p2, y1_p2, y2_p2 = Operations.grab_x_ys(
-	    self.x_p2_curvestrippedof_p3,
-	    intercept_p2,
-	    slope_p2)
-	    
 	# Graphing curve-stripped (corrected) phase I and II data, isolated
 	# p2 data and line of best fit
 	self.plot_phase2.scatter(
@@ -670,8 +693,8 @@ class MainFrame(wx.Frame):
 	    facecolors = 'k')	
 	
 	self.line_p2 = matplotlib.lines.Line2D (
-            [x1_p2,x2_p2],
-            [y1_p2,y2_p2],
+            [self.x1_p2, self.x2_p2],
+            [self.y1_p2, self.y2_p2],
             color = 'r',
             ls = ':',
             label = 'Phase II')
@@ -690,67 +713,42 @@ class MainFrame(wx.Frame):
                     facecolors = 'w'
                 )
 	
-	# Define the p1 x- and y-series corrected for p3
-	p1_curve_stripped_for_p3_x = self.x_p12_curvestrippedof_p3 [:len (self.x_p1)]
-	p1_curve_stripped_for_p3_y = self.y_p12_curvestrippedof_p3 [:len (self.y_p1)]
-	
 	# Graph p1 data corrected for p3
 	self.plot_phase1.scatter(
-	    p1_curve_stripped_for_p3_x,
-	    p1_curve_stripped_for_p3_y,
+	    self.x_p1_curvestrippedof_p3,
+	    self.y_p1_curvestrippedof_p3,
 	    s = self.slider_width.GetValue(),
 	    alpha = 0.25,
 	    edgecolors = 'r',
 	    facecolors = 'w'
 	)	
 	
-	# Getting and plotting p1 curve-stripped data (for p2 and p3)
-	p1_curve_stripped_x, p1_curve_stripped_y = \
-	    Operations.p12_curve_stripped (
-	        p1_curve_stripped_for_p3_x,
-	        p1_curve_stripped_for_p3_y,
-	        len (p1_curve_stripped_for_p3_x),
-	        slope_p2,
-	        intercept_p2
-	    )
-	
 	self.plot_phase1.scatter(
-	    p1_curve_stripped_x,
-	    p1_curve_stripped_y,
+	    self.x_p1_curvestrippedof_p23,
+	    self.y_p1_curvestrippedof_p23,
 	    s = self.slider_width.GetValue(),
 	    alpha = 0.75,
 	    edgecolors = 'k',
 	    facecolors = 'k'
 	)
 	
-	# Linear regression on curve-stripped p3 data and plotting line
-	
-	r2_p1, slope_p1, intercept_p1 = Operations.linear_regression (
-	    p1_curve_stripped_x,
-	    p1_curve_stripped_y)
-	x1_p1, x2_p1, y1_p1, y2_p1 = Operations.grab_x_ys(
-	    p1_curve_stripped_x,
-	    intercept_p1,
-	    slope_p1)	
-	
 	self.line_p1 = matplotlib.lines.Line2D (
-            [x1_p1,x2_p1],
-            [y1_p1,y2_p1],
+            [self.x1_p1,self.x2_p1],
+            [self.y1_p1,self.y2_p1],
             color = 'r',
             ls = '--',
             label = 'Phase I'
 	)
-	self.plot_phase1.add_line (self.line_p1)            
-          
+	self.plot_phase1.add_line (self.line_p1)          
     
 	# Outputting the data from the linear regressions to widgets
-	self.data_p1_slope.SetValue ('%0.3f'%(slope_p1))
-	self.data_p1_int.SetValue ('%0.3f'%(intercept_p1))
-	self.data_p1_r2.SetValue ('%0.3f'%(r2_p1))
+	self.data_p1_slope.SetValue ('%0.3f'%(self.slope_p1))
+	self.data_p1_int.SetValue ('%0.3f'%(self.intercept_p1))
+	self.data_p1_r2.SetValue ('%0.3f'%(self.r2_p1))
 	
-	self.data_p2_slope.SetValue ('%0.3f'%(slope_p2))
-	self.data_p2_int.SetValue ('%0.3f'%(intercept_p2))
-	self.data_p2_r2.SetValue ('%0.3f'%(r2_p2))        
+	self.data_p2_slope.SetValue ('%0.3f'%(self.slope_p2))
+	self.data_p2_int.SetValue ('%0.3f'%(self.intercept_p2))
+	self.data_p2_r2.SetValue ('%0.3f'%(self.r2_p2))        
 	
 	self.data_p3_slope.SetValue ('%0.3f'%(self.slope_p3))
 	self.data_p3_int.SetValue ('%0.3f'%(self.intercept_p3))

@@ -27,6 +27,26 @@ def basic_CATE_analysis (SA, root_cnts, shoot_cnts, root_weight, g_factor,\
 def antilog (x):
     return 10 ** x
 
+def linear_regression (x, y):
+    ''' Linear regression of x and y series (lists)
+    Returns r^2 and m, b of y=mx+b
+    '''
+    coeffs = numpy.polyfit (x, y, 1)
+        
+    # Conversion to "convenience class" in numpy for working with polynomials        
+    p = numpy.poly1d(coeffs)     
+    
+    # Determining R^2 on the current data set, fit values, and mean
+    yhat = p(x)                         # or [p(z) for z in x]
+    ybar = numpy.sum(y)/len(y)          # or sum(y)/len(y)
+    ssreg = numpy.sum((yhat-ybar)**2)   # or sum([ (yihat - ybar)**2 for yihat in yhat])
+    sstot = numpy.sum((y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
+    r2 = ssreg/sstot
+    slope = coeffs [0]
+    intercept = coeffs [1]
+    
+    return r2, slope, intercept
+
 def grab_x_ys (elution_ends, intercept, slope):
     ''' outputs two pairs of x,y coordinates for plotting a regression line
     elution_ends is the x-series (list)
@@ -39,6 +59,7 @@ def grab_x_ys (elution_ends, intercept, slope):
     y2 = slope * last_elution + intercept
     
     return x1, x2, y1, y2
+
 def p1_curve_stripped (p1_x, p1_y, last_used_index, slope, intercept):
     '''
     Curve-strip p1 (in the same list) according to p2 data
@@ -102,26 +123,6 @@ def p12_curve_stripped (elution_ends, log_efflux, last_used_index, slope, interc
                 
     return p12_x, corrected_p12_y    
    
-def linear_regression (x, y):
-    ''' Linear regression of x and y series (lists)
-    Returns r^2 m, b of y=mx+b
-    '''
-    coeffs = numpy.polyfit (x, y, 1)
-        
-    p = numpy.poly1d(coeffs) # Conversion to "convenience class" in numpy for working with polynomials        
-    
-    # Determining R^2 on the current data set        
-    # fit values, and mean
-    yhat = p(x)                         # or [p(z) for z in x]
-    ybar = numpy.sum(y)/len(y)          # or sum(y)/len(y)
-    ssreg = numpy.sum((yhat-ybar)**2)   # or sum([ (yihat - ybar)**2 for yihat in yhat])
-    sstot = numpy.sum((y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
-    r2 = ssreg/sstot
-    slope = coeffs [0]
-    intercept = coeffs [1]
-    
-    return r2, slope, intercept
-
 def obj_regression_p12 (elution_ends, log_efflux, last_used_index):     
     ''' Figuring out the best regression lines for phases 1 and 2
     

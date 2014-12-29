@@ -20,7 +20,7 @@ from matplotlib.backends.backend_wxagg import \
 #-------------------------------------------------------
 
 # Main dialog window presented to the user        
-class MainFrame(wx.Frame):
+class DialogFrame(wx.Frame):
         
     def __init__(self, parent, id, title):
         wx.Frame.__init__(self, parent, id, title)
@@ -35,25 +35,120 @@ class MainFrame(wx.Frame):
         buttonBox2 = wx.BoxSizer(wx.HORIZONTAL)
         
         # Main text presented to user
-        txt1 = wx.StaticText(innerPanel, id=-1, label="hello world",style=wx.ALIGN_CENTER, name="")
+        txt1 = wx.StaticText(innerPanel, id=-1, label="     Welcome to the CATE Data Analyzer!     ",style=wx.ALIGN_CENTER, name="")
+        txt2 = wx.StaticText(innerPanel, id=-1, label="Please choose an option below:",style=wx.ALIGN_CENTER, name="")
+        
+        # Disclaimer text (under buttons)
+        txt3 = wx.StaticText(innerPanel, id=-1, label="Note: .xls output files will be written in the same folder", style=wx.ALIGN_CENTER, name="")
+        txt4 = wx.StaticText(innerPanel, id=-1, label="that data is being extracted from", style=wx.ALIGN_CENTER, name="")
+        
+        font3 = wx.Font (7, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
+        txt3.SetFont (font3)
+        txt4.SetFont (font3)
+        
+        # Option Buttons        
+        btn1 = wx.Button (innerPanel, id=1, label="Analyze CATE Data")
+        btn2 = wx.Button (innerPanel, id=2, label="Generate CATE Template")
+        btn3 = wx.Button (innerPanel, id=3, label="About")
+        btn4 = wx.Button (innerPanel, id=4, label="Quit")
+        
+        # Binding events to buttons
+        self.Bind(wx.EVT_BUTTON, self.OnAnalyze, id=1)        
+        self.Bind(wx.EVT_BUTTON, self.OnGenerate, id=2)        
+        self.Bind(wx.EVT_BUTTON, self.OnAbout, id=3)        
+        self.Bind(wx.EVT_BUTTON, self.OnClose, id=4)
+        
+        # Adding main text to main spacer 'innerBox'
         innerBox.AddSpacer((150,15))
         innerBox.Add(txt1, 0, wx.CENTER)
+        innerBox.AddSpacer((150,15))
+        innerBox.Add(txt2, 0, wx.CENTER)
+        innerBox.AddSpacer((150,15))
         
+        # Adding main program buttons to main spacer 'innerBox'
+        buttonBox1.AddSpacer(7,10)        
+        buttonBox1.Add(btn1, 0, wx.CENTER)
+        buttonBox1.AddSpacer(7,10)
+        buttonBox1.Add(btn2, 0, wx.CENTER)
+        buttonBox1.AddSpacer(7,15)
+        buttonBox2.Add(btn3, 0, wx.CENTER)
+        buttonBox2.AddSpacer(7,15)        
+        buttonBox2.Add(btn4, 0, wx.CENTER)
+        buttonBox2.AddSpacer(7,10)        
+        innerBox.Add(buttonBox1, 0, wx.CENTER)
+        innerBox.AddSpacer ((150,10))
+        innerBox.Add(buttonBox2, 0, wx.CENTER)
+        innerBox.AddSpacer ((150,10))
+        
+        # Adding disclaimer text to main spacer 'innerBox' (under buttons)
+        innerBox.Add(txt3, 0, wx.CENTER)
+        innerBox.Add(txt4, 0, wx.CENTER)
+        innerBox.AddSpacer((150,10))        
+        innerPanel.SetSizer(innerBox)
+
         hbox.Add(innerPanel, 0, wx.ALL|wx.ALIGN_CENTER)
         vbox.Add(hbox, 1, wx.ALL|wx.ALIGN_CENTER, 5)
         
+
         self.rootPanel.SetSizer(vbox)
         vbox.Fit(self)
         
-               
+        # Below we are able to show frame from preview module
+        '''
         data1 = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Analysis - (2014_11_20).xlsx")
         frame = Preview.MainFrame (*data1)
         frame.Show (True)
         frame.MakeModal (True)
+        '''
+    def OnClose(self, event): # Event when 'Close' button is pressed
+            self.Close()
+        
+    def OnAnalyze(self, event): # Event when 'Analyze CATE data' button is pushed
+        dlg = wx.FileDialog(self, "Choose a file which contains the data you'd like to perform CATE upon", os.getcwd(), "", "")
+        if dlg.ShowModal() == wx.ID_OK:
+            directory, filename = dlg.GetDirectory(), dlg.GetFilename()
+            
+            individual_inputs, series_inputs = CATE.grab_data (directory, filename)
+            print series_inputs
+            CATE.generate_workbook (directory, individual_inputs, series_inputs)
+            dlg.Destroy()
+        elution_times_graph = series_inputs [0][1:]
+        log_efflux_graph = series_inputs [3]
+        print len(elution_times_graph)
+        print len(log_efflux_graph)
+        frame = BarsFrame (series_inputs [0], series_inputs [3])
+
+        frame.Show(True)
+        frame.MakeModal(True)            
+        #self.Close()                         
+            
+    def OnAbout(self, event): # Event when 'About' button is pushed
+        dlg = AboutDialog (self, -1, 'About')
+        dlg.SetIcon(wx.Icon('testtube.ico', wx.BITMAP_TYPE_ICO))
+        val = dlg.ShowModal()
+        dlg.Destroy()
+    
+    def OnGenerate(self, event): # Event when 'Generate Template' button is pushed
+        dlgChoose = wx.DirDialog(self, "Choose the directory to generate the template file inside:")
+        dlgChoose.SetIcon(wx.Icon('testtube.ico', wx.BITMAP_TYPE_ICO))
+                
+        if dlgChoose.ShowModal() == wx.ID_OK:
+            directory = dlgChoose.GetPath()
+            dlgChoose.Destroy()
+            # self.Close()            
+            
+        # format the directory (and path) to unicode w/ forward slash so it can be passed between methods/classes w/o bugs
+        directory = u'%s' %directory
+        directory = directory.replace (u'\\', '/')
+        output_name = 'CATE Template - ' + time.strftime ("(%Y_%m_%d).xlsx")
+        output_file = '/'.join ((directory, output_name))            
+        
+        worksheet, workbook = CATE.generate_template (output_file, 'CATE Template')
+        workbook.close()        
                
 class MyApp(wx.App):
     def OnInit(self):
-        frame = MainFrame(None, -1, 'CATE Data Analyzer')
+        frame = DialogFrame(None, -1, 'CATE Data Analyzer')
         frame.SetIcon(wx.Icon('testtube.ico', wx.BITMAP_TYPE_ICO))
         frame.Show(True)
         frame.Center()
@@ -62,7 +157,7 @@ class MyApp(wx.App):
 
 if __name__ == '__main__':
     app = wx.PySimpleApp()
-    app.frame = MainFrame(None, -1, 'CATE Data Analyzer')
+    app.frame = DialogFrame(None, -1, 'CATE Data Analyzer')
     app.frame.Show()
     app.frame.Center()
     app.MainLoop()
