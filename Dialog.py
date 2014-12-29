@@ -102,13 +102,11 @@ class DialogFrame(wx.Frame):
             directory, filename = dlg.GetDirectory(), dlg.GetFilename()
             
             temp_CATE_data = Excel.grab_data (directory, filename)
+            frame = Preview.MainFrame (*temp_CATE_data)
+            frame.Show (True)
+            frame.MakeModal (True)            
             dlg.Destroy()
-        # Below we are able to show frame from preview module
-        
-        frame = Preview.MainFrame (*temp_CATE_data)
-        frame.Show (True)
-        frame.MakeModal (True)
-                
+                        
         #self.Close()                         
         
         # to generate FINAL excel file (probably won't be in this module)
