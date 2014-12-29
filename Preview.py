@@ -526,7 +526,7 @@ class MainFrame(wx.Frame):
         self.statusbar = self.CreateStatusBar()
 	
     def obj_analysis (self):
-		# Getting parameters from regression of p3
+	# Getting parameters from regression of p3
 	self.x1_p3, self.x2_p3, self.y1_p3, self.y2_p3, self.r2_p3,\
 	    self.slope_p3, self.intercept_p3, self.reg_end_index =\
             Operations.obj_regression_p3 (self.x, self.y, self.num_points_obj)
@@ -537,7 +537,30 @@ class MainFrame(wx.Frame):
 	
 	# # Setting the x/y-series' used start obj regression
 	self.x_reg_start = self.x[len(self.x) - self.num_points_obj:] 
-	self.y_reg_start = self.y[len(self.x) - self.num_points_obj:]	    
+	self.y_reg_start = self.y[len(self.x) - self.num_points_obj:]
+	
+	# Getting parameters from regression of p1-2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CLEAN UP
+	reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (
+            self.x,
+            self.y,
+            self.reg_end_index)
+	
+	# Unpacking parameters of p1 regression!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLEAN UP
+	self.x_p1 = reg_p1_raw [0]
+	self.y_p1 = reg_p1_raw [1]
+	
+	# Getting p1 + p2 curve-stripped data (together)
+	self.x_p12_curvestrippedof_p3, self.y_p12_curvestrippedof_p3 = \
+	    Operations.p12_curve_stripped (
+	        self.x,
+	        self.y,
+	        self.reg_end_index,
+	        self.slope_p3,
+	        self.intercept_p3)
+	
+	# Isolating p2 data
+	self.x_p2_curvestrippedof_p3 = self.x_p12_curvestrippedof_p3 [len (self.x_p1) :]
+	self.y_p2_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3 [len (self.y_p1) :]	
 
     def draw_figure(self):
         """ Redraws the figure
@@ -607,17 +630,6 @@ class MainFrame(wx.Frame):
                     facecolors = 'r'
                 )	
 			    
-	# Getting parameters from regression of p1-2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CLEAN UP
-	reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (
-            self.x,
-            self.y,
-            self.reg_end_index)
-	
-	# Unpacking parameters of p1 regression!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLEAN UP
-	x_p1 = reg_p1_raw [0]
-	y_p1 = reg_p1_raw [1]
-		
-	
 	# Graphing the p2 series and regression line
 	
 	# Graphing raw uncorrected data of p1 and p2
@@ -630,41 +642,28 @@ class MainFrame(wx.Frame):
                     facecolors = 'w'
                 )
 	
-	# Getting p1 + p2 curve-stripped data
-	p12_curve_stripped_x, p12_curve_stripped_y = \
-	    Operations.p12_curve_stripped (
-	        self.x,
-	        self.y,
-	        self.reg_end_index,
-	        self.slope_p3,
-	        self.intercept_p3)
-	
-	# Isolating p2 data
-	p2_curve_stripped_x = p12_curve_stripped_x [len (x_p1) :]
-	p2_curve_stripped_y = p12_curve_stripped_y [len (y_p1) :]
-	
 	# Linear regression of isolated p2 data + getting line data
 	r2_p2, slope_p2, intercept_p2 = Operations.linear_regression (
-	    p2_curve_stripped_x,
-	    p2_curve_stripped_y)
+	    self.x_p2_curvestrippedof_p3,
+	    self.y_p2_curvestrippedof_p3)
 	x1_p2, x2_p2, y1_p2, y2_p2 = Operations.grab_x_ys(
-	    p2_curve_stripped_x,
+	    self.x_p2_curvestrippedof_p3,
 	    intercept_p2,
 	    slope_p2)
 	    
 	# Graphing curve-stripped (corrected) phase I and II data, isolated
 	# p2 data and line of best fit
 	self.plot_phase2.scatter(
-	    p12_curve_stripped_x,
-	    p12_curve_stripped_y,
+	    self.x_p12_curvestrippedof_p3,
+	    self.y_p12_curvestrippedof_p3,
 	    s = self.slider_width.GetValue(),
 	    alpha = 0.50,
 	    edgecolors = 'r',
 	    facecolors = 'w')
 	
 	self.plot_phase2.scatter(
-	    p2_curve_stripped_x,
-	    p2_curve_stripped_y,
+	    self.x_p2_curvestrippedof_p3,
+	    self.y_p2_curvestrippedof_p3,
 	    s = self.slider_width.GetValue(),
 	    alpha = 0.75,
 	    edgecolors = 'k',
@@ -683,8 +682,8 @@ class MainFrame(wx.Frame):
 	# Graph raw uncorrected p1 data, p1 data corrected for p3, and p1 data
 	# Corrected for both p2 and p3
 	self.plot_phase1.scatter(
-                    x_p1,
-                    y_p1,
+                    self.x_p1,
+                    self.y_p1,
                     s = self.slider_width.GetValue(),
                     alpha = 0.25,
                     edgecolors = 'k',
@@ -692,8 +691,8 @@ class MainFrame(wx.Frame):
                 )
 	
 	# Define the p1 x- and y-series corrected for p3
-	p1_curve_stripped_for_p3_x = p12_curve_stripped_x [:len (x_p1)]
-	p1_curve_stripped_for_p3_y = p12_curve_stripped_y [:len (y_p1)]
+	p1_curve_stripped_for_p3_x = self.x_p12_curvestrippedof_p3 [:len (self.x_p1)]
+	p1_curve_stripped_for_p3_y = self.y_p12_curvestrippedof_p3 [:len (self.y_p1)]
 	
 	# Graph p1 data corrected for p3
 	self.plot_phase1.scatter(
