@@ -19,6 +19,7 @@ Last modified: 30.07.2008
 # The recommended way to use wx with mpl is with the WXAgg
 # backend. 
 #
+
 import os
 import pprint
 import random
@@ -30,10 +31,12 @@ matplotlib.use('WXAgg')
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import \
     FigureCanvasWxAgg as FigCanvas, \
-    NavigationToolbar2WxAgg as NavigationToolbar
+    NavigationToolbar2WxAgg
 from matplotlib import gridspec
 from matplotlib import pyplot as plt
-
+from matplotlib.backends.backend_wx import _load_bitmap
+import Custom
+	
 class MainFrame(wx.Frame):
     """ The main frame of the application
     """
@@ -42,6 +45,8 @@ class MainFrame(wx.Frame):
     def __init__(self, SA, root_cnts, shoot_cnts, root_weight, gfactor,\
                          load_time, elution_times, elution_cpms):
         wx.Frame.__init__(self, None, -1, self.title)
+	
+	self.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
 	
 	# Load initial CATE info as attributes of Frame object
 	self.SA = SA
@@ -141,10 +146,10 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_CHECKBOX, self.on_cb_grid, self.cb_grid)
 
         # Create the navigation toolbar, tied to the canvas
-        self.toolbar = NavigationToolbar(self.canvas)
-        
-        # Layout with box sizers
-                
+        self.toolbar = Custom.Toolbar(self.canvas, True)
+        self.toolbar.Realize()
+	
+        # Layout with box sizers                
         self.vbox = wx.BoxSizer(wx.VERTICAL)
         self.vbox.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         self.vbox.Add(self.toolbar, 0, wx.EXPAND)

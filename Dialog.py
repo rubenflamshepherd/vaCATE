@@ -24,9 +24,10 @@ class DialogFrame(wx.Frame):
         
     def __init__(self, parent, id, title):
         wx.Frame.__init__(self, parent, id, title)
+        self.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
 
         self.rootPanel = wx.Panel(self)
-
+        
         innerPanel = wx.Panel(self.rootPanel,-1, size=(500,160), style=wx.ALIGN_CENTER)
         hbox = wx.BoxSizer(wx.HORIZONTAL) 
         vbox = wx.BoxSizer(wx.VERTICAL)
@@ -114,14 +115,13 @@ class DialogFrame(wx.Frame):
             
     def OnAbout(self, event): # Event when 'About' button is pushed
         dlg = AboutDialog (self, -1, 'About')
-        dlg.SetIcon(wx.Icon('testtube.ico', wx.BITMAP_TYPE_ICO))
+        #dlg.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
         val = dlg.ShowModal()
         dlg.Destroy()
     
     def OnGenerate(self, event): # Event when 'Generate Template' button is pushed
         dlgChoose = wx.DirDialog(self, "Choose the directory to generate the template file inside:")
-        dlgChoose.SetIcon(wx.Icon('testtube.ico', wx.BITMAP_TYPE_ICO))
-                
+                        
         if dlgChoose.ShowModal() == wx.ID_OK:
             directory = dlgChoose.GetPath()
             dlgChoose.Destroy()
@@ -148,7 +148,7 @@ class MyApp(wx.App):
 if __name__ == '__main__':
     app = wx.PySimpleApp()
     app.frame = DialogFrame(None, -1, 'CATE Data Analyzer')
-    app.frame.Show()
+    app.frame.Show(True)
     app.frame.Center()
     app.MainLoop()
     
