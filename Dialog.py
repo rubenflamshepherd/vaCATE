@@ -133,8 +133,8 @@ class DialogFrame(wx.Frame):
             output_name = 'CATE Template - ' + time.strftime ("(%Y_%m_%d).xlsx")
             output_file = '/'.join ((directory, output_name))            
         
-            worksheet, workbook = Excel.generate_template (output_file, 'CATE Template')
-            workbook.close()        
+            worksheet, workbook = Excel.generate_template (output_file)
+            #workbook.close()        
                
 class MyApp(wx.App):
     def OnInit(self):
