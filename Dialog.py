@@ -127,14 +127,14 @@ class DialogFrame(wx.Frame):
             dlgChoose.Destroy()
             # self.Close()            
             
-        # format the directory (and path) to unicode w/ forward slash so it can be passed between methods/classes w/o bugs
-        directory = u'%s' %directory
-        directory = directory.replace (u'\\', '/')
-        output_name = 'CATE Template - ' + time.strftime ("(%Y_%m_%d).xlsx")
-        output_file = '/'.join ((directory, output_name))            
+            # format the directory (and path) to unicode w/ forward slash so it can be passed between methods/classes w/o bugs
+            directory = u'%s' %directory
+            directory = directory.replace (u'\\', '/')
+            output_name = 'CATE Template - ' + time.strftime ("(%Y_%m_%d).xlsx")
+            output_file = '/'.join ((directory, output_name))            
         
-        worksheet, workbook = CATE.generate_template (output_file, 'CATE Template')
-        workbook.close()        
+            worksheet, workbook = Excel.generate_template (output_file, 'CATE Template')
+            workbook.close()        
                
 class MyApp(wx.App):
     def OnInit(self):

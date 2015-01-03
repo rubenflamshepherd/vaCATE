@@ -31,7 +31,7 @@ def generate_template (output_file, sheetname):
     not_req.set_align ('vcenter')
     not_req.set_bottom ()
     
-    # Formatting for header items for which inputs ARE required
+    # Formatting for items for which inputs ARE required
     req = workbook.add_format ()
     req.set_text_wrap ()
     req.set_align ('center')
@@ -39,46 +39,57 @@ def generate_template (output_file, sheetname):
     req.set_bold ()
     req.set_bottom ()
     
+    # Formatting for rows cells that recieve input
+    empty_row = workbook.add_format ()
+    empty_row.set_align ('center')
+    empty_row.set_align ('vcenter')
+    empty_row.set_top ()    
+    empty_row.set_bottom ()    
+    empty_row.set_right ()    
+    empty_row.set_left ()
+    # Formatting for items for which inputs ARE required
+    run_header = workbook.add_format ()    
+    run_header.set_align ('center')
+    run_header.set_align ('vcenter')    
+    
     # Formatting for header items that are not visible to user
     # Items under header are for plotting regression line
     invis = workbook.add_format ()
     invis.set_font_color ('white')
     
-    # Setting the height of the row to ~2 lines
-    worksheet.set_row (0, 30.75)
+    # Setting the height of the SA row to ~2 lines
+    worksheet.set_row (1, 30.75)
     
     # List of ordered tuples contaning (header title, formatting, column width) 
     # in order theay are to be written to the file
-    headers = [("Vial #", not_req, 3.57),\
-               ("Elution time (min)", req, 11.7),\
-               ("Activity in eluant (cpm)", req, 15),\
-               ("Corrected AIE (cpm)", not_req, 15),\
-               # \uXXXX indicates unicode character within unicode string (u"...")
-               (u"Efflux (cpm \u00B7 min\u207b\u00b9 \u00B7 g RFW\u207b\u00b9)", not_req, 13.57),\
-               ("Log Efflux", not_req, 8.86),\
-               (u"R\u00b2", not_req, 7),\
-               ("Half-life (min)", not_req, 8),\
-               (u"Slope (min\u207b\u00b9)", not_req, 8.14),\
-               ("Intercept", not_req, 8.5),\
-               (u"Specific Activity (cpm \u00B7 \u00B5mol\u207b\u00b9)", req, 14.45),\
-               ("Root Cnts (cpm)", req, 8.5),\
-               ("Shoot Cnts (cpm)", req, 9.7),\
-               ("Root weight (g)", req, 11),\
-               ("G-Factor", req, 8),\
-               ("# Points for Regression", req, 10.85),\
-               ("Load Time (min)", req, 9),\
-               ("Reg x", invis, 9),\
-               ("Reg y", invis, 9)]
+    col_headers = [
+        ("Vial #", not_req, 3.57),\
+        ("Elution time (min)", req, 11.7),\
+        ("Activity in eluant (cpm)", req, 15),\
+        ("Activity in eluant (cpm)", req, 15)\
+    ]
+    row_headers = [
+        (u"Specific Activity (cpm \u00B7 \u00B5mol\u207b\u00b9)", req, 14.45),\
+        ("Root Cnts (cpm)", req, 8.5),\
+        ("Shoot Cnts (cpm)", req, 9.7),\
+        ("Root weight (g)", req, 11),\
+        ("G-Factor", req, 8),\
+        ("Load Time (min)", req, 9)\
+    ]
     
-    # Writing the respective headers, setting the format, and setting the column width
-    for x in range (0, len (headers)):
-        worksheet.set_column (x, x, headers [x][2])
-        worksheet.write (0,x, headers[x][0], headers[x][1])
-    
-    # Writting default number of regression points and load time
-    worksheet.write (1,16, 4)
-    worksheet.write (1,16, 60)
-    
+    # Writing the row and column titles, setting the format, and setting the column width
+    for x in range (0, len (col_headers)):
+        worksheet.write (7, x, col_headers[x][0], col_headers[x][1])
+        worksheet.set_column (x, x, col_headers [x][2])
+    for y in range (0, len (row_headers)):
+        worksheet.merge_range (y + 1, 0, y + 1, 1, row_headers[y][0], row_headers[y][1])
+        worksheet.write (y + 1, 2, "", empty_row)
+        worksheet.write (y + 1, 3, "", empty_row)
+        
+    # Writing headers for total runs
+    worksheet.write (0, 2, "Run 1", run_header)
+    worksheet.write (0, 3, "Run 2", run_header)
+     
     return worksheet, workbook
 
 def grab_data (directory, filename):
@@ -108,21 +119,24 @@ def grab_data (directory, filename):
     raw_cpm_column = input_sheet.col (2) # Raw counts given by file
         
     # Grab individual values (g-factor, SA, root weight root/shoot counts,etc.)
-    SA = input_sheet.cell (0, 2).value
-    root_cnts = input_sheet.cell (1, 2).value
-    shoot_cnts = input_sheet.cell (2, 2).value
-    root_weight = input_sheet.cell (3, 2).value
-    g_factor = input_sheet.cell (4, 2).value
-    load_time = input_sheet.cell (5, 2).value
+    SA = input_sheet.cell (1, 2).value
+    root_cnts = input_sheet.cell (2, 2).value
+    shoot_cnts = input_sheet.cell (3, 2).value
+    root_weight = input_sheet.cell (4, 2).value
+    g_factor = input_sheet.cell (5, 2).value
+    load_time = input_sheet.cell (6, 2).value
             
     # Grabing elution times, correcting for header offset (7)
-    for x in range (7, len (raw_elution_times)):                   
+    for x in range (8, len (raw_elution_times)):                   
         elution_times.append (raw_elution_times [x].value)
-    for x in range (7, len (raw_cpm_column)):                   
+    for x in range (8, len (raw_cpm_column)):                   
         elution_cpms.append (raw_cpm_column [x].value)    
    
     return SA, root_cnts, shoot_cnts, root_weight, g_factor, load_time, elution_times, elution_cpms
 
 if __name__ == "__main__":
-    print grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Analysis - (2014_11_20).xlsx")
+    #print grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Analysis - (2014_11_20).xlsx")
+    generate_template ("C:\Users\Ruben\Desktop\CATE_EXCEL_TEST.xlsx", \
+                        "CATE Template")
+               
     
