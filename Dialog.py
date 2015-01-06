@@ -2,6 +2,7 @@ import wx
 import wx.lib.plot as plot
 import os,sys
 import time
+import xlsxwriter
 
 # Custom modules
 import Excel
@@ -103,7 +104,7 @@ class DialogFrame(wx.Frame):
             directory, filename = dlg.GetDirectory(), dlg.GetFilename()
             
             temp_CATE_data = Excel.grab_data (directory, filename)
-            frame = Preview.MainFrame (*temp_CATE_data)
+            frame = Preview.MainFrame (*(temp_CATE_data  + [directory]))
             frame.Show (True)
             frame.MakeModal (True)            
             dlg.Destroy()
@@ -129,12 +130,14 @@ class DialogFrame(wx.Frame):
             
             # format the directory (and path) to unicode w/ forward slash so it can be passed between methods/classes w/o bugs
             directory = u'%s' %directory
-            directory = directory.replace (u'\\', '/')
+            self.directory = directory.replace (u'\\', '/')
             output_name = 'CATE Template - ' + time.strftime ("(%Y_%m_%d).xlsx")
-            output_file = '/'.join ((directory, output_name))            
-        
-            worksheet, workbook = Excel.generate_template (output_file)
-            #workbook.close()        
+            output_file_path = '/'.join ((directory, output_name))            
+            
+            workbook = xlsxwriter.Workbook(output_file_path)
+            worksheet = workbook.add_worksheet("CATE Template")            
+            Excel.generate_template (output_file_path, workbook, worksheet)
+            workbook.close()        
                
 class MyApp(wx.App):
     def OnInit(self):

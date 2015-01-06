@@ -43,7 +43,7 @@ class MainFrame(wx.Frame):
     title = 'Compartmental Analysis of Tracer Efflux: Data Analyzer'
     
     def __init__(self, SA, root_cnts, shoot_cnts, root_weight, gfactor,\
-                         load_time, elution_times, elution_cpms):
+                         load_time, elution_times, elution_cpms, directory):
         wx.Frame.__init__(self, None, -1, self.title)
 	
 	self.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
@@ -59,6 +59,7 @@ class MainFrame(wx.Frame):
 	self.elution_ends = elution_times [1:]
 	self.elution_starts = elution_times [:len (elution_times) -1]
 	self.elution_cpms = elution_cpms
+	self.directory = directory
 	
 	temp = Operations.basic_CATE_analysis (
 	    SA, root_cnts, shoot_cnts, root_weight, gfactor, load_time,\
@@ -146,7 +147,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_CHECKBOX, self.on_cb_grid, self.cb_grid)
 
         # Create the navigation toolbar, tied to the canvas
-        self.toolbar = Custom.Toolbar(self.canvas, True)
+        self.toolbar = Custom.Toolbar(self.canvas, self)
         self.toolbar.Realize()
 	
         # Layout with box sizers                
@@ -853,7 +854,7 @@ if __name__ == '__main__':
   
     
     app = wx.PySimpleApp()
-    app.frame = MainFrame(*data)
+    app.frame = MainFrame(*(data + ["C:/Users/daniel/Google Drive/Masters/Programs/CATE analysis"]))
     app.frame.Show()
     app.frame.Center()
     app.MainLoop()

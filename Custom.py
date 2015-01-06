@@ -8,8 +8,9 @@ class Toolbar(NavigationToolbar2WxAgg):
     Extend the default wx toolbar with your own event handlers
     """
     ON_EXTRACT = wx.NewId()
-    def __init__(self, canvas, cankill):
+    def __init__(self, canvas, frame_object):
         NavigationToolbar2WxAgg.__init__(self, canvas)
+        self.frame_object = frame_object
         
         POSITION_OF_FORWARD_BTN = 1
         self.DeleteToolByPos(POSITION_OF_FORWARD_BTN)        
@@ -40,4 +41,5 @@ class Toolbar(NavigationToolbar2WxAgg):
                 transform=ax.transAxes,
                 color=rgb)
         self.canvas.draw()
+        print self.frame_object.directory
         evt.Skip()

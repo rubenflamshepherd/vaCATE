@@ -4,20 +4,17 @@ import math
 import numpy
 import time
 
-def generate_template (output_file):
+def generate_template (output_file_path, workbook, worksheet):
     '''
-    Generates an excel file (*.xlsx) that serves as our template for recieving
-    basic CATE data for further analysis
+    Generates an our CATE Data template in an in an already created workbook and
+    worksheet.
     
     INPUTS
-    output_file - path/filename (str)
+    output_file_path - path/filename (str)
     
     OUTPUT
     worksheet, workbook as an ordered tuple pair
     '''
-    
-    workbook = xlsxwriter.Workbook(output_file)
-    worksheet = workbook.add_worksheet("CATE Template")
     
     # Formatting for header items for which inputs ARE NOT required
     not_req = workbook.add_format ()
@@ -84,7 +81,7 @@ def generate_template (output_file):
     worksheet.write (0, 3, "Run 2", run_header)
     worksheet.write (0, 4, "etc.", run_header)
     
-    workbook.close()
+    #workbook.close()
      
     return worksheet, workbook # Why do we even return this?!!!!!!!!!!!!?!?!?!?!?!!?
 
@@ -129,6 +126,156 @@ def grab_data (directory, filename):
         elution_cpms.append (raw_cpm_column [x].value)    
    
     return SA, root_cnts, shoot_cnts, root_weight, g_factor, load_time, elution_times, elution_cpms
+
+def generate_analysis (directory, individual_inputs, series_inputs, frame_object):
+    '''
+    Creating an excel file in directory using a preset naming convention
+    Data in the file are the product of CATE analysis from a template file containing the raw information
+    Nothing is returned
+    '''
+    
+    # Mapping list values to variables containing individual values
+    SA = frame_object.SA
+    print SA
+    '''
+    root_cnts = individual_inputs [1]
+    shoot_cnts = individual_inputs [2]
+    root_weight = individual_inputs [3]
+    g_factor = individual_inputs [4]
+    num_points_reg = individual_inputs [5]
+    load_time = individual_inputs [6]
+   
+    # Mapping list values to lists containing series values
+    elution_times = series_inputs [0]
+    corrected_cpms = series_inputs [1]
+    efflux = series_inputs [2]
+    log_efflux = series_inputs [3]
+    raw_cpms = series_inputs [4]
+    
+    # Creating the file
+    output_name = 'CATE Analysis - ' + time.strftime ("(%Y_%m_%d_%I:%M).xlsx")
+    output_file_path = '/'.join ((directory, output_name))
+    output_sheet, output_book = generate_template (output_file_path, 'Run 1')
+    
+    # Writing the series data to the file
+    for x in range (1, len (elution_times)):
+        output_sheet.write (x, 0, x)
+        output_sheet.write (x, 1, elution_times [x])
+        output_sheet.write (x, 2, raw_cpms [x].value)
+        output_sheet.write (x, 3, corrected_cpms [x - 1])
+        output_sheet.write (x, 4, efflux [x - 1])
+        output_sheet.write (x, 5, log_efflux [x - 1])
+        
+    # Writing indidual data values to the file (SA, root/shoot counts, etc.)
+    output_sheet.write (1, 10, SA)
+    output_sheet.write (1, 11, root_cnts)
+    output_sheet.write (1, 12, shoot_cnts)
+    output_sheet.write (1, 13, root_weight)
+    output_sheet.write (1, 14, g_factor)
+    output_sheet.write (1, 15, num_points_reg)
+    output_sheet.write (1, 16, load_time)
+                
+    # Figuring out R^2 (coefficient of determination) and parameters of linear regression
+    r2 = []
+    slope = []
+    intercept = []
+    # Dynamically doing regression using a set number of points that whose number can be specificed (implement later)
+    start_index = int(len (log_efflux) - num_points_reg)
+    print_row = start_index + 1 # correcting for row number due to header
+    reg_dec = False # Variable to track if regression should continue
+    
+    while reg_dec == False: # R^2 has not decreased 4 consecutive times
+        x = elution_times [start_index + 1:]
+        y = log_efflux [start_index:]
+        
+        # Linear regression of current set of values, returns m, b of y=mx+b
+        coeffs = numpy.polyfit (x, y, 1)
+        
+        p = numpy.poly1d(coeffs) # Conversion to "convenience class" in numpy for working with polynomials        
+        
+        # Determining R^2 on the current data set        
+        # fit values, and mean
+        yhat = p(x)                         # or [p(z) for z in x]
+        ybar = numpy.sum(y)/len(y)          # or sum(y)/len(y)
+        ssreg = numpy.sum((yhat-ybar)**2)   # or sum([ (yihat - ybar)**2 for yihat in yhat])
+        sstot = numpy.sum((y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
+        
+        r2.insert (0, ssreg/sstot)
+        slope.insert (0, coeffs [0])
+        intercept.insert (0, coeffs [1])
+        
+        # Printing regression and correlation values to sheet
+        output_sheet.write (print_row, 6, r2 [0])
+        output_sheet.write (print_row, 8, coeffs [0]) # x of mx+b
+        output_sheet.write (print_row, 9, coeffs [1]) # b of mx+b
+        
+        # Extending the series of values included in the analysis/regression
+        start_index -= 1
+        print_row -= 1
+        
+        # Checking to see if you are out of the third phase of exchange
+        # (has R^2 decreased 3 consecutive times)
+        if len (r2) <= 3:
+            pass
+        elif r2[0] < r2[1] and r2[1] < r2[2] and r2[2] < r2[3]:
+            reg_dec = True
+    
+    # Write points for graphing equation of linear regression
+    last_elution = elution_times[len(elution_times) - 1]
+    regression_x1 = 0
+    regression_x2 = last_elution
+    regression_y1 = intercept [3]
+    regression_y2 = slope [3] * last_elution + intercept [3]
+    
+    # Format for values of linear regression (not to be seen/played with by the user)
+    invis = output_book.add_format ()
+    invis.set_font_color ('white')            
+    
+    # Writing values for the linear regression series
+    output_sheet.write (1, 17, regression_x1, invis)
+    output_sheet.write (2, 17, regression_x2, invis)
+    output_sheet.write (1, 18, regression_y1, invis)
+    output_sheet.write (2, 18, regression_y2, invis)
+    
+    # Creating the chart
+    chart = output_book.add_chart ({'type': 'scatter'})
+    chart.set_x_axis ({'name': 'Elution time (min)'})
+    chart.set_y_axis ({'name': u"Log cpm released \u00B7 min\u207b\u00b9 \u00B7 g RFW\u207b\u00b9"})            
+    chart.set_title ({'name': "Run 1 - Efflux over time"})                        
+    chart.set_legend ({'none': True})   
+    chart.set_size ({'width':900, 'height': 550})
+    
+    # Adding log elution cpms
+    chart.add_series ({
+        'categories': ['Run 1', 1, 1, len (log_efflux), 1],\
+        'values': ['Run 1', 1, 5, len (log_efflux), 5],\
+        'line': {'none': True}
+    })
+        
+    # Adding regression line for third phase
+    chart.add_series ({
+        'categories': ['Run 1', 1, 17, 2, 17],\
+        'values': ['Run 1', 1, 18, 2, 18],\
+        'marker': {'type': 'none'},\
+        'trendline': {'type': 'linear'}
+    })
+    
+    # Adding last point used for regression
+    chart.add_series({
+        'categories': ['Run 1', (print_row + 4), 1, (print_row + 4), 1],\
+        'values': ['Run 1', (print_row + 4), 5, (print_row + 4), 5],\
+        'marker': {
+            'type': 'circle',\
+            'border': {'color': 'red'},\
+            'fill': {'none': True}
+            
+        }
+    })
+    
+    output_sheet.insert_chart ('A3', chart)            
+    
+    output_book.close()
+    '''
 
 if __name__ == "__main__":
     #print grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Analysis - (2014_11_21).xlsx")
