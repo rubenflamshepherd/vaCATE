@@ -53,7 +53,6 @@ def generate_template (output_file_path, workbook, worksheet):
     col_headers = [
         ("Vial #", not_req, 3.57),\
         ("Elution time (min)", req, 11.7),\
-        ("Activity in eluant (cpm)", req, 15),\
         ("Activity in eluant (cpm)", req, 15)\
     ]
     
@@ -74,12 +73,9 @@ def generate_template (output_file_path, workbook, worksheet):
         worksheet.merge_range (y + 1, 0, y + 1, 1,\
                                row_headers[y][0], row_headers[y][1])
         worksheet.write (y + 1, 2, "", empty_row)
-        worksheet.write (y + 1, 3, "", empty_row)
-        
+                
     # Writing headers columns containing individual runs 
     worksheet.write (0, 2, "Run 1", run_header)
-    worksheet.write (0, 3, "Run 2", run_header)
-    worksheet.write (0, 4, "etc.", run_header)
     
     #workbook.close()
      
@@ -112,6 +108,7 @@ def grab_data (directory, filename):
     elution_cpms = []
         
     # Grab individual CATE values of interest
+    run_name = input_sheet.cell (0, 2).value
     SA = input_sheet.cell (1, 2).value
     root_cnts = input_sheet.cell (2, 2).value
     shoot_cnts = input_sheet.cell (3, 2).value
@@ -125,16 +122,19 @@ def grab_data (directory, filename):
     for x in range (8, len (raw_cpm_column)):                   
         elution_cpms.append (raw_cpm_column [x].value)    
    
-    return SA, root_cnts, shoot_cnts, root_weight, g_factor, load_time, elution_times, elution_cpms
+    return [run_name, SA, root_cnts, shoot_cnts, root_weight, g_factor, load_time, elution_times, elution_cpms]
 
-def generate_analysis (directory, individual_inputs, series_inputs, frame_object):
+def generate_analysis (workbook, worksheet, frame_object):
     '''
     Creating an excel file in directory using a preset naming convention
     Data in the file are the product of CATE analysis from a template file containing the raw information
     Nothing is returned
     '''
     
-    # Mapping list values to variables containing individual values
+    # Writing CATE data to file
+    
+    worksheet.write (0, 1, frame_object.SA)    
+    
     SA = frame_object.SA
     print SA
     '''
@@ -278,7 +278,7 @@ def generate_analysis (directory, individual_inputs, series_inputs, frame_object
     '''
 
 if __name__ == "__main__":
-    #print grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Analysis - (2014_11_21).xlsx")
-    generate_template ("C:\Users\Ruben\Desktop\CATE_EXCEL_TEST.xlsx")
+    print grab_data("C:\Users\Daniel\Projects\CATEAnalysis", "CATE Analysis - (2014_11_21).xlsx")
+    #generate_template ("C:\Users\Ruben\Desktop\CATE_EXCEL_TEST.xlsx")
                
     

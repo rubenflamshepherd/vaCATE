@@ -104,6 +104,7 @@ class DialogFrame(wx.Frame):
             directory, filename = dlg.GetDirectory(), dlg.GetFilename()
             
             temp_CATE_data = Excel.grab_data (directory, filename)
+            print temp_CATE_data
             frame = Preview.MainFrame (*(temp_CATE_data  + [directory]))
             frame.Show (True)
             frame.MakeModal (True)            
@@ -137,6 +138,38 @@ class DialogFrame(wx.Frame):
             workbook = xlsxwriter.Workbook(output_file_path)
             worksheet = workbook.add_worksheet("CATE Template")            
             Excel.generate_template (output_file_path, workbook, worksheet)
+            
+            # Formatting for items for which inputs ARE required
+            req = workbook.add_format ()
+            req.set_text_wrap ()
+            req.set_align ('center')
+            req.set_align ('vcenter')
+            req.set_bold ()
+            req.set_bottom ()
+            
+            # Formatting for run headers ("Run x")
+            run_header = workbook.add_format ()    
+            run_header.set_align ('center')
+            run_header.set_align ('vcenter')
+            
+            # Formatting for row cells that are to recieve input
+            empty_row = workbook.add_format ()
+            empty_row.set_align ('center')
+            empty_row.set_align ('vcenter')
+            empty_row.set_top ()    
+            empty_row.set_bottom ()    
+            empty_row.set_right ()    
+            empty_row.set_left ()            
+            
+            # Writing empy cells surronded by borders
+            for y in range (0, 6):
+                worksheet.write (y + 1, 3, "", empty_row)            
+            
+            worksheet.write (7, 3,"Activity in eluant (cpm)", req)
+            worksheet.set_column (7, 3, 15)
+            worksheet.write (0, 3, "Run 2", run_header)
+            worksheet.write (0, 4, "etc.", run_header)            
+            
             workbook.close()        
                
 class MyApp(wx.App):
