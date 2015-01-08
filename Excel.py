@@ -131,12 +131,54 @@ def generate_analysis (workbook, worksheet, frame_object):
     Nothing is returned
     '''
     
+    # Formatting for items for headers for analyzed CATE data
+    analyzed_header = workbook.add_format ()
+    analyzed_header.set_text_wrap ()
+    analyzed_header.set_align ('center')
+    analyzed_header.set_align ('vcenter')
+    analyzed_header.set_bottom ()    
+    
+    # Formatting for cells that contains basic CATE data    
+    empty_row = workbook.add_format ()
+    empty_row.set_align ('center')
+    empty_row.set_align ('vcenter')
+    empty_row.set_top ()    
+    empty_row.set_bottom ()    
+    empty_row.set_right ()    
+    empty_row.set_left ()       
+    
+    # Header info for analyzed CATE data
+    headers = [("Corrected AIE (cpm)", 15),\
+               (u"Efflux (cpm \u00B7 min\u207b\u00b9 \u00B7 g RFW\u207b\u00b9)", 13.57),\
+               ("Log Efflux", 8.86),\
+               (u"R\u00b2", 7),\
+               ("Half-life (min)", 8),\
+               (u"Slope (min\u207b\u00b9)", 8.14),\
+               ("Intercept", 8.5)]    
+    
+    for y in range (0, len (headers)):
+            worksheet.write (7, y + 3, headers[y][0], analyzed_header)   
+            worksheet.set_column (y + 3, y + 3,headers [y][1])
+    
+    
     # Writing CATE data to file
     
-    worksheet.write (0, 1, frame_object.SA)    
-    
-    SA = frame_object.SA
-    print SA
+    worksheet.write (0, 2, frame_object.run_name)    
+    worksheet.write (1, 2, frame_object.SA, empty_row)    
+    worksheet.write (2, 2, frame_object.root_cnts, empty_row)
+    worksheet.write (3, 2, frame_object.shoot_cnts, empty_row)
+    worksheet.write (4, 2, frame_object.root_weight, empty_row)
+    worksheet.write (5, 2, frame_object.gfactor, empty_row)
+    worksheet.write (6, 2, frame_object.load_time, empty_row)
+
+    for x in range (0, len (frame_object.elution_ends)):
+        worksheet.write (8 + x, 0, x + 1)
+        worksheet.write (8 + x, 1, frame_object.elution_ends [x])
+        worksheet.write (8 + x, 2, frame_object.elution_cpms [x])
+        worksheet.write (8 + x, 3, frame_object.elution_cpms_gfactor [x])
+        worksheet.write (8 + x, 4, frame_object.elution_cpms_gRFW [x])
+        worksheet.write (8 + x, 5, frame_object.elution_cpms_log [x])
+        
     '''
     root_cnts = individual_inputs [1]
     shoot_cnts = individual_inputs [2]
