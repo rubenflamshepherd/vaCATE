@@ -20,8 +20,7 @@ def basic_CATE_analysis (SA, root_cnts, shoot_cnts, root_weight, g_factor,\
                                   (elution_times[x+1]-elution_times[x])
         elution_cpms_gRFW.append (temp)
         elution_cpms_log.append (math.log10 (temp))
-        elution_cpms_log
-        
+                
     return elution_cpms_gfactor, elution_cpms_gRFW, elution_cpms_log
 
 def antilog (x):
@@ -257,7 +256,8 @@ def obj_regression_p3 (elution_ends, log_efflux, num_points_reg):
     
     # current_index, r2, slope, and intercept are corrected considering
     # that the last 3 regressions done with decreasing R^2s
-    return x1, x2, y1, y2, r2[3], slope [3], intercept [3], current_index + 3
+    return x1, x2, y1, y2, r2[3], slope [3], intercept [3], current_index + 3,\
+           r2, slope, intercept
 
 def subj_regression (elution_ends, log_efflux, reg_start, reg_end): 
     ''' Doing a custom regression on a data set wherein

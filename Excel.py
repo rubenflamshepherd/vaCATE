@@ -152,7 +152,6 @@ def generate_analysis (workbook, worksheet, frame_object):
                (u"Efflux (cpm \u00B7 min\u207b\u00b9 \u00B7 g RFW\u207b\u00b9)", 13.57),\
                ("Log Efflux", 8.86),\
                (u"R\u00b2", 7),\
-               ("Half-life (min)", 8),\
                (u"Slope (min\u207b\u00b9)", 8.14),\
                ("Intercept", 8.5)]    
     
@@ -171,6 +170,9 @@ def generate_analysis (workbook, worksheet, frame_object):
     worksheet.write (5, 2, frame_object.gfactor, empty_row)
     worksheet.write (6, 2, frame_object.load_time, empty_row)
 
+    p1_regression_counter = len (frame_object.elution_ends)\
+        - len (frame_object.r2s_p3_list) - frame_object.num_points_obj
+    
     for x in range (0, len (frame_object.elution_ends)):
         worksheet.write (8 + x, 0, x + 1)
         worksheet.write (8 + x, 1, frame_object.elution_ends [x])
@@ -178,6 +180,9 @@ def generate_analysis (workbook, worksheet, frame_object):
         worksheet.write (8 + x, 3, frame_object.elution_cpms_gfactor [x])
         worksheet.write (8 + x, 4, frame_object.elution_cpms_gRFW [x])
         worksheet.write (8 + x, 5, frame_object.elution_cpms_log [x])
+
+    for y in range (0, len (frame_object.r2s_p3_list)):
+        worksheet.write (8 + p1_regression_counter + y, 6, frame_object.r2s_p3_list [y])
         
     '''
     root_cnts = individual_inputs [1]

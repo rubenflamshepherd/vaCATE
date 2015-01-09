@@ -535,7 +535,9 @@ class MainFrame(wx.Frame):
     def obj_analysis (self):
 	# Getting parameters from regression of p3
 	self.x1_p3, self.x2_p3, self.y1_p3, self.y2_p3, self.r2_p3,\
-	    self.slope_p3, self.intercept_p3, self.reg_end_index =\
+	    self.slope_p3, self.intercept_p3, self.reg_end_index,\
+	    self.r2s_p3_list, self.slopes_p3_list,\
+	    self.intercepts_p3_list=\
             Operations.obj_regression_p3 (self.x, self.y, self.num_points_obj)
 		
 	# Setting the x- and y-series' involved in the p3 linear regression
