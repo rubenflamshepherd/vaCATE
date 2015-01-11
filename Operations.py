@@ -127,12 +127,13 @@ def p12_curve_stripped (elution_ends, log_efflux, last_used_index, slope, interc
     return corrected_p12_x, corrected_p12_y    
    
 def obj_regression_p12 (elution_ends, log_efflux, last_used_index):     
-    ''' Figuring out the best regression lines for phases 1 and 2
+    ''' Figuring out x/y-series that yield strongest correlations 
+    (regression lines) for phases 1 and 2
     
     INPUT:
     elution_ends (x-series; list) - elution end points (min)
     log_efflux (y-series; list) - normalized efflux data (log cpm/g RFW)
-    last_used_index is the first right-most point used in the p3 regression
+    last_used_index is the first point used in the p3 regression
         - used as end index for p2 because [x:y] y IS NOT INCLUSIVE
     
     RETURNED:
@@ -145,7 +146,7 @@ def obj_regression_p12 (elution_ends, log_efflux, last_used_index):
     y = log_efflux [:last_used_index]
         
     # Initialize the index(s) for the first regressions
-    demarcation_index = 2
+    demarcation_index = 2 # Start regression using 1st 2 pts vs rest of series
     current_high_r2 = 0 # Tracking highest summed R^2 from p1 and p2
         
     while demarcation_index < last_used_index - 1: 

@@ -543,20 +543,10 @@ class MainFrame(wx.Frame):
 	# Setting the x- and y-series' involved in the p3 linear regression
 	self.x_p3 = self.x [self.reg_end_index:] 
 	self.y_p3 = self.y [self.reg_end_index:]
-	
-	# # Setting the x/y-series' used start obj regression
+		
+	# # Setting the x/y-series' used to start obj regression
 	self.x_reg_start = self.x[len(self.x) - self.num_points_obj:] 
 	self.y_reg_start = self.y[len(self.x) - self.num_points_obj:]
-	
-	# Getting parameters from regression of p1-2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CLEAN UP
-	reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (
-            self.x,
-            self.y,
-            self.reg_end_index)
-	
-	# Unpacking parameters of p1 regression!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLEAN UP
-	self.x_p1 = reg_p1_raw [0]
-	self.y_p1 = reg_p1_raw [1]
 	
 	# Getting p1 + p2 curve-stripped data (together)
 	self.x_p12_curvestrippedof_p3, self.y_p12_curvestrippedof_p3 = \
@@ -569,9 +559,22 @@ class MainFrame(wx.Frame):
 	
 	# PROBLEM IS DOWNSTREAM OF HERE!!!!!!!!!!!!
 	
+	# Getting parameters from regression of p1-2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CLEAN UP
+	reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (
+            self.x,
+            self.y,
+            self.reg_end_index)
+	
+	# Unpacking parameters of p1 regression!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLEAN UP
+	self.x_p1 = reg_p1_raw [0]
+	self.y_p1 = reg_p1_raw [1]
+	print self.x_p1	
+	
 	# Isolating p2 curve stripped data
 	self.x_p2_curvestrippedof_p3 = self.x_p12_curvestrippedof_p3 [len (self.x_p1) :]
 	self.y_p2_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3 [len (self.y_p1) :]
+	
+	print self.y_p1
 	
 	# Linear regression of isolated p2 data + getting line data
 	self.r2_p2, self.slope_p2, self.intercept_p2 = Operations.linear_regression (
