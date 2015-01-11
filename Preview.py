@@ -557,24 +557,20 @@ class MainFrame(wx.Frame):
 	        self.slope_p3,
 	        self.intercept_p3)
 	
-	# PROBLEM IS DOWNSTREAM OF HERE!!!!!!!!!!!!
+	# Isolating/Unpacking PARTIALLY curve-stripped p1 x/y series
+	self.x_p1_curvestrippedof_p3, self.y_p1_curvestrippedof_p3 = \
+	    Operations.determine_p1_xy (
+	        self.x_p12_curvestrippedof_p3,
+	        self.y_p12_curvestrippedof_p3,
+            )
 	
-	# Getting parameters from regression of p1-2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!CLEAN UP
-	reg_p1_raw, reg_p2_raw = Operations.obj_regression_p12 (
-            self.x,
-            self.y,
-            self.reg_end_index)
-	
-	# Unpacking parameters of p1 regression!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! CLEAN UP
-	self.x_p1 = reg_p1_raw [0]
-	self.y_p1 = reg_p1_raw [1]
-	print self.x_p1	
-	
-	# Isolating p2 curve stripped data
+	# Defining uncurve-stripped p1 data
+	self.x_p1 = self.x [: len (self.x_p1_curvestrippedof_p3)]
+	self.y_p1 = self.y [: len (self.y_p1_curvestrippedof_p3)]
+		
+	# Isolating COMPLETELY curve-stripped p2 data
 	self.x_p2_curvestrippedof_p3 = self.x_p12_curvestrippedof_p3 [len (self.x_p1) :]
 	self.y_p2_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3 [len (self.y_p1) :]
-	
-	print self.y_p1
 	
 	# Linear regression of isolated p2 data + getting line data
 	self.r2_p2, self.slope_p2, self.intercept_p2 = Operations.linear_regression (
@@ -586,8 +582,8 @@ class MainFrame(wx.Frame):
 	    self.slope_p2)
 	
 	# Define the p1 x- and y-series corrected for p3
-	self.x_p1_curvestrippedof_p3 = self.x_p12_curvestrippedof_p3 [:len (self.x_p1)]
-	self.y_p1_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3 [:len (self.y_p1)]
+	# self.x_p1_curvestrippedof_p3 = self.x_p12_curvestrippedof_p3 [:len (self.x_p1)]
+	# self.y_p1_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3 [:len (self.y_p1)]
 	
 	# Getting and plotting p1 curve-stripped data (for p2 and p3)
 	self.x_p1_curvestrippedof_p23, self.y_p1_curvestrippedof_p23 = \

@@ -182,8 +182,10 @@ def generate_analysis (workbook, worksheet, frame_object):
         worksheet.write (8 + x, 5, frame_object.elution_cpms_log [x])
 
     for y in range (0, len (frame_object.r2s_p3_list)):
-        worksheet.write (8 + p1_regression_counter + y, 6, frame_object.r2s_p3_list [y])
-        
+        worksheet.write (9 + p1_regression_counter + y, 6, frame_object.r2s_p3_list [y])
+        worksheet.write (9 + p1_regression_counter + y, 7, frame_object.slopes_p3_list [y])
+        worksheet.write (9 + p1_regression_counter + y, 8, frame_object.intercepts_p3_list [y])
+                
     '''
     root_cnts = individual_inputs [1]
     shoot_cnts = individual_inputs [2]

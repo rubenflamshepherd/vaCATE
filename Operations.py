@@ -126,28 +126,24 @@ def p12_curve_stripped (elution_ends, log_efflux, last_used_index, slope, interc
                 
     return corrected_p12_x, corrected_p12_y    
    
-def obj_regression_p12 (elution_ends, log_efflux, last_used_index):     
+def determine_p1_xy (p12_elution_ends, p12_log_efflux):     
     ''' Figuring out x/y-series that yield strongest correlations 
     (regression lines) for phases 1 and 2
     
     INPUT:
-    elution_ends (x-series; list) - elution end points (min)
-    log_efflux (y-series; list) - normalized efflux data (log cpm/g RFW)
-    last_used_index is the first point used in the p3 regression
-        - used as end index for p2 because [x:y] y IS NOT INCLUSIVE
+    elution_ends (x-series; list) - elution end points (min) of p1 + p2
+    log_efflux (y-series; list) - normalized efflux data (log cpm/g RFW) of
+         of p1 + p2
     
     RETURNED:
-    best (according to R^2) p1 and p2 linear regressions as
-    p1, p2 (tuple of two lists) where:
-    p_ = [x series, y series, x1, x2, y1, y2, r2, slope, intercept]
+    Ordered lists (best_x1, best_y1) contained x and y series of p1 that yields
+       the highest R^2 taking into account combined R^2 of possilbe p1/p2
     '''
-    # Broader x and y series containing both p1 and p2
-    x = elution_ends[:last_used_index]
-    y = log_efflux [:last_used_index]
-        
+    
     # Initialize the index(s) for the first regressions
     demarcation_index = 2 # Start regression using 1st 2 pts vs rest of series
     current_high_r2 = 0 # Tracking highest summed R^2 from p1 and p2
+    last_used_index = len (p12_elution_ends)
         
     while demarcation_index < last_used_index - 1: 
         # Correcting loop end (last_used_index - 1) 
@@ -156,11 +152,11 @@ def obj_regression_p12 (elution_ends, log_efflux, last_used_index):
         # So we can use one var to track end and start indexs of p1/2 regression
         
         # Setting current series for p1 regression
-        x1_current = x [:demarcation_index]
-        y1_current = y [:demarcation_index]
+        x1_current = p12_elution_ends [:demarcation_index]
+        y1_current = p12_log_efflux [:demarcation_index]
         # Setting current series for p2 regression
-        x2_current = x [demarcation_index:]
-        y2_current = y [demarcation_index:]     
+        x2_current = p12_elution_ends [demarcation_index:]
+        y2_current = p12_log_efflux [demarcation_index:]     
         
         # Doing the current set of regressions
         current_p1_regression = linear_regression (x1_current, y1_current)
@@ -189,16 +185,7 @@ def obj_regression_p12 (elution_ends, log_efflux, last_used_index):
         # Moving the index counter forward
         demarcation_index += 1
         
-    # Grabbing parameters from phase 1 regression line
-    x1_1, x2_1, y1_1, y2_1 = grab_x_ys (best_x1, best_intercept_1, best_slope_1)
-    # Grabbing parameters from phase 2 regression line
-    x1_2, x2_2, y1_2, y2_2 = grab_x_ys (best_x2, best_intercept_2, best_slope_2)
-    
-    # Packing p1 and p2 for return
-    final_regression_p1 = [best_x1, best_y1, x1_1, x2_1, y1_1, y2_1, best_r2_1, best_slope_1, best_intercept_1]
-    final_regression_p2 = [best_x2, best_y2, x1_2, x2_2, y1_2, y2_2, best_r2_2, best_slope_2, best_intercept_2]
-
-    return final_regression_p1, final_regression_p2
+    return best_x1, best_y1
   
     
 def obj_regression_p3 (elution_ends, log_efflux, num_points_reg):     
