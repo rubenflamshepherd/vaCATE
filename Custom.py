@@ -58,3 +58,5 @@ class Toolbar(NavigationToolbar2WxAgg):
         workbook.close()        
         
         evt.Skip()
+        
+        self.frame_object.Destroy ()

@@ -567,6 +567,8 @@ class MainFrame(wx.Frame):
 	        self.slope_p3,
 	        self.intercept_p3)
 	
+	# PROBLEM IS DOWNSTREAM OF HERE!!!!!!!!!!!!
+	
 	# Isolating p2 curve stripped data
 	self.x_p2_curvestrippedof_p3 = self.x_p12_curvestrippedof_p3 [len (self.x_p1) :]
 	self.y_p2_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3 [len (self.y_p1) :]
@@ -601,7 +603,20 @@ class MainFrame(wx.Frame):
 	self.x1_p1, self.x2_p1, self.y1_p1, self.y2_p1 = Operations.grab_x_ys(
 	    self.x_p1_curvestrippedof_p23,
 	    self.intercept_p1,
-	    self.slope_p1)	
+	    self.slope_p1)
+	
+	# Setting rate constant (k) and half life values
+	
+	self.k_p1 = abs(self.slope_p1 * 2.303)
+	self.k_p2 = abs(self.slope_p2 * 2.303)
+	self.k_p3 = abs(self.slope_p3 * 2.303)
+	
+	self.t05_p1 = 0.693/self.k_p1
+	self.t05_p2 = 0.693/self.k_p2
+	self.t05_p3 = 0.693/self.k_p3
+	
+	# Setting Rate of Release (R0) and efflux values of each phase
+	#self.R0_p1 = 
 
     def draw_figure(self):
         """ Redraws the figure
@@ -754,14 +769,20 @@ class MainFrame(wx.Frame):
 	self.data_p1_slope.SetValue ('%0.3f'%(self.slope_p1))
 	self.data_p1_int.SetValue ('%0.3f'%(self.intercept_p1))
 	self.data_p1_r2.SetValue ('%0.3f'%(self.r2_p1))
+	self.data_p1_k.SetValue ('%0.3f'%(self.k_p1))
+	self.data_p1_t05.SetValue ('%0.3f'%(self.t05_p1))
 	
 	self.data_p2_slope.SetValue ('%0.3f'%(self.slope_p2))
 	self.data_p2_int.SetValue ('%0.3f'%(self.intercept_p2))
 	self.data_p2_r2.SetValue ('%0.3f'%(self.r2_p2))        
+	self.data_p2_k.SetValue ('%0.3f'%(self.k_p2))
+	self.data_p2_t05.SetValue ('%0.3f'%(self.t05_p2))
 	
 	self.data_p3_slope.SetValue ('%0.3f'%(self.slope_p3))
 	self.data_p3_int.SetValue ('%0.3f'%(self.intercept_p3))
 	self.data_p3_r2.SetValue ('%0.3f'%(self.r2_p3))         
+	self.data_p3_k.SetValue ('%0.3f'%(self.k_p3))
+	self.data_p3_t05.SetValue ('%0.3f'%(self.t05_p3))
         
         # Adding our legends
         self.plot_phase1.legend(loc='upper right')
@@ -853,11 +874,12 @@ class MainFrame(wx.Frame):
 
 
 if __name__ == '__main__':
-    data = ["Run (Preview) 1", 35714.845, 8679.3, 4746.2, 0.6027, 1.00841763438286, 60.0, [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.5, 13.0, 14.5, 16.0, 17.5, 19.0, 20.5, 22.0, 23.5, 25.0, 27.0, 29.0, 31.0, 33.0, 35.0, 37.0, 39.0, 41.0, 43.0, 45.0], [81453.0, 20369.1, 5511.0, 2790.7, 1933.8, 1456.8, 1159.5, 1015.1, 882.4, 788.5, 801.7, 698.5, 647.9, 629.3, 622.2, 507.9, 504.2, 422.8, 451.9, 411.3, 475.7, 453.3, 467.4, 431.2, 404.4, 432.2, 363.8, 429.8, 303.4, 348.1]]
-  
+    import Excel
+    #data = ["Run (Preview) 1", 35714.845, 8679.3, 4746.2, 0.6027, 1.00841763438286, 60.0, [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.5, 13.0, 14.5, 16.0, 17.5, 19.0, 20.5, 22.0, 23.5, 25.0, 27.0, 29.0, 31.0, 33.0, 35.0, 37.0, 39.0, 41.0, 43.0, 45.0], [81453.0, 20369.1, 5511.0, 2790.7, 1933.8, 1456.8, 1159.5, 1015.1, 882.4, 788.5, 801.7, 698.5, 647.9, 629.3, 622.2, 507.9, 504.2, 422.8, 451.9, 411.3, 475.7, 453.3, 467.4, 431.2, 404.4, 432.2, 363.8, 429.8, 303.4, 348.1]]
+    data = Excel.grab_data ("C:/Users/ruben/projects/cateanalysis", "CATE Template - (2014_11_21).xlsx")
     
     app = wx.PySimpleApp()
-    app.frame = MainFrame(*(data + ["C:/Users/daniel/Desktop"]))
+    app.frame = MainFrame(*(data + ["C:/Users/ruben/projects/cateanalysis"]))
     app.frame.Show()
     app.frame.Center()
     app.MainLoop()

@@ -112,15 +112,19 @@ def p12_curve_stripped (elution_ends, log_efflux, last_used_index, slope, interc
     # Antilog extrapolated p3 data and p1/2 data, subtract them, and relog them
     
     # Container for curve-stripped p1/2 data
+    corrected_p12_x = []
     corrected_p12_y = []
     
     for value in range (0, len (p12_y)):
+        # print p12_y [value], p3_extrapolated_raw [value]
         antilog_orig = antilog (p12_y [value])
         antilog_reg = antilog (p3_extrapolated_raw [value])
         corrected_p12_x_raw = antilog_orig - antilog_reg
-        corrected_p12_y.append (math.log10 (corrected_p12_x_raw))
+        if corrected_p12_x_raw > 0: # We can perform a log operation
+            corrected_p12_y.append (math.log10 (corrected_p12_x_raw))
+            corrected_p12_x.append (elution_ends [value])
                 
-    return p12_x, corrected_p12_y    
+    return corrected_p12_x, corrected_p12_y    
    
 def obj_regression_p12 (elution_ends, log_efflux, last_used_index):     
     ''' Figuring out the best regression lines for phases 1 and 2

@@ -110,7 +110,7 @@ class DialogFrame(wx.Frame):
             frame.MakeModal (True)            
             dlg.Destroy()
                         
-        #self.Close()                         
+        self.Close()                         
         
         # to generate FINAL excel file (probably won't be in this module)
         # CATE.generate_workbook (directory, individual_inputs, series_inputs)
