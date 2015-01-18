@@ -23,6 +23,7 @@ Last modified: 30.07.2008
 import os
 import pprint
 import random
+import math
 import wx
 import numpy as np
 import Operations
@@ -77,7 +78,7 @@ class MainFrame(wx.Frame):
         self.create_main_panel()
         
         # Default analysis:objective regression using the last 2 data points
-        self.obj_textbox.SetValue ('2')        
+        self.obj_textbox.SetValue ('3')        
         
         self.draw_figure()
 	
@@ -539,7 +540,7 @@ class MainFrame(wx.Frame):
 	    self.r2s_p3_list, self.slopes_p3_list,\
 	    self.intercepts_p3_list=\
             Operations.obj_regression_p3 (self.x, self.y, self.num_points_obj)
-		
+	
 	# Setting the x- and y-series' involved in the p3 linear regression
 	self.x_p3 = self.x [self.reg_end_index:] 
 	self.y_p3 = self.y [self.reg_end_index:]
@@ -615,7 +616,13 @@ class MainFrame(wx.Frame):
 	self.t05_p3 = 0.693/self.k_p3
 	
 	# Setting Rate of Release (R0) and efflux values of each phase
-	#self.R0_p1 = 
+	self.R0_p1 = 10 ** self.intercept_p1
+	self.R0_p2 = 10 ** self.intercept_p2
+	self.R0_p3 = 10 ** self.intercept_p3
+	
+	self.efflux_p1 = 60 * self.R0_p1 / self.SA*(1 - math.exp (-self.k_p1 * self.load_time))
+	self.efflux_p2 = 60 * self.R0_p2 / self.SA*(1 - math.exp (-self.k_p2 * self.load_time))
+	self.efflux_p3 = 60 * self.R0_p3 / self.SA*(1 - math.exp (-self.k_p3 * self.load_time))
 
     def draw_figure(self):
         """ Redraws the figure
@@ -651,9 +658,9 @@ class MainFrame(wx.Frame):
         # OBJECTIVE REGRESSION
 	num_points_obj = self.obj_textbox.GetValue ()
 	self.num_points_obj = int (num_points_obj)
-	if num_points_obj < 2:
-	    num_points_obj = 2
-	    self.obj_textbox.SetValue ('2')
+	if num_points_obj < 3:
+	    num_points_obj = 3
+	    self.obj_textbox.SetValue ('3')
 	    
 	self.obj_analysis ()
 	    
@@ -770,19 +777,22 @@ class MainFrame(wx.Frame):
 	self.data_p1_r2.SetValue ('%0.3f'%(self.r2_p1))
 	self.data_p1_k.SetValue ('%0.3f'%(self.k_p1))
 	self.data_p1_t05.SetValue ('%0.3f'%(self.t05_p1))
+	self.data_p1_efflux.SetValue ('%0.1f'%(self.efflux_p1))
 	
 	self.data_p2_slope.SetValue ('%0.3f'%(self.slope_p2))
 	self.data_p2_int.SetValue ('%0.3f'%(self.intercept_p2))
 	self.data_p2_r2.SetValue ('%0.3f'%(self.r2_p2))        
 	self.data_p2_k.SetValue ('%0.3f'%(self.k_p2))
 	self.data_p2_t05.SetValue ('%0.3f'%(self.t05_p2))
+	self.data_p2_efflux.SetValue ('%0.2f'%(self.efflux_p2))
 	
 	self.data_p3_slope.SetValue ('%0.3f'%(self.slope_p3))
 	self.data_p3_int.SetValue ('%0.3f'%(self.intercept_p3))
 	self.data_p3_r2.SetValue ('%0.3f'%(self.r2_p3))         
 	self.data_p3_k.SetValue ('%0.3f'%(self.k_p3))
 	self.data_p3_t05.SetValue ('%0.3f'%(self.t05_p3))
-        
+	self.data_p3_efflux.SetValue ('%0.3f'%(self.efflux_p3))
+	        
         # Adding our legends
         self.plot_phase1.legend(loc='upper right')
 	self.plot_phase2.legend(loc='upper right')
@@ -875,7 +885,7 @@ class MainFrame(wx.Frame):
 if __name__ == '__main__':
     import Excel
     #data = ["Run (Preview) 1", 35714.845, 8679.3, 4746.2, 0.6027, 1.00841763438286, 60.0, [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.5, 13.0, 14.5, 16.0, 17.5, 19.0, 20.5, 22.0, 23.5, 25.0, 27.0, 29.0, 31.0, 33.0, 35.0, 37.0, 39.0, 41.0, 43.0, 45.0], [81453.0, 20369.1, 5511.0, 2790.7, 1933.8, 1456.8, 1159.5, 1015.1, 882.4, 788.5, 801.7, 698.5, 647.9, 629.3, 622.2, 507.9, 504.2, 422.8, 451.9, 411.3, 475.7, 453.3, 467.4, 431.2, 404.4, 432.2, 363.8, 429.8, 303.4, 348.1]]
-    data = Excel.grab_data ("C:/Users/ruben/projects/cateanalysis", "CATE Template - (2014_11_21).xlsx")
+    data = Excel.grab_data ("C:/Users/ruben/projects/cateanalysis", "CATE Template - (2014_1_1).xlsx")
     
     app = wx.PySimpleApp()
     app.frame = MainFrame(*(data + ["C:/Users/ruben/projects/cateanalysis"]))
