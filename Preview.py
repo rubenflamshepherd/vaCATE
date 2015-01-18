@@ -384,14 +384,14 @@ class MainFrame(wx.Frame):
 	p3_text = wx.StaticText (self.panel, label = "Phase III: ")
 	k_text = wx.StaticText (self.panel, label = "k")
 	halflife_text = wx.StaticText (self.panel, label = u"t\u2080\u002E\u2085")
-	efflux_text = wx.StaticText (self.panel, label = u"\u03d5")
+	efflux_text = wx.StaticText (self.panel, label = "Efflux")
 	
 	slope_text.SetFont(parameter1_title_font)
 	intercept_text.SetFont(parameter1_title_font)
 	r2_text.SetFont(parameter1_title_font)
 	k_text.SetFont(parameter1_title_font)
 	halflife_text.SetFont(parameter_title_font)
-        efflux_text.SetFont(parameter_title_font)
+        efflux_text.SetFont(parameter1_title_font)
 	
         # Adding data output widgets to data output gridsizers        
         self.gridbox_data = wx.GridSizer (rows=4, cols=7, hgap=1, vgap=1)
@@ -620,9 +620,12 @@ class MainFrame(wx.Frame):
 	self.R0_p2 = 10 ** self.intercept_p2
 	self.R0_p3 = 10 ** self.intercept_p3
 	
-	self.efflux_p1 = 60 * self.R0_p1 / self.SA*(1 - math.exp (-self.k_p1 * self.load_time))
-	self.efflux_p2 = 60 * self.R0_p2 / self.SA*(1 - math.exp (-self.k_p2 * self.load_time))
-	self.efflux_p3 = 60 * self.R0_p3 / self.SA*(1 - math.exp (-self.k_p3 * self.load_time))
+	self.efflux_p1 = 60 *\
+	    (self.R0_p1 / (self.SA * (1 - math.exp (-self.k_p1 * self.load_time))))
+	self.efflux_p2 = 60 *\
+	    (self.R0_p2 / (self.SA * (1 - math.exp (-self.k_p2 * self.load_time))))
+	self.efflux_p3 = 60 *\
+	    (self.R0_p3 / (self.SA * (1 - math.exp (-self.k_p3 * self.load_time))))
 
     def draw_figure(self):
         """ Redraws the figure

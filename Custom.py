@@ -15,16 +15,18 @@ class Toolbar(NavigationToolbar2WxAgg):
         NavigationToolbar2WxAgg.__init__(self, canvas)
         self.frame_object = frame_object
         
-        POSITION_OF_FORWARD_BTN = 1
-        self.DeleteToolByPos(POSITION_OF_FORWARD_BTN)        
-        self.DeleteToolByPos(POSITION_OF_FORWARD_BTN)
-        self.InsertSeparator (7)
         
+        self.DeleteToolByPos(8)
+        self.DeleteToolByPos(1)
+        self.DeleteToolByPos(1)
+        self.InsertSeparator (6)
+        self.InsertSeparator (6)
+                
         # for simplicity I'm going to reuse a bitmap from wx, you'll
         # probably want to add your own.
         
-        self.AddSimpleTool(self.ON_EXTRACT, _load_bitmap('move.ppm'),
-                           'Click me', 'Activate custom contol')
+        self.AddSimpleTool(self.ON_EXTRACT, _load_bitmap('filesave.png'),
+                           'Save to Excel', 'Activate custom contol')
         wx.EVT_TOOL(self, self.ON_EXTRACT, self._on_extract)
         
 
