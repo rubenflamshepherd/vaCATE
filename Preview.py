@@ -43,42 +43,18 @@ class MainFrame(wx.Frame):
     """
     title = 'Compartmental Analysis of Tracer Efflux: Data Analyzer'
     
-    def __init__(self, run_name, SA, root_cnts, shoot_cnts, root_weight, gfactor,\
-                         load_time, elution_times, elution_cpms, directory):
+    def __init__(self, data_object):
         wx.Frame.__init__(self, None, -1, self.title)
 	
 	self.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
 	
-	# Load initial CATE info as attributes of Frame object
-	self.run_name = run_name
-	self.SA = SA
-	self.root_cnts = root_cnts
-	self.shoot_cnts = shoot_cnts
-	self.root_weight = root_weight
-	self.gfactor = gfactor
-	self.load_time = load_time
-	self.elution_times = elution_times
-	self.elution_ends = elution_times [1:]
-	self.elution_starts = elution_times [:len (elution_times) -1]
-	self.elution_cpms = elution_cpms
-	self.directory = directory
-	
-	temp = Operations.basic_CATE_analysis (
-	    SA, root_cnts, shoot_cnts, root_weight, gfactor, load_time,\
-	    elution_times, elution_cpms)
-	
-	self.elution_cpms_gfactor = temp [0]
-	self.elution_cpms_gRFW = temp [1]
-	self.elution_cpms_log = temp [2]
-	        
-        self.x = np.array (self.elution_ends)
-	self.y = np.array (self.elution_cpms_log)
-        self.create_menu()
-        self.create_status_bar()
+	self.data_object = data_object
+	self.create_status_bar()
         self.create_main_panel()
         
         # Default analysis:objective regression using the last 2 data points
-        self.obj_textbox.SetValue ('3')        
+        self.obj_textbox.SetValue ('3')
+	self.run_num = 0
         
         self.draw_figure()
 	
@@ -533,103 +509,10 @@ class MainFrame(wx.Frame):
     def create_status_bar(self):
         self.statusbar = self.CreateStatusBar()
 	
-    def obj_analysis (self):
-	# Getting parameters from regression of p3
-	self.x1_p3, self.x2_p3, self.y1_p3, self.y2_p3, self.r2_p3,\
-	    self.slope_p3, self.intercept_p3, self.reg_end_index,\
-	    self.r2s_p3_list, self.slopes_p3_list,\
-	    self.intercepts_p3_list=\
-            Operations.obj_regression_p3 (self.x, self.y, self.num_points_obj)
-	
-	# Setting the x- and y-series' involved in the p3 linear regression
-	self.x_p3 = self.x [self.reg_end_index:] 
-	self.y_p3 = self.y [self.reg_end_index:]
-		
-	# # Setting the x/y-series' used to start obj regression
-	self.x_reg_start = self.x[len(self.x) - self.num_points_obj:] 
-	self.y_reg_start = self.y[len(self.x) - self.num_points_obj:]
-	
-	# Getting p1 + p2 curve-stripped data (together)
-	self.x_p12_curvestrippedof_p3, self.y_p12_curvestrippedof_p3 = \
-	    Operations.p12_curve_stripped (
-	        self.x,
-	        self.y,
-	        self.reg_end_index,
-	        self.slope_p3,
-	        self.intercept_p3)
-	
-	# Isolating/Unpacking PARTIALLY curve-stripped p1 x/y series
-	self.x_p1_curvestrippedof_p3, self.y_p1_curvestrippedof_p3 = \
-	    Operations.determine_p1_xy (
-	        self.x_p12_curvestrippedof_p3,
-	        self.y_p12_curvestrippedof_p3,
-            )
-	
-	# Defining uncurve-stripped p1 data
-	self.x_p1 = self.x [: len (self.x_p1_curvestrippedof_p3)]
-	self.y_p1 = self.y [: len (self.y_p1_curvestrippedof_p3)]
-		
-	# Isolating COMPLETELY curve-stripped p2 data
-	self.x_p2_curvestrippedof_p3 = self.x_p12_curvestrippedof_p3 [len (self.x_p1) :]
-	self.y_p2_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3 [len (self.y_p1) :]
-	
-	# Linear regression of isolated p2 data + getting line data
-	self.r2_p2, self.slope_p2, self.intercept_p2 = Operations.linear_regression (
-	    self.x_p2_curvestrippedof_p3,
-	    self.y_p2_curvestrippedof_p3)
-	self.x1_p2, self.x2_p2, self.y1_p2, self.y2_p2 = Operations.grab_x_ys(
-	    self.x_p2_curvestrippedof_p3,
-	    self.intercept_p2,
-	    self.slope_p2)
-	
-	# Define the p1 x- and y-series corrected for p3
-	# self.x_p1_curvestrippedof_p3 = self.x_p12_curvestrippedof_p3 [:len (self.x_p1)]
-	# self.y_p1_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3 [:len (self.y_p1)]
-	
-	# Getting and plotting p1 curve-stripped data (for p2 and p3)
-	self.x_p1_curvestrippedof_p23, self.y_p1_curvestrippedof_p23 = \
-	    Operations.p12_curve_stripped (
-	        self.x_p1_curvestrippedof_p3,
-	        self.y_p1_curvestrippedof_p3,
-	        len (self.x_p1_curvestrippedof_p3),
-	        self.slope_p2,
-	        self.intercept_p2
-	    )
-	
-	# Linear regression on curve-stripped p3 data and plotting line
-	self.r2_p1, self.slope_p1, self.intercept_p1 = Operations.linear_regression (
-	    self.x_p1_curvestrippedof_p23,
-	    self.y_p1_curvestrippedof_p23)
-	self.x1_p1, self.x2_p1, self.y1_p1, self.y2_p1 = Operations.grab_x_ys(
-	    self.x_p1_curvestrippedof_p23,
-	    self.intercept_p1,
-	    self.slope_p1)
-	
-	# Setting rate constant (k) and half life values
-	
-	self.k_p1 = abs(self.slope_p1 * 2.303)
-	self.k_p2 = abs(self.slope_p2 * 2.303)
-	self.k_p3 = abs(self.slope_p3 * 2.303)
-	
-	self.t05_p1 = 0.693/self.k_p1
-	self.t05_p2 = 0.693/self.k_p2
-	self.t05_p3 = 0.693/self.k_p3
-	
-	# Setting Rate of Release (R0) and efflux values of each phase
-	self.R0_p1 = 10 ** self.intercept_p1
-	self.R0_p2 = 10 ** self.intercept_p2
-	self.R0_p3 = 10 ** self.intercept_p3
-	
-	self.efflux_p1 = 60 *\
-	    (self.R0_p1 / (self.SA * (1 - math.exp (-self.k_p1 * self.load_time))))
-	self.efflux_p2 = 60 *\
-	    (self.R0_p2 / (self.SA * (1 - math.exp (-self.k_p2 * self.load_time))))
-	self.efflux_p3 = 60 *\
-	    (self.R0_p3 / (self.SA * (1 - math.exp (-self.k_p3 * self.load_time))))
-
     def draw_figure(self):
         """ Redraws the figure
-        """     
+        """
+	run_object = self.data_object.run_objects [self.run_num]
         
         # Clearing the plots so they can be redrawn anew
         self.plot_phase1.clear()
@@ -642,8 +525,8 @@ class MainFrame(wx.Frame):
 	
 	# Graphing complete log efflux data set
         self.plot_phase3.scatter(
-            self.x,
-            self.y,
+            run_object.x,
+            run_object.y,
             s = self.slider_width.GetValue(),
             alpha = 0.5,
             edgecolors = 'k',
@@ -659,26 +542,27 @@ class MainFrame(wx.Frame):
         self.plot_phase3.set_ylim (bottom = 0)
                 
         # OBJECTIVE REGRESSION
+	'''
 	num_points_obj = self.obj_textbox.GetValue ()
 	self.num_points_obj = int (num_points_obj)
 	if num_points_obj < 3:
 	    num_points_obj = 3
 	    self.obj_textbox.SetValue ('3')
-	    
-	self.obj_analysis ()
-	    
+	'''
+	
+		    
 	# Graphing the p3 series and regression line
 	self.plot_phase3.scatter(
-                    self.x_p3,
-                    self.y_p3,
+                    run_object.x_p3,
+                    run_object.y_p3,
                     s = self.slider_width.GetValue(),
                     alpha = 0.75,
                     edgecolors = 'k',
                     facecolors = 'k'
                 )            
 	line_p3 = matplotlib.lines.Line2D (
-            [self.x1_p3, self.x2_p3],
-            [self.y1_p3, self.y2_p3],
+            [run_object.x1_p3, run_object.x2_p3],
+            [run_object.y1_p3, run_object.y2_p3],
             color = 'r',
             ls = '-',
             label = 'Phase III')
@@ -687,8 +571,8 @@ class MainFrame(wx.Frame):
 	# Distiguishing the intial points used to start the regression
 	# and plotting them (solid red)
 	self.plot_phase3.scatter(
-                    self.x_reg_start,
-                    self.y_reg_start,
+                    run_object.x_reg_start,
+                    run_object.y_reg_start,
                     s = self.slider_width.GetValue(),
                     alpha = 0.5,
                     edgecolors = 'r',
@@ -699,8 +583,8 @@ class MainFrame(wx.Frame):
 	
 	# Graphing raw uncorrected data of p1 and p2
 	self.plot_phase2.scatter(
-                    self.x [:self.reg_end_index],
-                    self.y [:self.reg_end_index],
+                    run_object.x [:run_object.reg_end_index],
+                    run_object.y [:run_object.reg_end_index],
                     s = self.slider_width.GetValue(),
                     alpha = 0.50,
                     edgecolors = 'k',
@@ -710,24 +594,24 @@ class MainFrame(wx.Frame):
 	# Graphing curve-stripped (corrected) phase I and II data, isolated
 	# p2 data and line of best fit
 	self.plot_phase2.scatter(
-	    self.x_p12_curvestrippedof_p3,
-	    self.y_p12_curvestrippedof_p3,
+	    run_object.x_p12_curvestrippedof_p3,
+	    run_object.y_p12_curvestrippedof_p3,
 	    s = self.slider_width.GetValue(),
 	    alpha = 0.50,
 	    edgecolors = 'r',
 	    facecolors = 'w')
 	
 	self.plot_phase2.scatter(
-	    self.x_p2_curvestrippedof_p3,
-	    self.y_p2_curvestrippedof_p3,
+	    run_object.x_p2_curvestrippedof_p3,
+	    run_object.y_p2_curvestrippedof_p3,
 	    s = self.slider_width.GetValue(),
 	    alpha = 0.75,
 	    edgecolors = 'k',
 	    facecolors = 'k')	
 	
 	self.line_p2 = matplotlib.lines.Line2D (
-            [self.x1_p2, self.x2_p2],
-            [self.y1_p2, self.y2_p2],
+            [run_object.x1_p2, run_object.x2_p2],
+            [run_object.y1_p2, run_object.y2_p2],
             color = 'r',
             ls = ':',
             label = 'Phase II')
@@ -738,8 +622,8 @@ class MainFrame(wx.Frame):
 	# Graph raw uncorrected p1 data, p1 data corrected for p3, and p1 data
 	# Corrected for both p2 and p3
 	self.plot_phase1.scatter(
-                    self.x_p1,
-                    self.y_p1,
+                    run_object.x_p1,
+                    run_object.y_p1,
                     s = self.slider_width.GetValue(),
                     alpha = 0.25,
                     edgecolors = 'k',
@@ -748,8 +632,8 @@ class MainFrame(wx.Frame):
 	
 	# Graph p1 data corrected for p3
 	self.plot_phase1.scatter(
-	    self.x_p1_curvestrippedof_p3,
-	    self.y_p1_curvestrippedof_p3,
+	    run_object.x_p1_curvestrippedof_p3,
+	    run_object.y_p1_curvestrippedof_p3,
 	    s = self.slider_width.GetValue(),
 	    alpha = 0.25,
 	    edgecolors = 'r',
@@ -757,8 +641,8 @@ class MainFrame(wx.Frame):
 	)	
 	
 	self.plot_phase1.scatter(
-	    self.x_p1_curvestrippedof_p23,
-	    self.y_p1_curvestrippedof_p23,
+	    run_object.x_p1_curvestrippedof_p23,
+	    run_object.y_p1_curvestrippedof_p23,
 	    s = self.slider_width.GetValue(),
 	    alpha = 0.75,
 	    edgecolors = 'k',
@@ -766,8 +650,8 @@ class MainFrame(wx.Frame):
 	)
 	
 	self.line_p1 = matplotlib.lines.Line2D (
-            [self.x1_p1,self.x2_p1],
-            [self.y1_p1,self.y2_p1],
+            [run_object.x1_p1, run_object.x2_p1],
+            [run_object.y1_p1, run_object.y2_p1],
             color = 'r',
             ls = '--',
             label = 'Phase I'
@@ -775,26 +659,26 @@ class MainFrame(wx.Frame):
 	self.plot_phase1.add_line (self.line_p1)          
     
 	# Outputting the data from the linear regressions to widgets
-	self.data_p1_slope.SetValue ('%0.3f'%(self.slope_p1))
-	self.data_p1_int.SetValue ('%0.3f'%(self.intercept_p1))
-	self.data_p1_r2.SetValue ('%0.3f'%(self.r2_p1))
-	self.data_p1_k.SetValue ('%0.3f'%(self.k_p1))
-	self.data_p1_t05.SetValue ('%0.3f'%(self.t05_p1))
-	self.data_p1_efflux.SetValue ('%0.1f'%(self.efflux_p1))
+	self.data_p1_slope.SetValue ('%0.3f'%(run_object.slope_p1))
+	self.data_p1_int.SetValue ('%0.3f'%(run_object.intercept_p1))
+	self.data_p1_r2.SetValue ('%0.3f'%(run_object.r2_p1))
+	self.data_p1_k.SetValue ('%0.3f'%(run_object.k_p1))
+	self.data_p1_t05.SetValue ('%0.3f'%(run_object.t05_p1))
+	self.data_p1_efflux.SetValue ('%0.1f'%(run_object.efflux_p1))
 	
-	self.data_p2_slope.SetValue ('%0.3f'%(self.slope_p2))
-	self.data_p2_int.SetValue ('%0.3f'%(self.intercept_p2))
-	self.data_p2_r2.SetValue ('%0.3f'%(self.r2_p2))        
-	self.data_p2_k.SetValue ('%0.3f'%(self.k_p2))
-	self.data_p2_t05.SetValue ('%0.3f'%(self.t05_p2))
-	self.data_p2_efflux.SetValue ('%0.2f'%(self.efflux_p2))
+	self.data_p2_slope.SetValue ('%0.3f'%(run_object.slope_p2))
+	self.data_p2_int.SetValue ('%0.3f'%(run_object.intercept_p2))
+	self.data_p2_r2.SetValue ('%0.3f'%(run_object.r2_p2))        
+	self.data_p2_k.SetValue ('%0.3f'%(run_object.k_p2))
+	self.data_p2_t05.SetValue ('%0.3f'%(run_object.t05_p2))
+	self.data_p2_efflux.SetValue ('%0.2f'%(run_object.efflux_p2))
 	
-	self.data_p3_slope.SetValue ('%0.3f'%(self.slope_p3))
-	self.data_p3_int.SetValue ('%0.3f'%(self.intercept_p3))
-	self.data_p3_r2.SetValue ('%0.3f'%(self.r2_p3))         
-	self.data_p3_k.SetValue ('%0.3f'%(self.k_p3))
-	self.data_p3_t05.SetValue ('%0.3f'%(self.t05_p3))
-	self.data_p3_efflux.SetValue ('%0.3f'%(self.efflux_p3))
+	self.data_p3_slope.SetValue ('%0.3f'%(run_object.slope_p3))
+	self.data_p3_int.SetValue ('%0.3f'%(run_object.intercept_p3))
+	self.data_p3_r2.SetValue ('%0.3f'%(run_object.r2_p3))         
+	self.data_p3_k.SetValue ('%0.3f'%(run_object.k_p3))
+	self.data_p3_t05.SetValue ('%0.3f'%(run_object.t05_p3))
+	self.data_p3_efflux.SetValue ('%0.3f'%(run_object.efflux_p3))
 	        
         # Adding our legends
         self.plot_phase1.legend(loc='upper right')
@@ -886,12 +770,11 @@ class MainFrame(wx.Frame):
 
 if __name__ == '__main__':
     import Excel
-    #data = ["Run (Preview) 1", 35714.845, 8679.3, 4746.2, 0.6027, 1.00841763438286, 60.0, [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.5, 13.0, 14.5, 16.0, 17.5, 19.0, 20.5, 22.0, 23.5, 25.0, 27.0, 29.0, 31.0, 33.0, 35.0, 37.0, 39.0, 41.0, 43.0, 45.0], [81453.0, 20369.1, 5511.0, 2790.7, 1933.8, 1456.8, 1159.5, 1015.1, 882.4, 788.5, 801.7, 698.5, 647.9, 629.3, 622.2, 507.9, 504.2, 422.8, 451.9, 411.3, 475.7, 453.3, 467.4, 431.2, 404.4, 432.2, 363.8, 429.8, 303.4, 348.1]]
-    data = Excel.grab_data ("C:/Users/ruben/projects/cateanalysis", "CATE Template - (2014_11_21).xlsx") [0]
-    print data
     
+    temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - (2014_11_21).xlsx")
+
     app = wx.PySimpleApp()
-    app.frame = MainFrame(*(data + ["C:/Users/ruben/projects/cateanalysis"]))
+    app.frame = MainFrame(temp_data)
     app.frame.Show()
     app.frame.Center()
     app.MainLoop()

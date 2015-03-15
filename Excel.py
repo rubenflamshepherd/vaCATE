@@ -4,17 +4,11 @@ import math
 import numpy
 import time
 
-def generate_template (output_file_path, workbook, worksheet):
-    '''
-    Generates an our CATE Data template in an in an already created workbook and
-    worksheet.
-    
-    INPUTS
-    output_file_path - path/filename (str)
-    
-    OUTPUT
-    worksheet, workbook as an ordered tuple pair
-    '''
+import DataObject
+import RunObject
+
+def generate_sheet (workbook, sheet_name):
+    worksheet = workbook.add_worksheet (sheet_name)
     
     # Formatting for header items for which inputs ARE NOT required
     not_req = workbook.add_format ()
@@ -73,21 +67,32 @@ def generate_template (output_file_path, workbook, worksheet):
         worksheet.merge_range (y + 1, 0, y + 1, 1,\
                                row_headers[y][0], row_headers[y][1])
         worksheet.write (y + 1, 2, "", empty_row)
-                
+        
+    return worksheet
+
+def generate_template (output_file_path, workbook):
+    '''
+    Generates an our CATE Data template in an in an already created workbook and
+    worksheet.
+    
+    INPUTS
+    output_file_path - path/filename (str)
+    
+    OUTPUT
+    worksheet, workbook as an ordered tuple pair
+    '''
+    
+    generate_worksheet (workbook, 'Template')               
     # Writing headers columns containing individual runs 
     worksheet.write (0, 2, "Run 1", run_header)
-    
-    #workbook.close()
-     
-    return worksheet, workbook # Why do we even return this?!!!!!!!!!!!!?!?!?!?!?!!?
-
+        
 def grab_data (directory, filename):
     '''
     Extracts data from an excel file in directory/filename (INPUT) formated according 
     to generate_template
     
     OUTPUT
-    Data (SA, root_cnts, shoot_cnts, root_weight, g_factor,
+    Data (run_name SA, root_cnts, shoot_cnts, root_weight, g_factor,
           load_time, elution_times (list), elution_cpms(list)) in a list 
     '''
         
@@ -101,8 +106,8 @@ def grab_data (directory, filename):
     input_book = open_workbook (input_file)
     input_sheet = input_book.sheet_by_index (0)
     
-    # List where allruns info is stored with ind. runs as list entries
-    all_runs = []
+    # List where all run info is stored with ind list entries as RunObjects
+    all_run_objects = []
     
     # Creating elution time point list to be used by all runs 
     raw_elution_times = input_sheet.col (1) # Col w/elution times given in file
@@ -110,8 +115,6 @@ def grab_data (directory, filename):
     # Parsing elution times, correcting for header offset (8)
     for x in range (8, len (raw_elution_times)):                   
         elution_times.append (raw_elution_times [x].value)    
-    
-    print input_sheet.row_len (0)
     
     for row_index in range (2, input_sheet.row_len (0)):
     
@@ -132,17 +135,19 @@ def grab_data (directory, filename):
         for x in range (8, len (raw_cpm_column)):                   
             elution_cpms.append (raw_cpm_column [x].value)
         
-        all_runs.append ([run_name, SA, root_cnts, shoot_cnts, root_weight,\
-                          g_factor, load_time, elution_times, elution_cpms])
+        all_run_objects.append (RunObject.RunObject(run_name, SA, root_cnts, shoot_cnts, root_weight,\
+                          g_factor, load_time, elution_times, elution_cpms))
    
-    return all_runs
+    return DataObject.DataObject (directory, all_run_objects)
 
-def generate_analysis (workbook, worksheet, frame_object):
+def generate_analysis (data_object):
     '''
     Creating an excel file in directory using a preset naming convention
     Data in the file are the product of CATE analysis from a template file containing the raw information
     Nothing is returned
     '''
+    
+    workbook = xlsxwriter.Workbook('Didthiswork.xlsx')
     
     # Formatting for items for headers for analyzed CATE data
     analyzed_header = workbook.add_format ()
@@ -166,41 +171,46 @@ def generate_analysis (workbook, worksheet, frame_object):
                ("Log Efflux", 8.86),\
                (u"R\u00b2", 7),\
                (u"Slope (min\u207b\u00b9)", 8.14),\
-               ("Intercept", 8.5)]    
+               ("Intercept", 8.5)]
+    for run_object in data_object.run_objects:
+        worksheet = generate_sheet (workbook, run_object.run_name)
+        
+        for y in range (0, len (headers)):
+                worksheet.write (7, y + 3, headers[y][0], analyzed_header)   
+                worksheet.set_column (y + 3, y + 3,headers [y][1])
+                
+        # Writing CATE data to file
+        
+        worksheet.write (0, 2, run_object.run_name)    
+        worksheet.write (1, 2, run_object.SA, empty_row)    
+        worksheet.write (2, 2, run_object.root_cnts, empty_row)
+        worksheet.write (3, 2, run_object.shoot_cnts, empty_row)
+        worksheet.write (4, 2, run_object.root_weight, empty_row)
+        worksheet.write (5, 2, run_object.g_factor, empty_row)
+        worksheet.write (6, 2, run_object.load_time, empty_row)
     
-    for y in range (0, len (headers)):
-            worksheet.write (7, y + 3, headers[y][0], analyzed_header)   
-            worksheet.set_column (y + 3, y + 3,headers [y][1])
+        p1_regression_counter = len (run_object.elution_ends)\
+            - len (run_object.r2s_p3_list) - run_object.analysis_type [1]
+        
+        for x in range (0, len (run_object.elution_ends)):
+            worksheet.write (8 + x, 0, x + 1)
+            worksheet.write (8 + x, 1, run_object.elution_ends [x])
+            worksheet.write (8 + x, 2, run_object.elution_cpms [x])
+            worksheet.write (8 + x, 3, run_object.elution_cpms_gfactor [x])
+            worksheet.write (8 + x, 4, run_object.elution_cpms_gRFW [x])
+            worksheet.write (8 + x, 5, run_object.elution_cpms_log [x])
     
-    
-    # Writing CATE data to file
-    
-    worksheet.write (0, 2, frame_object.run_name)    
-    worksheet.write (1, 2, frame_object.SA, empty_row)    
-    worksheet.write (2, 2, frame_object.root_cnts, empty_row)
-    worksheet.write (3, 2, frame_object.shoot_cnts, empty_row)
-    worksheet.write (4, 2, frame_object.root_weight, empty_row)
-    worksheet.write (5, 2, frame_object.gfactor, empty_row)
-    worksheet.write (6, 2, frame_object.load_time, empty_row)
-
-    p1_regression_counter = len (frame_object.elution_ends)\
-        - len (frame_object.r2s_p3_list) - frame_object.num_points_obj
-    
-    for x in range (0, len (frame_object.elution_ends)):
-        worksheet.write (8 + x, 0, x + 1)
-        worksheet.write (8 + x, 1, frame_object.elution_ends [x])
-        worksheet.write (8 + x, 2, frame_object.elution_cpms [x])
-        worksheet.write (8 + x, 3, frame_object.elution_cpms_gfactor [x])
-        worksheet.write (8 + x, 4, frame_object.elution_cpms_gRFW [x])
-        worksheet.write (8 + x, 5, frame_object.elution_cpms_log [x])
-
-    for y in range (0, len (frame_object.r2s_p3_list)):
-        worksheet.write (9 + p1_regression_counter + y, 6, frame_object.r2s_p3_list [y])
-        worksheet.write (9 + p1_regression_counter + y, 7, frame_object.slopes_p3_list [y])
-        worksheet.write (9 + p1_regression_counter + y, 8, frame_object.intercepts_p3_list [y])
+        for y in range (0, len (run_object.r2s_p3_list)):
+            worksheet.write (9 + p1_regression_counter + y, 6, run_object.r2s_p3_list [y])
+            worksheet.write (9 + p1_regression_counter + y, 7, run_object.slopes_p3_list [y])
+            worksheet.write (9 + p1_regression_counter + y, 8, run_object.intercepts_p3_list [y])
+            
+    workbook.close()
      
 if __name__ == "__main__":
-    print grab_data("C:\Users\Daniel\Projects\CATEAnalysis", "CATE Analysis - (2014_11_21).xlsx")
+    #temp_book = xlsxwriter.Workbook('filename.xlsx')
+    temp_data = grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - (2014_11_21).xlsx")
+    generate_analysis (temp_data)
     #generate_template ("C:\Users\Ruben\Desktop\CATE_EXCEL_TEST.xlsx")
                
     

@@ -25,8 +25,9 @@ class Toolbar(NavigationToolbar2WxAgg):
         self.DeleteToolByPos(8)
         self.DeleteToolByPos(1)
         self.DeleteToolByPos(1)
-        self.InsertSeparator (6)
-        self.InsertSeparator (6)
+        self.AddSeparator ()
+        #self.InsertSeparator (6)
+        #self.InsertSeparator (6)
                 
         # for simplicity I'm going to reuse a bitmap from wx, you'll
         # probably want to add your own.
@@ -44,10 +45,12 @@ class Toolbar(NavigationToolbar2WxAgg):
         wx.EVT_TOOL(self, self.ON_EXTRACT, self._on_extract)
        
     def _on_previous(self, evt):   
-        pass
+        self.frame_object.run_num -= 1
+        self.frame_object.draw_figure ()
     
     def _on_next(self, evt):
-        frame_object
+        self.frame_object.run_num += 1
+        self.frame_object.draw_figure ()
 
     def _on_extract(self, evt):
         # add some text to the axes in a random location in axes (0,1)
