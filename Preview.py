@@ -884,11 +884,11 @@ class MainFrame(wx.Frame):
     def on_flash_status_off(self, event):
         self.statusbar.SetStatusText('')
 
-
 if __name__ == '__main__':
     import Excel
     #data = ["Run (Preview) 1", 35714.845, 8679.3, 4746.2, 0.6027, 1.00841763438286, 60.0, [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.5, 13.0, 14.5, 16.0, 17.5, 19.0, 20.5, 22.0, 23.5, 25.0, 27.0, 29.0, 31.0, 33.0, 35.0, 37.0, 39.0, 41.0, 43.0, 45.0], [81453.0, 20369.1, 5511.0, 2790.7, 1933.8, 1456.8, 1159.5, 1015.1, 882.4, 788.5, 801.7, 698.5, 647.9, 629.3, 622.2, 507.9, 504.2, 422.8, 451.9, 411.3, 475.7, 453.3, 467.4, 431.2, 404.4, 432.2, 363.8, 429.8, 303.4, 348.1]]
-    data = Excel.grab_data ("C:/Users/ruben/projects/cateanalysis", "CATE Template - (2014_1_1).xlsx")
+    data = Excel.grab_data ("C:/Users/ruben/projects/cateanalysis", "CATE Template - (2014_11_21).xlsx") [0]
+    print data
     
     app = wx.PySimpleApp()
     app.frame = MainFrame(*(data + ["C:/Users/ruben/projects/cateanalysis"]))

@@ -9,8 +9,14 @@ from matplotlib.backends.backend_wx import _load_bitmap
 class Toolbar(NavigationToolbar2WxAgg):
     """
     Extend the default wx toolbar with your own event handlers
+    
     """
+    
+    #Ids for buttons being added to toolbar.
+    ON_PREVIOUS = wx.NewId()
+    ON_NEXT = wx.NewId()
     ON_EXTRACT = wx.NewId()
+        
     def __init__(self, canvas, frame_object):
         NavigationToolbar2WxAgg.__init__(self, canvas)
         self.frame_object = frame_object
@@ -24,11 +30,24 @@ class Toolbar(NavigationToolbar2WxAgg):
                 
         # for simplicity I'm going to reuse a bitmap from wx, you'll
         # probably want to add your own.
+
+        self.AddSimpleTool(self.ON_PREVIOUS, _load_bitmap('back.png'),
+                           'Previous Run', 'Activate custom contol') 
+        wx.EVT_TOOL(self, self.ON_PREVIOUS, self._on_previous)
+
+        self.AddSimpleTool(self.ON_NEXT, _load_bitmap('forward.png'),
+                           'Next Run', 'Activate custom contol') 
+        wx.EVT_TOOL(self, self.ON_NEXT, self._on_next)        
         
         self.AddSimpleTool(self.ON_EXTRACT, _load_bitmap('filesave.png'),
                            'Save to Excel', 'Activate custom contol')
         wx.EVT_TOOL(self, self.ON_EXTRACT, self._on_extract)
-        
+       
+    def _on_previous(self, evt):   
+        pass
+    
+    def _on_next(self, evt):
+        frame_object
 
     def _on_extract(self, evt):
         # add some text to the axes in a random location in axes (0,1)

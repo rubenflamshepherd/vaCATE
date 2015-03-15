@@ -104,8 +104,8 @@ class DialogFrame(wx.Frame):
             directory, filename = dlg.GetDirectory(), dlg.GetFilename()
             
             temp_CATE_data = Excel.grab_data (directory, filename)
-            print temp_CATE_data
-            frame = Preview.MainFrame (*(temp_CATE_data  + [directory]))
+            
+            frame = Preview.MainFrame (*(temp_CATE_data [0]  + [directory]))
             frame.Show (True)
             frame.MakeModal (True)            
             dlg.Destroy()
