@@ -48,47 +48,17 @@ class MainFrame(wx.Frame):
 	
 	self.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
 	
+	self.run_num = 0
+	
 	self.data_object = data_object
 	self.create_status_bar()
         self.create_main_panel()
         
         # Default analysis:objective regression using the last 2 data points
         self.obj_textbox.SetValue ('3')
-	self.run_num = 0
-        
+	        
         self.draw_figure()
 	
-    def create_menu(self):
-        """ Creating a file menu that allows saving of graphs to .pngs, opening
-        of a help dialog, or quitting the application
-        Notes: adapted from original program, pseudo-useless
-        """
-        
-        self.menubar = wx.MenuBar()
-        
-        menu_file = wx.Menu() # 'File' menu
-        
-        # 'Save' option of 'File' menu
-        m_expt = menu_file.Append(-1, "&Save plot\tCtrl-S", "Save plot to file")
-        self.Bind(wx.EVT_MENU, self.on_save_plot, m_expt)
-        
-        menu_file.AppendSeparator()
-        
-        # 'Exit' option of 'File' menu
-        m_exit = menu_file.Append(-1, "E&xit\tCtrl-X", "Exit")
-        self.Bind(wx.EVT_MENU, self.on_exit, m_exit)
-        
-        menu_help = wx.Menu() #'Help' menu
-        
-        # 'About' option of 'Help' menu        
-        m_about = menu_help.Append(-1, "&About\tF1", "About the demo")
-        self.Bind(wx.EVT_MENU, self.on_about, m_about)
-        
-        # Creating menu
-        self.menubar.Append(menu_file, "&File")
-        self.menubar.Append(menu_help, "&Help")
-        self.SetMenuBar(self.menubar)
-
     def create_main_panel(self):
         """ Creates the main panel with all the controls on it:
              * mpl canvas 
@@ -125,8 +95,11 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_CHECKBOX, self.on_cb_grid, self.cb_grid)
 
         # Create the navigation toolbar, tied to the canvas
-        self.toolbar = Custom.Toolbar(self.canvas, self)
-        self.toolbar.Realize()
+        self.toolbar = Custom.Toolbar(self)
+	#self.Bind(wx.EVT_BUTTON, self.on_toolbar_next, self.toolbar.ON_NEXT)
+	#wx.EVT_TOOL(self, self.toolbar.ON_NEXT, self.on_toolbar_next)
+   
+	self.toolbar.Realize()
 	
         # Layout with box sizers                
         self.vbox = wx.BoxSizer(wx.VERTICAL)
@@ -512,8 +485,22 @@ class MainFrame(wx.Frame):
     def draw_figure(self):
         """ Redraws the figure
         """
+	
 	run_object = self.data_object.run_objects [self.run_num]
-        
+	
+	# Making sure toolbar buttons navigate to runs that exist
+	if self.run_num == 0:
+	    self.toolbar.EnableTool (self.toolbar.ON_PREVIOUS, False)
+	else:
+	    self.toolbar.EnableTool (self.toolbar.ON_PREVIOUS, True)
+	
+	if self.run_num == len(self.data_object.run_objects) - 1:
+	    self.toolbar.EnableTool (self.toolbar.ON_NEXT, False)
+	else:
+	    self.toolbar.EnableTool (self.toolbar.ON_NEXT, True)
+	    
+	#self.toolbar.Realize()		
+		       
         # Clearing the plots so they can be redrawn anew
         self.plot_phase1.clear()
         self.plot_phase2.clear()
@@ -695,6 +682,10 @@ class MainFrame(wx.Frame):
         self.subj_p3_1textbox.SetValue ('')
         self.subj_p3_2textbox.SetValue ('')
         self.draw_figure()
+    
+    def on_toolbar_next (self, event):
+	self.run_num += 1
+	self.draw_figure ()
         
     def on_subj_draw (self, event):
         self.obj_textbox.SetValue ('')
