@@ -11,8 +11,7 @@ class RunObject():
     '''
         
     def __init__(self, run_name, SA, root_cnts, shoot_cnts, root_weight,\
-                 g_factor, load_time, elution_times, elution_cpms):
-        
+                 g_factor, load_time, elution_times, elution_cpms, pts_used):       
         self.run_name = run_name
         self.SA = SA
         self.root_cnts = root_cnts
@@ -22,8 +21,9 @@ class RunObject():
         self.load_time = load_time
         self.elution_times = elution_times
         self.elution_cpms = elution_cpms
-        
-        self.analysis_type = ("obj", 3)
+	self.pts_used = pts_used
+	
+	self.analysis_type = ("obj", pts_used)
 	self.elution_ends = elution_times [1:]
 	self.elution_starts = elution_times [:len (elution_times) -1]
 	
@@ -42,6 +42,10 @@ class RunObject():
 	# Default analysis is objective analysis with 2 points
 	self.objective_analysis ()
 	
+	self.netflux = (self.root_cnts + self.shoot_cnts)/self.SA/self.root_weight
+	self.influx = self.efflux_p3 + self.netflux
+	self.ratio = self.efflux_p3/self.influx
+	
 	
     def objective_analysis (self):
     
@@ -51,9 +55,13 @@ class RunObject():
 	            self.r2s_p3_list, self.slopes_p3_list,\
 	            self.intercepts_p3_list=\
 	            Operations.obj_regression_p3 (self.x, self.y, self.analysis_type [1])
-	# Setting the x- and y-series' involved in the p3 linear regression
+	
+	# Setting the x- and y-series' involved in the p3/p12 linear regression
 	self.x_p3 = self.x [self.reg_end_index:] 
 	self.y_p3 = self.y [self.reg_end_index:]
+	
+	self.x_p12 = self.x [:self.reg_end_index]
+	self.y_p12 = self.y [:self.reg_end_index]
 	
 	# Setting the x/y-series' used to start obj regression
 	self.x_reg_start = self.x[len(self.x) - self.analysis_type [1]:] 

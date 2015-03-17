@@ -70,16 +70,9 @@ class Toolbar(NavigationToolbar2WxAgg):
         self.frame_object.canvas.draw()
                 
         file_name = 'CATE Finished - ' + time.strftime ("(%Y_%m_%d).xlsx")
-        output_file_path = '/'.join ((self.frame_object.directory, file_name))  
+        output_file_path = '/'.join ((self.frame_object.data_object.output_folder, file_name))  
         
-        workbook = xlsxwriter.Workbook(output_file_path)
-        worksheet = workbook.add_worksheet(self.frame_object.run_name)          
-        
-        Excel.generate_template (output_file_path, workbook, worksheet)
-        
-        Excel.generate_analysis (workbook, worksheet, self.frame_object)
-        
-        workbook.close()        
+        Excel.generate_analysis (self.frame_object.data_object)
         
         evt.Skip()
         

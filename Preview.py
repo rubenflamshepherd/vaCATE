@@ -19,6 +19,7 @@ Last modified: 30.07.2008
 # The recommended way to use wx with mpl is with the WXAgg
 # backend. 
 #
+import RunObject
 
 import os
 import pprint
@@ -51,8 +52,7 @@ class MainFrame(wx.Frame):
 	self.run_num = 0
 	
 	self.data_object = data_object
-	self.create_status_bar()
-        self.create_main_panel()
+	self.create_main_panel()
         
         # Default analysis:objective regression using the last 2 data points
         self.obj_textbox.SetValue ('3')
@@ -86,7 +86,8 @@ class MainFrame(wx.Frame):
         self.plot_phase1 = self.fig.add_subplot(gs[0, 1]) 
                 
         # Bind the 'pick' event for clicking on one of the bars
-        self.canvas.mpl_connect('pick_event', self.on_pick)
+        self.canvas.mpl_connect('pick_event', self.on_pick_p3)
+	# self.canvas.mpl_connect('pick_event', self.on_pick_p2)
         
         # Bind the 'check' event for ticking 'Show Grid' option
         self.cb_grid = wx.CheckBox(self.panel, -1, 
@@ -96,9 +97,6 @@ class MainFrame(wx.Frame):
 
         # Create the navigation toolbar, tied to the canvas
         self.toolbar = Custom.Toolbar(self)
-	#self.Bind(wx.EVT_BUTTON, self.on_toolbar_next, self.toolbar.ON_NEXT)
-	#wx.EVT_TOOL(self, self.toolbar.ON_NEXT, self.on_toolbar_next)
-   
 	self.toolbar.Realize()
 	
         # Layout with box sizers                
@@ -182,6 +180,7 @@ class MainFrame(wx.Frame):
         self.line = wx.StaticLine(self.panel, -1, style=wx.LI_VERTICAL)
         self.line2 = wx.StaticLine(self.panel, -1, style=wx.LI_VERTICAL)
         self.line3 = wx.StaticLine(self.panel, -1, style=wx.LI_VERTICAL)
+	self.line4 = wx.StaticLine(self.panel, -1, style=wx.LI_HORIZONTAL)
         
         # Alignment flags (for adding things to spacers) and fonts
         flags = wx.ALIGN_RIGHT | wx.ALL | wx.ALIGN_CENTER_VERTICAL
@@ -321,10 +320,26 @@ class MainFrame(wx.Frame):
 	self.data_p3_efflux = wx.TextCtrl(
                 self.panel, 
                 size=(50,-1),
-                style=wx.TE_READONLY)			
+                style=wx.TE_READONLY)
+	
+	self.data_influx = wx.TextCtrl(
+            self.panel, 
+            size=(50,-1),
+            style=wx.TE_READONLY)	
+	self.data_netflux = wx.TextCtrl(
+            self.panel, 
+            size=(50,-1),
+            style=wx.TE_READONLY)
+	self.data_ratio = wx.TextCtrl(
+            self.panel, 
+            size=(50,-1),
+            style=wx.TE_READONLY)			
+	self.data_poolsize = wx.TextCtrl(
+            self.panel, 
+            size=(50,-1),
+            style=wx.TE_READONLY)				
 	
 	# Creating labels for data output
-	empty_text = wx.StaticText (self.panel, label = "")
 	slope_text = wx.StaticText (self.panel, label="Slope")
 	intercept_text = wx.StaticText(self.panel, label = "Intercept")
 	r2_text = wx.StaticText (self.panel, label = u"R\u00B2")
@@ -335,6 +350,13 @@ class MainFrame(wx.Frame):
 	halflife_text = wx.StaticText (self.panel, label = u"t\u2080\u002E\u2085")
 	efflux_text = wx.StaticText (self.panel, label = "Efflux")
 	
+	# Labels for gridsizer2
+	influx_text = wx.StaticText (self.panel, label = "Influx")
+	netflux_text = wx.StaticText (self.panel, label = "Net Flux")
+	ratio_text = wx.StaticText (self.panel, label = "E:I Ratio")
+	poolsize_text = wx.StaticText (self.panel, label = "Pool size")
+	
+	
 	slope_text.SetFont(parameter1_title_font)
 	intercept_text.SetFont(parameter1_title_font)
 	r2_text.SetFont(parameter1_title_font)
@@ -342,10 +364,17 @@ class MainFrame(wx.Frame):
 	halflife_text.SetFont(parameter_title_font)
         efflux_text.SetFont(parameter1_title_font)
 	
+	influx_text.SetFont(parameter1_title_font)
+	netflux_text.SetFont(parameter1_title_font)
+	ratio_text.SetFont(parameter1_title_font)
+	poolsize_text.SetFont(parameter1_title_font)
+	
+	
         # Adding data output widgets to data output gridsizers        
         self.gridbox_data = wx.GridSizer (rows=4, cols=7, hgap=1, vgap=1)
         
-        self.gridbox_data.Add (empty_text, 0, border=3, flag=flags)
+        self.gridbox_data.Add (wx.StaticText (self.panel, label = ""),\
+	                       0, border=3, flag=flags)
         self.gridbox_data.Add (slope_text, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (intercept_text, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (r2_text, 0, border=3, flag=box_flag)
@@ -376,10 +405,38 @@ class MainFrame(wx.Frame):
 	self.gridbox_data.Add (self.data_p3_k, 0, border=3, flag=box_flag)
 	self.gridbox_data.Add (self.data_p3_t05, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (self.data_p3_efflux, 0, border=3, flag=box_flag)
-        
-        self.vbox_linedata = wx.BoxSizer(wx.VERTICAL)
+	
+	self.gridbox_data2 = wx.GridSizer (rows=2, cols=8, hgap=1, vgap=1)
+	
+	self.gridbox_data2.Add (wx.StaticText (self.panel, label = "")\
+	                        , 0, border=3, flag=flags)
+	self.gridbox_data2.Add (wx.StaticText (self.panel, label = "")\
+	                        , 0, border=3, flag=flags)	
+	
+	self.gridbox_data2.Add (influx_text, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (netflux_text, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (ratio_text, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (poolsize_text, 0, border=3, flag=box_flag)
+	
+	self.gridbox_data2.Add (wx.StaticText (self.panel, label = "")\
+	                        , 0, border=3, flag=flags)
+	self.gridbox_data2.Add (wx.StaticText (self.panel, label = "")\
+                                , 0, border=3, flag=flags)	
+	self.gridbox_data2.Add (wx.StaticText (self.panel, label = "")\
+	                        , 0, border=3, flag=flags)
+	self.gridbox_data2.Add (wx.StaticText (self.panel, label = "")\
+	                        , 0, border=3, flag=flags)
+	
+	self.gridbox_data2.Add (self.data_influx, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (self.data_netflux, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (self.data_ratio, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (self.data_poolsize, 0, border=3, flag=box_flag)
+	
+	self.vbox_linedata = wx.BoxSizer(wx.VERTICAL)
         self.vbox_linedata.Add (self.linedata_title, 0, border=3, flag=box_flag)
         self.vbox_linedata.Add (self.gridbox_data, 0, border=3, flag=box_flag)
+	self.vbox_linedata.Add (self.line4, 0, wx.CENTER|wx.EXPAND)
+	self.vbox_linedata.Add (self.gridbox_data2, 0, border=3, flag=box_flag)
         
         # Build the widgets and the sizer contain(s) containing them all
 	
@@ -488,6 +545,8 @@ class MainFrame(wx.Frame):
 	
 	run_object = self.data_object.run_objects [self.run_num]
 	
+	self.obj_textbox.SetValue (str (run_object.pts_used))
+	
 	# Making sure toolbar buttons navigate to runs that exist
 	if self.run_num == 0:
 	    self.toolbar.EnableTool (self.toolbar.ON_PREVIOUS, False)
@@ -529,13 +588,13 @@ class MainFrame(wx.Frame):
         self.plot_phase3.set_ylim (bottom = 0)
                 
         # OBJECTIVE REGRESSION
-	'''
+	
 	num_points_obj = self.obj_textbox.GetValue ()
 	self.num_points_obj = int (num_points_obj)
 	if num_points_obj < 3:
 	    num_points_obj = 3
 	    self.obj_textbox.SetValue ('3')
-	'''
+	
 	
 		    
 	# Graphing the p3 series and regression line
@@ -570,12 +629,13 @@ class MainFrame(wx.Frame):
 	
 	# Graphing raw uncorrected data of p1 and p2
 	self.plot_phase2.scatter(
-                    run_object.x [:run_object.reg_end_index],
-                    run_object.y [:run_object.reg_end_index],
+                    run_object.x_p12,
+                    run_object.y_p12,
                     s = self.slider_width.GetValue(),
                     alpha = 0.50,
                     edgecolors = 'k',
-                    facecolors = 'w'
+                    facecolors = 'w',
+	            picker = 5
                 )
 	
 	# Graphing curve-stripped (corrected) phase I and II data, isolated
@@ -614,7 +674,8 @@ class MainFrame(wx.Frame):
                     s = self.slider_width.GetValue(),
                     alpha = 0.25,
                     edgecolors = 'k',
-                    facecolors = 'w'
+                    facecolors = 'w',
+	            picker = 5
                 )
 	
 	# Graph p1 data corrected for p3
@@ -666,6 +727,11 @@ class MainFrame(wx.Frame):
 	self.data_p3_k.SetValue ('%0.3f'%(run_object.k_p3))
 	self.data_p3_t05.SetValue ('%0.3f'%(run_object.t05_p3))
 	self.data_p3_efflux.SetValue ('%0.3f'%(run_object.efflux_p3))
+	
+	self.data_influx.SetValue ('%0.3f'%(run_object.influx))
+	self.data_netflux.SetValue ('%0.3f'%(run_object.netflux))
+	self.data_ratio.SetValue ('%0.3f'%(run_object.ratio))
+	self.data_poolsize.SetValue ('%0.3f'%(80085))
 	        
         # Adding our legends
         self.plot_phase1.legend(loc='upper right')
@@ -681,11 +747,24 @@ class MainFrame(wx.Frame):
         self.subj_p2_2textbox.SetValue ('')
         self.subj_p3_1textbox.SetValue ('')
         self.subj_p3_2textbox.SetValue ('')
+	
+	old_run_object = self.data_object.run_objects [self.run_num]
+	
+	new_run_object = RunObject.RunObject (old_run_object.run_name,\
+	                                      old_run_object.SA,\
+	                                      old_run_object.root_cnts,\
+	                                      old_run_object.shoot_cnts,\
+	                                      old_run_object.root_weight,\
+	                                      old_run_object.g_factor,\
+	                                      old_run_object.load_time,\
+	                                      old_run_object.elution_times,\
+	                                      old_run_object.elution_cpms,\
+	                                      int (self.obj_textbox.GetValue ()) )
+	
+	self.data_object.run_objects [self.run_num] = new_run_object
+		
         self.draw_figure()
     
-    def on_toolbar_next (self, event):
-	self.run_num += 1
-	self.draw_figure ()
         
     def on_subj_draw (self, event):
         self.obj_textbox.SetValue ('')
@@ -700,7 +779,7 @@ class MainFrame(wx.Frame):
     def on_draw_button(self, event):
         self.draw_figure()
     
-    def on_pick(self, event):
+    def on_pick_p3(self, event):
         # The event received here is of the type
         # matplotlib.backend_bases.PickEvent
         #
@@ -708,61 +787,24 @@ class MainFrame(wx.Frame):
         # only a small amount here.
         # 
         ind = event.ind
-        x_clicked = np.take(self.x, ind)
+	print event.artist
+	run_object = self.data_object.run_objects [self.run_num]
+	
+	
+        x_clicked = np.take(run_object.x, ind)
         
-        self.x_clicked_data.SetValue ('%0.2f'%(np.take(self.x, ind)[0]))
-        self.y_clicked_data.SetValue ('%0.3f'%(np.take(self.y, ind)[0]))
+        self.x_clicked_data.SetValue ('%0.2f'%(np.take(run_object.x, ind)[0]))
+        self.y_clicked_data.SetValue ('%0.3f'%(np.take(run_object.y, ind)[0]))
         self.num_clicked_data.SetValue ('%0.0f'%(ind[0]+1))
-        
-    def on_save_plot(self, event):
-        file_choices = "PNG (*.png)|*.png"
-        
-        dlg = wx.FileDialog(
-            self, 
-            message="Save plot as...",
-            defaultDir=os.getcwd(),
-            defaultFile="plot.png",
-            wildcard=file_choices,
-            style=wx.SAVE)
-        
-        if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPath()
-            self.canvas.print_figure(path, dpi=self.dpi)
-            self.flash_status_message("Saved to %s" % path)
-        
+	
     def on_exit(self, event):
         self.Destroy()
         
-    def on_about(self, event):
-        msg = """ A demo using wxPython with matplotlib:
-        
-         * Use the matplotlib navigation bar
-         * Add values to the text box and press Enter (or click "Draw!")
-         * Show or hide the grid
-         * Drag the slider to modify the width of the bars
-         * Save the plot to a file using the File menu
-         * Click on a bar to receive an informative message
-        """
-        dlg = wx.MessageDialog(self, msg, "About", wx.OK)
-        dlg.ShowModal()
-        dlg.Destroy()
-    
-    def flash_status_message(self, msg, flash_len_ms=1500):
-        self.statusbar.SetStatusText(msg)
-        self.timeroff = wx.Timer(self)
-        self.Bind(
-            wx.EVT_TIMER, 
-            self.on_flash_status_off, 
-            self.timeroff)
-        self.timeroff.Start(flash_len_ms, oneShot=True)
-    
-    def on_flash_status_off(self, event):
-        self.statusbar.SetStatusText('')
-
+   
 if __name__ == '__main__':
     import Excel
     
-    temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - (2014_11_21).xlsx")
+    temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Single Run.xlsx")
 
     app = wx.PySimpleApp()
     app.frame = MainFrame(temp_data)
