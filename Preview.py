@@ -188,9 +188,7 @@ class MainFrame(wx.Frame):
         button_flag = wx.ALIGN_BOTTOM
         title_font = wx.Font (8, wx.DEFAULT, wx.NORMAL, wx.BOLD)
         widget_title_font = wx.Font (8, wx.DEFAULT, wx.NORMAL, wx.NORMAL, True)
-	parameter_title_font = wx.Font (14, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, "Times New Roman")
-	parameter1_title_font = wx.Font (10, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, "Times New Roman")
-        disclaimer_font = wx.Font (6, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
+	disclaimer_font = wx.Font (6, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
         
         # Setting fonts
         self.obj_title.SetFont(title_font)
@@ -322,6 +320,25 @@ class MainFrame(wx.Frame):
                 size=(50,-1),
                 style=wx.TE_READONLY)
 	
+	self.data_SA = wx.TextCtrl(
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_READONLY)	
+	self.data_shootcnts = wx.TextCtrl(
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_READONLY)	
+	self.data_rootcnts = wx.TextCtrl(
+	    self.panel, 
+	    size=(50,-1),
+	    style=wx.TE_READONLY)	
+	self.data_rootweight = wx.TextCtrl(
+            self.panel, 
+            size=(50,-1),
+            style=wx.TE_READONLY) 
+	self.data_loadtime = wx.TextCtrl(self.panel, 
+            size=(50,-1),
+            style=wx.TE_READONLY)	
 	self.data_influx = wx.TextCtrl(
             self.panel, 
             size=(50,-1),
@@ -347,28 +364,19 @@ class MainFrame(wx.Frame):
 	p2_text = wx.StaticText (self.panel, label = "Phase II: ")
 	p3_text = wx.StaticText (self.panel, label = "Phase III: ")
 	k_text = wx.StaticText (self.panel, label = "k")
-	halflife_text = wx.StaticText (self.panel, label = u"t\u2080\u002E\u2085")
+	halflife_text = wx.StaticText (self.panel, label = "Half Life")
 	efflux_text = wx.StaticText (self.panel, label = "Efflux")
 	
 	# Labels for gridsizer2
+	SA_text = wx.StaticText (self.panel, label = "SA")
+	rootcnts_text = wx.StaticText (self.panel, label = "Rt Cnts")
+	shootcnts_text = wx.StaticText (self.panel, label = "Sh Cnts")
+	rootweight_text = wx.StaticText (self.panel, label = "Rt Weight")
+	loadtime_text = wx.StaticText (self.panel, label = "Load Time")
 	influx_text = wx.StaticText (self.panel, label = "Influx")
 	netflux_text = wx.StaticText (self.panel, label = "Net Flux")
 	ratio_text = wx.StaticText (self.panel, label = "E:I Ratio")
 	poolsize_text = wx.StaticText (self.panel, label = "Pool size")
-	
-	
-	slope_text.SetFont(parameter1_title_font)
-	intercept_text.SetFont(parameter1_title_font)
-	r2_text.SetFont(parameter1_title_font)
-	k_text.SetFont(parameter1_title_font)
-	halflife_text.SetFont(parameter_title_font)
-        efflux_text.SetFont(parameter1_title_font)
-	
-	influx_text.SetFont(parameter1_title_font)
-	netflux_text.SetFont(parameter1_title_font)
-	ratio_text.SetFont(parameter1_title_font)
-	poolsize_text.SetFont(parameter1_title_font)
-	
 	
         # Adding data output widgets to data output gridsizers        
         self.gridbox_data = wx.GridSizer (rows=4, cols=7, hgap=1, vgap=1)
@@ -406,27 +414,23 @@ class MainFrame(wx.Frame):
 	self.gridbox_data.Add (self.data_p3_t05, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (self.data_p3_efflux, 0, border=3, flag=box_flag)
 	
-	self.gridbox_data2 = wx.GridSizer (rows=2, cols=8, hgap=1, vgap=1)
+	self.gridbox_data2 = wx.GridSizer (rows=2, cols=9, hgap=1, vgap=1)
 	
-	self.gridbox_data2.Add (wx.StaticText (self.panel, label = "")\
-	                        , 0, border=3, flag=flags)
-	self.gridbox_data2.Add (wx.StaticText (self.panel, label = "")\
-	                        , 0, border=3, flag=flags)	
-	
+	self.gridbox_data2.Add (SA_text, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (shootcnts_text, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (rootcnts_text, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (rootweight_text, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (loadtime_text, 0, border=3, flag=box_flag)
 	self.gridbox_data2.Add (influx_text, 0, border=3, flag=box_flag)
 	self.gridbox_data2.Add (netflux_text, 0, border=3, flag=box_flag)
 	self.gridbox_data2.Add (ratio_text, 0, border=3, flag=box_flag)
 	self.gridbox_data2.Add (poolsize_text, 0, border=3, flag=box_flag)
 	
-	self.gridbox_data2.Add (wx.StaticText (self.panel, label = "")\
-	                        , 0, border=3, flag=flags)
-	self.gridbox_data2.Add (wx.StaticText (self.panel, label = "")\
-                                , 0, border=3, flag=flags)	
-	self.gridbox_data2.Add (wx.StaticText (self.panel, label = "")\
-	                        , 0, border=3, flag=flags)
-	self.gridbox_data2.Add (wx.StaticText (self.panel, label = "")\
-	                        , 0, border=3, flag=flags)
-	
+	self.gridbox_data2.Add (self.data_SA, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (self.data_shootcnts, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (self.data_rootcnts, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (self.data_rootweight, 0, border=3, flag=box_flag)
+	self.gridbox_data2.Add (self.data_loadtime, 0, border=3, flag=box_flag)	
 	self.gridbox_data2.Add (self.data_influx, 0, border=3, flag=box_flag)
 	self.gridbox_data2.Add (self.data_netflux, 0, border=3, flag=box_flag)
 	self.gridbox_data2.Add (self.data_ratio, 0, border=3, flag=box_flag)
@@ -544,8 +548,14 @@ class MainFrame(wx.Frame):
         """
 	
 	run_object = self.data_object.run_objects [self.run_num]
+		
+	self.obj_textbox.SetValue (str (run_object.pts_used))	
 	
-	self.obj_textbox.SetValue (str (run_object.pts_used))
+	title_string = 'Compartmental Analysis of Tracer Efflux: Data Analyzer - '
+	detail_string = "Run " + str (self.run_num + 1) + "/"\
+	    + str(len (self.data_object.run_objects))
+	name_string = ' - "'+ run_object.run_name + '"'
+	self.SetTitle (title_string + detail_string + name_string)
 	
 	# Making sure toolbar buttons navigate to runs that exist
 	if self.run_num == 0:
@@ -728,6 +738,11 @@ class MainFrame(wx.Frame):
 	self.data_p3_t05.SetValue ('%0.3f'%(run_object.t05_p3))
 	self.data_p3_efflux.SetValue ('%0.3f'%(run_object.efflux_p3))
 	
+	self.data_SA.SetValue ('%0.3f'%(run_object.SA))
+	self.data_shootcnts.SetValue ('%0.3f'%(run_object.shoot_cnts))
+	self.data_rootcnts.SetValue ('%0.3f'%(run_object.root_cnts))
+	self.data_rootweight.SetValue ('%0.3f'%(run_object.root_weight))
+	self.data_loadtime.SetValue ('%0.3f'%(run_object.load_time))
 	self.data_influx.SetValue ('%0.3f'%(run_object.influx))
 	self.data_netflux.SetValue ('%0.3f'%(run_object.netflux))
 	self.data_ratio.SetValue ('%0.3f'%(run_object.ratio))
@@ -804,7 +819,7 @@ class MainFrame(wx.Frame):
 if __name__ == '__main__':
     import Excel
     
-    temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Single Run.xlsx")
+    temp_data = Excel.grab_data("C:\Users\Daniel\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
 
     app = wx.PySimpleApp()
     app.frame = MainFrame(temp_data)
