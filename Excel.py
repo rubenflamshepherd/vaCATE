@@ -148,7 +148,7 @@ def generate_summary (workbook, data_object):
     worksheet = workbook.add_worksheet ("Summary")
     worksheet.freeze_panes (1,2)
     
-    # Formatting for items for which inputs ARE required
+    # Formatting for items 
     req = workbook.add_format ()
     req.set_text_wrap ()
     req.set_align ('right')
@@ -165,6 +165,10 @@ def generate_summary (workbook, data_object):
     middle_format = workbook.add_format ()
     middle_format.set_align ('center')
     
+    right_format = workbook.add_format ()
+    right_format.set_align ('right')    
+    
+    # Row labels
     row_headers = [
             u"Specific Activity (cpm \u00B7 \u00B5mol\u207b\u00b9)",\
             "Root Cnts (cpm)", "Shoot Cnts (cpm)", "Root weight (g)",\
@@ -174,6 +178,7 @@ def generate_summary (workbook, data_object):
     phasedata_headers = ["Slope", "Intercept", u"R\u00b2", "k", "Half-Life",\
                          "Efflux"]    
     
+    # Writing row Labels
     for y in range (0, len (row_headers)):
         worksheet.merge_range (y + 1, 0, y + 1, 1,\
                                row_headers [y], req)
@@ -190,6 +195,26 @@ def generate_summary (workbook, data_object):
     worksheet.write (7, 1, "Phase III", phase_format)
     worksheet.merge_range (18, 0, 18, 1, "Phase II", phase_format)
     worksheet.merge_range (25, 0, 25, 1, "Phase I", phase_format)
+    
+    # Writing elution time points/headers for respective series
+    run_length_counter = len (data_object.run_objects [0].elution_ends)
+    log_efflux_row = 32
+    efflux_row = log_efflux_row + run_length_counter + 1
+    corrected_row = efflux_row + run_length_counter + 1
+    raw_row = corrected_row + run_length_counter + 1
+    
+    worksheet.merge_range (log_efflux_row, 0, log_efflux_row, 1, "Log Efflux", phase_format)
+    worksheet.merge_range (efflux_row, 0, efflux_row, 1, "Efflux", phase_format)
+    worksheet.merge_range (corrected_row, 0, corrected_row, 1, "Corrected AIE", phase_format)
+    worksheet.merge_range (raw_row, 0, raw_row, 1, "Activity in eluant", phase_format)    
+    
+    for x in range (0, run_length_counter):
+        time_point = data_object.run_objects [0].elution_ends [x]
+
+        worksheet.merge_range (1 + log_efflux_row + x, 0, 1 + log_efflux_row + x, 1, time_point, right_format)
+        worksheet.merge_range (1 + efflux_row + x, 0, 1 + efflux_row + x, 1, time_point, right_format)
+        worksheet.merge_range (1 + corrected_row + x, 0, 1 + corrected_row + x, 1, time_point, right_format)
+        worksheet.merge_range (1 + raw_row + x, 0, 1 + raw_row + x, 1, time_point, right_format)
     
     # Writing Runobject data to sheet
     counter = 2
@@ -225,12 +250,15 @@ def generate_summary (workbook, data_object):
         worksheet.write (28, counter, run_object.r2_p1)
         worksheet.write (29, counter, run_object.k_p1)
         worksheet.write (30, counter, run_object.t05_p1)
-        worksheet.write (31, counter, run_object.efflux_p1)        
-                
-        counter += 1
-    
-    
+        worksheet.write (31, counter, run_object.efflux_p1)
         
+        for x in range (0, len (run_object.elution_ends)):
+            worksheet.write (1 + log_efflux_row + x, counter, run_object.elution_cpms_log [x])        
+            worksheet.write (1 + efflux_row + x, counter, run_object.elution_cpms_gRFW [x])
+            worksheet.write (1 + corrected_row + x, counter, run_object.elution_cpms_gfactor [x])
+            worksheet.write (1 + raw_row + x, counter, run_object.elution_cpms [x])
+        
+        counter += 1
                 
 def generate_analysis (data_object):
     '''
