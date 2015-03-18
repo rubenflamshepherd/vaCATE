@@ -45,6 +45,7 @@ class RunObject():
 	self.netflux = (self.root_cnts + self.shoot_cnts)/self.SA/self.root_weight
 	self.influx = self.efflux_p3 + self.netflux
 	self.ratio = self.efflux_p3/self.influx
+	self.poolsize = 80085 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	
 	
     def objective_analysis (self):

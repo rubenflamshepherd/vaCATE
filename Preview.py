@@ -746,7 +746,7 @@ class MainFrame(wx.Frame):
 	self.data_influx.SetValue ('%0.3f'%(run_object.influx))
 	self.data_netflux.SetValue ('%0.3f'%(run_object.netflux))
 	self.data_ratio.SetValue ('%0.3f'%(run_object.ratio))
-	self.data_poolsize.SetValue ('%0.3f'%(80085))
+	self.data_poolsize.SetValue ('%0.3f'%(run_object.poolsize))
 	        
         # Adding our legends
         self.plot_phase1.legend(loc='upper right')
@@ -819,7 +819,7 @@ class MainFrame(wx.Frame):
 if __name__ == '__main__':
     import Excel
     
-    temp_data = Excel.grab_data("C:\Users\Daniel\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
+    temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
 
     app = wx.PySimpleApp()
     app.frame = MainFrame(temp_data)

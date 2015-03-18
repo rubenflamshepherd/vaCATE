@@ -140,6 +140,98 @@ def grab_data (directory, filename):
    
     return DataObject.DataObject (directory, all_run_objects)
 
+def generate_summary (workbook, data_object):
+    '''
+    Given an open workbook, create a summary sheet containing relavent data
+    froom runobjects in data_object
+    '''
+    worksheet = workbook.add_worksheet ("Summary")
+    worksheet.freeze_panes (1,2)
+    
+    # Formatting for items for which inputs ARE required
+    req = workbook.add_format ()
+    req.set_text_wrap ()
+    req.set_align ('right')
+    req.set_align ('vcenter')
+    req.set_bold ()
+    req.set_right ()    
+    
+    phase_format = workbook.add_format ()
+    phase_format.set_align ('right')
+    phase_format.set_right ()    
+    phase_format.set_top ()    
+    phase_format.set_bottom ()
+    
+    middle_format = workbook.add_format ()
+    middle_format.set_align ('center')
+    
+    row_headers = [
+            u"Specific Activity (cpm \u00B7 \u00B5mol\u207b\u00b9)",\
+            "Root Cnts (cpm)", "Shoot Cnts (cpm)", "Root weight (g)",\
+            "G-Factor", "Load Time (min)", "", "Influx", "Net flux",\
+            "E:I Ratio", "Pool Size"]
+    
+    phasedata_headers = ["Slope", "Intercept", u"R\u00b2", "k", "Half-Life",\
+                         "Efflux"]    
+    
+    for y in range (0, len (row_headers)):
+        worksheet.merge_range (y + 1, 0, y + 1, 1,\
+                               row_headers [y], req)
+        
+    for z in range (0, len (phasedata_headers)):
+        worksheet.merge_range (z + 12, 0, z + 12, 1,\
+                               phasedata_headers [z], req)
+        worksheet.merge_range (z + 19, 0, z + 19, 1,\
+                               phasedata_headers [z], req)        
+        worksheet.merge_range (z + 26, 0, z + 26, 1,\
+                               phasedata_headers [z], req)
+    
+    worksheet.write (7, 0, "Phase III", phase_format)
+    worksheet.write (7, 1, "Phase III", phase_format)
+    worksheet.merge_range (18, 0, 18, 1, "Phase II", phase_format)
+    worksheet.merge_range (25, 0, 25, 1, "Phase I", phase_format)
+    
+    # Writing Runobject data to sheet
+    counter = 2
+    for run_object in data_object.run_objects:
+        worksheet.write (0, counter, run_object.run_name, middle_format)
+        worksheet.write (1, counter, run_object.SA)
+        worksheet.write (2, counter, run_object.root_cnts)
+        worksheet.write (3, counter, run_object.shoot_cnts)
+        worksheet.write (4, counter, run_object.root_weight)
+        worksheet.write (5, counter, run_object.g_factor)
+        worksheet.write (6, counter, run_object.load_time)
+        
+        worksheet.write (8, counter, run_object.influx)
+        worksheet.write (9, counter, run_object.netflux)
+        worksheet.write (10, counter, run_object.ratio)
+        worksheet.write (11, counter, run_object.poolsize)
+        worksheet.write (12, counter, run_object.slope_p3)
+        worksheet.write (13, counter, run_object.intercept_p3)
+        worksheet.write (14, counter, run_object.r2_p3)
+        worksheet.write (15, counter, run_object.k_p3)
+        worksheet.write (16, counter, run_object.t05_p3)
+        worksheet.write (17, counter, run_object.efflux_p3)
+        
+        worksheet.write (19, counter, run_object.slope_p2)
+        worksheet.write (20, counter, run_object.intercept_p2)
+        worksheet.write (21, counter, run_object.r2_p2)
+        worksheet.write (22, counter, run_object.k_p2)
+        worksheet.write (23, counter, run_object.t05_p2)
+        worksheet.write (24, counter, run_object.efflux_p2)
+
+        worksheet.write (26, counter, run_object.slope_p1)
+        worksheet.write (27, counter, run_object.intercept_p1)
+        worksheet.write (28, counter, run_object.r2_p1)
+        worksheet.write (29, counter, run_object.k_p1)
+        worksheet.write (30, counter, run_object.t05_p1)
+        worksheet.write (31, counter, run_object.efflux_p1)        
+                
+        counter += 1
+    
+    
+        
+                
 def generate_analysis (data_object):
     '''
     Creating an excel file in directory using a preset naming convention
@@ -157,37 +249,83 @@ def generate_analysis (data_object):
     analyzed_header.set_bottom ()    
     
     # Formatting for cells that contains basic CATE data    
-    empty_row = workbook.add_format ()
-    empty_row.set_align ('center')
-    empty_row.set_align ('vcenter')
-    empty_row.set_top ()    
-    empty_row.set_bottom ()    
-    empty_row.set_right ()    
-    empty_row.set_left ()       
+    basic_format = workbook.add_format ()
+    basic_format.set_align ('center')
+    basic_format.set_align ('vcenter')
+    basic_format.set_top ()    
+    basic_format.set_bottom ()    
+    basic_format.set_right ()    
+    basic_format.set_left ()       
+    
+    # Formatting for cells that contain "Phase x" row labels
+    phase_format = workbook.add_format ()
+    phase_format.set_align ('right')
+    phase_format.set_align ('vcenter')
+    phase_format.set_right ()
+    
     
     # Header info for analyzed CATE data
-    headers = [("Corrected AIE (cpm)", 15),\
+    basic_headers = [("Corrected AIE (cpm)", 15),\
                (u"Efflux (cpm \u00B7 min\u207b\u00b9 \u00B7 g RFW\u207b\u00b9)", 13.57),\
                ("Log Efflux", 8.86),\
                (u"R\u00b2", 7),\
                (u"Slope (min\u207b\u00b9)", 8.14),\
                ("Intercept", 8.5)]
+    
+    phasedata_headers = ["Slope", "Intercept", u"R\u00b2", "k", "Half-Life",\
+                         "Efflux", "Influx", "Net flux", "E:I Ratio",\
+                         "Pool Size"]
+    
     for run_object in data_object.run_objects:
         worksheet = generate_sheet (workbook, run_object.run_name)
         
-        for y in range (0, len (headers)):
-                worksheet.write (7, y + 3, headers[y][0], analyzed_header)   
-                worksheet.set_column (y + 3, y + 3,headers [y][1])
+        for y in range (0, len (basic_headers)):
+            worksheet.write (7, y + 3, basic_headers[y][0], analyzed_header)   
+            worksheet.set_column (y + 3, y + 3, basic_headers [y][1])
                 
+        for z in range (0, len (phasedata_headers)):
+            worksheet.write (1, z + 4, phasedata_headers[z], analyzed_header) 
+        
+        worksheet.write (2, 3, "Phase I", phase_format)
+        worksheet.write (3, 3, "Phase II", phase_format)
+        worksheet.write (4, 3, "Phase III", phase_format)
+                            
         # Writing CATE data to file
         
-        worksheet.write (0, 2, run_object.run_name)    
-        worksheet.write (1, 2, run_object.SA, empty_row)    
-        worksheet.write (2, 2, run_object.root_cnts, empty_row)
-        worksheet.write (3, 2, run_object.shoot_cnts, empty_row)
-        worksheet.write (4, 2, run_object.root_weight, empty_row)
-        worksheet.write (5, 2, run_object.g_factor, empty_row)
-        worksheet.write (6, 2, run_object.load_time, empty_row)
+        worksheet.write (0, 2, run_object.run_name, analyzed_header)    
+        worksheet.write (1, 2, run_object.SA, basic_format)    
+        worksheet.write (2, 2, run_object.root_cnts, basic_format)
+        worksheet.write (3, 2, run_object.shoot_cnts, basic_format)
+        worksheet.write (4, 2, run_object.root_weight, basic_format)
+        worksheet.write (5, 2, run_object.g_factor, basic_format)
+        worksheet.write (6, 2, run_object.load_time, basic_format)
+        
+        worksheet.write (2, 4, run_object.slope_p1)
+        worksheet.write (2, 5, run_object.intercept_p1)
+        worksheet.write (2, 6, run_object.r2_p1)
+        worksheet.write (2, 7, run_object.k_p1)
+        worksheet.write (2, 8, run_object.t05_p1)
+        worksheet.write (2, 9, run_object.efflux_p1)
+        
+        worksheet.write (3, 4, run_object.slope_p2)
+        worksheet.write (3, 5, run_object.intercept_p2)
+        worksheet.write (3, 6, run_object.r2_p2)
+        worksheet.write (3, 7, run_object.k_p2)
+        worksheet.write (3, 8, run_object.t05_p2)
+        worksheet.write (3, 9, run_object.efflux_p2)
+        
+        worksheet.write (4, 4, run_object.slope_p3)
+        worksheet.write (4, 5, run_object.intercept_p3)
+        worksheet.write (4, 6, run_object.r2_p3)
+        worksheet.write (4, 7, run_object.k_p3)
+        worksheet.write (4, 8, run_object.t05_p3)
+        worksheet.write (4, 9, run_object.efflux_p3)          
+        
+        worksheet.write (4, 10, run_object.influx)
+        worksheet.write (4, 11, run_object.netflux)
+        worksheet.write (4, 12, run_object.ratio)
+        worksheet.write (4, 13, run_object.poolsize)
+        
     
         p1_regression_counter = len (run_object.elution_ends)\
             - len (run_object.r2s_p3_list) - run_object.analysis_type [1]
@@ -205,11 +343,13 @@ def generate_analysis (data_object):
             worksheet.write (9 + p1_regression_counter + y, 7, run_object.slopes_p3_list [y])
             worksheet.write (9 + p1_regression_counter + y, 8, run_object.intercepts_p3_list [y])
             
+    generate_summary (workbook, data_object)
+            
     workbook.close()
      
 if __name__ == "__main__":
     #temp_book = xlsxwriter.Workbook('filename.xlsx')
-    temp_data = grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - (2014_11_21).xlsx")
+    temp_data = grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
     generate_analysis (temp_data)
     #generate_template ("C:\Users\Ruben\Desktop\CATE_EXCEL_TEST.xlsx")
                
