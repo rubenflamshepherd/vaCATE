@@ -819,7 +819,7 @@ class MainFrame(wx.Frame):
 if __name__ == '__main__':
     import Excel
     
-    temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
+    temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Single Run.xlsx")
 
     app = wx.PySimpleApp()
     app.frame = MainFrame(temp_data)
