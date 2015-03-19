@@ -86,15 +86,13 @@ def p1_curve_stripped(p1_x, p1_y, last_used_index, slope, intercept):
         extrapolated_x = (slope * x1) + intercept
         p2_extrapolated_raw.append(extrapolated_x)    
 
-def p12_curve_stripped(x_p12, y_p12, elution_ends, last_used_index, slope, intercept):
+def p12_curvestrippedof_p3(x_p12, y_p12, slope, intercept):
     '''
     Curve-strip p1 and p2 (in the same list) according to p3 data
     
     INPUT:
-    elution_ends (x-series; list) - elution end points (min)
-    log_efflux (y-series; list) - normalized efflux data (log cpm/g RFW)
-    last_used_index is the first right-most point used in the p3 regression
-        - used as end index for p2 because [x:y] y IS NOT INCLUSIVE
+    x_p12 (x-series; list) - elution end points (min) for p12 data
+    y_p12 (y-series; list) - logged efflux data for p12 data unstripped
     
     RETURNED:
     p12_x (x-series; list) - elution_ends limited to range of p1 and p2
@@ -103,31 +101,30 @@ def p12_curve_stripped(x_p12, y_p12, elution_ends, last_used_index, slope, inter
     
     # Calculating p3 data from extrapolation of p3 linear regression into p1/2
 
-    # Container for p3 data in p1/2 range
+    # Calculating p3 data extrapolated into p1/2 range
     p3_extrapolated_raw = []
     
-    for x1 in range (0, len(x_p12)):
-        extrapolated_x = (slope*x1) + intercept
+    for x in range (0, len(x_p12)):
+        extrapolated_x = (slope*x_p12[x]) + intercept
         p3_extrapolated_raw.append(extrapolated_x)
         
     # Antilog extrapolated p3 data and p1/2 data, subtract them, and relog them
     
-    # Container for curve-stripped p1/2 data
+    # Containers for curve-stripped p1/2 data
     corrected_p12_x = []
     corrected_p12_y = []
     
     for value in range (0, len(y_p12)):
-        # print p12_y [value], p3_extrapolated_raw [value]
         antilog_orig = antilog(y_p12 [value])
         antilog_reg = antilog(p3_extrapolated_raw [value])
         corrected_p12_x_raw = antilog_orig - antilog_reg
         if corrected_p12_x_raw > 0: # We can perform a log operation
             corrected_p12_y.append(math.log10 (corrected_p12_x_raw))
-            corrected_p12_x.append(elution_ends[value])
+            corrected_p12_x.append(x_p12[value])
                 
     return corrected_p12_x, corrected_p12_y
 
-def p1_curve_stripped(elution_ends, log_efflux, last_used_index, slope, intercept):
+def p1_curvestrippedof_p23(x_p1_curvestrippedof_p3, y_p1_curvestrippedof_p3, slope, intercept):
     '''
     Curve-strip p1 according to p2/3 data
     
@@ -141,35 +138,31 @@ def p1_curve_stripped(elution_ends, log_efflux, last_used_index, slope, intercep
     p12_x (x-series; list) - elution_ends limited to range of p1 and p2
     corrected_p12_y (y-series; list) - corrected (curve-stripped) efflux data
     '''
-    # Broader x and y series containing both p1 and p2
-    x_p12 = elution_ends[:last_used_index]
-    y_p12 = log_efflux[:last_used_index]
     
     # Calculating p3 data from extrapolation of p3 linear regression into p1/2
 
-    # Container for p3 data in p1/2 range
-    p3_extrapolated_raw = []
-    
-    for x1 in range (0, len(x_p12)):
-        extrapolated_x = (slope*x1) + intercept
-        p3_extrapolated_raw.append(extrapolated_x)
+    p2_extrapolated_raw = []
         
+    for x in range (0, len(x_p1_curvestrippedof_p3)):
+        extrapolated_x = (slope*x_p1_curvestrippedof_p3[x]) + intercept
+        p2_extrapolated_raw.append(extrapolated_x)
+            
     # Antilog extrapolated p3 data and p1/2 data, subtract them, and relog them
     
     # Container for curve-stripped p1/2 data
-    corrected_p12_x = []
-    corrected_p12_y = []
+    corrected_p1_x = []
+    corrected_p1_y = []
     
-    for value in range (0, len(y_p12)):
-        # print p12_y [value], p3_extrapolated_raw [value]
-        antilog_orig = antilog(y_p12 [value])
-        antilog_reg = antilog(p3_extrapolated_raw [value])
-        corrected_p12_x_raw = antilog_orig - antilog_reg
-        if corrected_p12_x_raw > 0: # We can perform a log operation
-            corrected_p12_y.append(math.log10 (corrected_p12_x_raw))
-            corrected_p12_x.append(elution_ends[value])
-                
-    return corrected_p12_x, corrected_p12_y
+    for value in range (0, len(y_p1_curvestrippedof_p3)):
+        antilog_orig = antilog(y_p1_curvestrippedof_p3 [value])
+        antilog_reg = antilog(p2_extrapolated_raw [value])
+        corrected_p1_x_raw = antilog_orig - antilog_reg
+        
+        if corrected_p1_x_raw > 0: # We can perform a log operation
+            corrected_p1_y.append(math.log10 (corrected_p1_x_raw))
+            corrected_p1_x.append(x_p1_curvestrippedof_p3[value])
+                 
+    return corrected_p1_x, corrected_p1_y
    
 def determine_p1_xy(p12_elution_ends, p12_log_efflux):     
     ''' Figuring out x/y-series that yield strongest correlations 
@@ -208,7 +201,6 @@ def determine_p1_xy(p12_elution_ends, p12_log_efflux):
         current_p2_regression = linear_regression(x2_current, y2_current)
     
         current_r2_p1 = current_p1_regression[0]        
-        
         current_r2_p2 = current_p2_regression[0]        
         
         # Checking to see if our last R^2 is higher than highest R^2

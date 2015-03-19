@@ -79,11 +79,9 @@ class RunObject():
 	
 	# Getting p1 + p2 curve-stripped data (together)
 	self.x_p12_curvestrippedof_p3, self.y_p12_curvestrippedof_p3 = \
-	    Operations.p12_curve_stripped (
+	    Operations.p12_curvestrippedof_p3 (
 	        self.x_p12,
 	        self.y_p12,
-	        self.x,
-	        self.reg_end_index,
 	        self.slope_p3,
 	        self.intercept_p3
 	    )
@@ -117,10 +115,9 @@ class RunObject():
 	
 	# Getting and plotting p1 curve-stripped data (for p2 and p3)
 	self.x_p1_curvestrippedof_p23, self.y_p1_curvestrippedof_p23 = \
-	    Operations.p1_curve_stripped (
+	    Operations.p1_curvestrippedof_p23 (
 	        self.x_p1_curvestrippedof_p3,
 	        self.y_p1_curvestrippedof_p3,
-	        len (self.x_p1_curvestrippedof_p3),
 	        self.slope_p2,
 	        self.intercept_p2
 	    )
