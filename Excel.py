@@ -371,13 +371,38 @@ def generate_analysis (data_object):
             worksheet.write (9 + p1_regression_counter + y, 7, run_object.slopes_p3_list [y])
             worksheet.write (9 + p1_regression_counter + y, 8, run_object.intercepts_p3_list [y])
             
+        # Graphing the RunObject Data
+        chart = workbook.add_chart({'type': 'scatter'})
+        worksheet.insert_chart('J6', chart)
+        
+        series_end = len (run_object.elution_cpms_log) + 9
+        
+        chart.add_series({
+            'categories': '=' + run_object.run_name + '!$B$9:' + '$B$' + str (series_end),
+            'values': '=' + run_object.run_name + '!$F$9:' + '$F$' + str (series_end),
+            'name' : run_object.run_name,
+            'marker': {'type': 'circle',
+                       'size,': 5,
+                       'border': {'color': 'black'},
+                       'fill':   {'color': 'gray'}}            
+        })
+        
+        chart.set_x_axis({
+            'name': 'Elution time (min)',
+        })
+        
+        chart.set_y_axis({
+            'name': 'Log Efflux/g RFW/min',
+        })         
+        
+            
     generate_summary (workbook, data_object)
             
     workbook.close()
      
 if __name__ == "__main__":
     #temp_book = xlsxwriter.Workbook('filename.xlsx')
-    temp_data = grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
+    temp_data = grab_data("C:\Users\daniel\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
     generate_analysis (temp_data)
     #generate_template ("C:\Users\Ruben\Desktop\CATE_EXCEL_TEST.xlsx")
                

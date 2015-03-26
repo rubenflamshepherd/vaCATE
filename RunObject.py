@@ -43,13 +43,6 @@ class RunObject():
 	# Default analysis is objective analysis with 2 points
 	self.objective_analysis()
 	
-	self.netflux = (self.root_cnts + self.shoot_cnts)/self.SA/\
-	    self.root_weight
-	self.influx = self.efflux_p3 + self.netflux
-	self.ratio = self.efflux_p3/self.influx
-	self.poolsize = 80085 # Hasn't been calculated yet !!!!!!!!!!!!!!!!!!!!!!
-	
-	
     def objective_analysis(self):
 	"""
 	Objective analysis of RunObject using basic RunObject data
@@ -154,7 +147,17 @@ class RunObject():
 	    self.SA * (1 - math.exp(-self.k_p2 * self.load_time))))
 	self.efflux_p3 = 60 * (self.R0_p3 / (
 	    self.SA * (1 - math.exp (-self.k_p3 * self.load_time))))
-    
-
+	
+	self.elution_period = self.elution_ends[-1]
+	self.tracer_retained =\
+	    (self.shoot_cnts + self.root_cnts)/self.root_weight
+	
+	self.netflux = 60 * (self.tracer_retained - (self.R0_p3/self.k_p3) *  math.exp (-self.k_p3 * self.elution_period))/self.SA/self.load_time
+	self.influx = self.efflux_p3 + self.netflux
+	self.ratio = self.efflux_p3/self.influx
+	self.poolsize = self.influx * self.t05_p3/ (3 * 0.693)
+	
+	
+	
 if __name__ == "__main__":
     pass

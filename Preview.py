@@ -738,11 +738,11 @@ class MainFrame(wx.Frame):
 	self.data_p3_t05.SetValue ('%0.3f'%(run_object.t05_p3))
 	self.data_p3_efflux.SetValue ('%0.3f'%(run_object.efflux_p3))
 	
-	self.data_SA.SetValue ('%0.3f'%(run_object.SA))
-	self.data_shootcnts.SetValue ('%0.3f'%(run_object.shoot_cnts))
-	self.data_rootcnts.SetValue ('%0.3f'%(run_object.root_cnts))
+	self.data_SA.SetValue ('%0.0f'%(run_object.SA))
+	self.data_shootcnts.SetValue ('%0.0f'%(run_object.shoot_cnts))
+	self.data_rootcnts.SetValue ('%0.0f'%(run_object.root_cnts))
 	self.data_rootweight.SetValue ('%0.3f'%(run_object.root_weight))
-	self.data_loadtime.SetValue ('%0.3f'%(run_object.load_time))
+	self.data_loadtime.SetValue ('%0.2f'%(run_object.load_time))
 	self.data_influx.SetValue ('%0.3f'%(run_object.influx))
 	self.data_netflux.SetValue ('%0.3f'%(run_object.netflux))
 	self.data_ratio.SetValue ('%0.3f'%(run_object.ratio))
@@ -819,7 +819,7 @@ class MainFrame(wx.Frame):
 if __name__ == '__main__':
     import Excel
     
-    temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
+    temp_data = Excel.grab_data("C:\Users\Daniel\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
 
     app = wx.PySimpleApp()
     app.frame = MainFrame(temp_data)
