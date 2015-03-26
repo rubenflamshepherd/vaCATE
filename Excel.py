@@ -291,6 +291,9 @@ def generate_analysis (data_object):
     phase_format.set_align ('vcenter')
     phase_format.set_right ()
     
+    emphasis_format = workbook.add_format ()
+    emphasis_format.set_bold()
+    
     
     # Header info for analyzed CATE data
     basic_headers = [("Corrected AIE (cpm)", 15),\
@@ -371,12 +374,19 @@ def generate_analysis (data_object):
             worksheet.write (9 + p1_regression_counter + y, 7, run_object.slopes_p3_list [y])
             worksheet.write (9 + p1_regression_counter + y, 8, run_object.intercepts_p3_list [y])
             
+        # Emphasizing data actually used for p3
+        worksheet.write (9 + p1_regression_counter + 3, 6, run_object.r2s_p3_list [3], emphasis_format)
+        worksheet.write (9 + p1_regression_counter + 3, 7, run_object.slopes_p3_list [3], emphasis_format)
+        worksheet.write (9 + p1_regression_counter + 3, 8, run_object.intercepts_p3_list [3], emphasis_format)        
+        
+            
         # Graphing the RunObject Data
         chart = workbook.add_chart({'type': 'scatter'})
         worksheet.insert_chart('J6', chart)
         
         series_end = len (run_object.elution_cpms_log) + 9
         
+        # Add log efflux data to chart
         chart.add_series({
             'categories': '=' + run_object.run_name + '!$B$9:' + '$B$' + str (series_end),
             'values': '=' + run_object.run_name + '!$F$9:' + '$F$' + str (series_end),
@@ -386,6 +396,36 @@ def generate_analysis (data_object):
                        'border': {'color': 'black'},
                        'fill':   {'color': 'gray'}}            
         })
+        
+        # Add last point of p3
+        chart.add_series({
+            'categories': '=' + run_object.run_name + '!$B$'+ str(9+p1_regression_counter + 4),
+            'values': '=' + run_object.run_name + '!$F$'+ str(9+p1_regression_counter + 4),            
+            'marker': {'type': 'circle',
+                       'size,': 5,
+                       'border': {'color': 'black'},
+                       'fill':   {'color': 'red'}}            
+        })        
+        
+        # Add p3 regression line
+        worksheet.write (7, 10, 0)          
+        worksheet.write (7, 11, run_object.intercept_p3)          
+        worksheet.write (8, 10, run_object.elution_ends[-1]) 
+        worksheet.write (8, 11, run_object.slope_p3 *\
+                         run_object.elution_ends[-1] + run_object.intercept_p3)
+
+        chart.add_series({
+            'categories': [run_object.run_name, 7, 10, 8,10],
+            'values': [run_object.run_name, 7, 11, 8, 11],
+            'line' : {'color': 'red',
+                      'dash_type' : 'dash'},
+            'marker': {'type': 'none',
+                       'size,': 0,
+                       'border': {'color': 'purple'},
+                       'fill':   {'color': 'gray'}}            
+        })         
+
+        chart.set_legend({'none': True})
         
         chart.set_x_axis({
             'name': 'Elution time (min)',
