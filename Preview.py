@@ -56,7 +56,7 @@ class MainFrame(wx.Frame):
 	self.create_main_panel()
         
         # Default analysis:objective regression using the last 2 data points
-        self.obj_textbox.SetValue ('3')
+        # self.obj_textbox.SetValue ('3')
 	        
         self.draw_figure()
 	
@@ -183,7 +183,7 @@ class MainFrame(wx.Frame):
 	self.subj_propagatebutton = wx.Button(self.panel, -1,
 		                                 "Propagate Regresssion")	
         self.Bind(wx.EVT_BUTTON, self.on_subj_draw, self.subj_drawbutton)
-	self.Bind(wx.EVT_BUTTON, self.on_subj_draw, self.subj_propagatebutton)
+	self.Bind(wx.EVT_BUTTON, self.on_subj_propagate, self.subj_propagatebutton)
         self.line = wx.StaticLine(self.panel, -1, style=wx.LI_VERTICAL)
         self.line2 = wx.StaticLine(self.panel, -1, style=wx.LI_VERTICAL)
         self.line3 = wx.StaticLine(self.panel, -1, style=wx.LI_VERTICAL)
@@ -561,8 +561,24 @@ class MainFrame(wx.Frame):
 	run_object = self.data_object.run_objects [self.run_num]
 	
 	if run_object.analysis_type [0] == 'obj':
-	    self.obj_textbox.SetValue (str (run_object.analysis_type[1]))	
-	
+	    self.obj_textbox.SetValue (str (run_object.analysis_type[1]))
+	    
+	    self.subj_p1_start_textbox.SetValue ('')
+	    self.subj_p1_end_textbox.SetValue ('')
+	    self.subj_p2_start_textbox.SetValue ('')
+	    self.subj_p2_end_textbox.SetValue ('')	    
+	    self.subj_p3_start_textbox.SetValue ('')
+	    self.subj_p3_end_textbox.SetValue ('')	    
+	elif run_object.analysis_type [0] == 'subj':
+	    self.obj_textbox.SetValue ('')
+	    
+	    self.subj_p1_start_textbox.SetValue (str (run_object.analysis_type[1][0][0] + 1))
+	    self.subj_p1_end_textbox.SetValue (str (run_object.analysis_type[1][0][1] + 1))
+	    self.subj_p2_start_textbox.SetValue (str (run_object.analysis_type[1][1][0] + 1))
+	    self.subj_p2_end_textbox.SetValue (str (run_object.analysis_type[1][1][1] + 1))	    
+	    self.subj_p3_start_textbox.SetValue (str (run_object.analysis_type[1][2][0] + 1))
+	    self.subj_p3_end_textbox.SetValue (str (run_object.analysis_type[1][2][1] + 1))	    
+	    
 	title_string = 'Compartmental Analysis of Tracer Efflux: Data Analyzer - '
 	detail_string = "Run " + str (self.run_num + 1) + "/"\
 	    + str(len (self.data_object.run_objects))
@@ -829,7 +845,26 @@ class MainFrame(wx.Frame):
         self.draw_figure()
 	
     def on_subj_propagate (self, event):
-	pass    
+	new_analysis_type = ('subj', (
+	    (int (self.subj_p1_start_textbox.GetValue ())  - 1, int (self.subj_p1_end_textbox.GetValue ()) - 1),
+	    (int (self.subj_p2_start_textbox.GetValue ()) - 1, int (self.subj_p2_end_textbox.GetValue ()) - 1),
+	    (int (self.subj_p3_start_textbox.GetValue ()) - 1, int (self.subj_p3_end_textbox.GetValue ()) - 1)
+	)
+	                     )
+	for run_num in range (0, len(self.data_object.run_objects)):
+	    old_run_object = self.data_object.run_objects [run_num]
+	    new_run_object = RunObject.RunObject (old_run_object.run_name,\
+			                                  old_run_object.SA,\
+			                                  old_run_object.root_cnts,\
+			                                  old_run_object.shoot_cnts,\
+			                                  old_run_object.root_weight,\
+			                                  old_run_object.g_factor,\
+			                                  old_run_object.load_time,\
+			                                  old_run_object.elution_times,\
+			                                  old_run_object.elution_cpms,\
+			                                  new_analysis_type
+	                                                  )
+	    self.data_object.run_objects [run_num] = new_run_object   
     
     def on_cb_grid(self, event):
         self.draw_figure()
