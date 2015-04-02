@@ -136,7 +136,7 @@ def grab_data (directory, filename):
             elution_cpms.append (raw_cpm_column [x].value)
         
         all_run_objects.append (RunObject.RunObject(run_name, SA, root_cnts, shoot_cnts, root_weight,\
-                          g_factor, load_time, elution_times, elution_cpms, 3))
+                          g_factor, load_time, elution_times, elution_cpms, ("obj", 3)))
    
     return DataObject.DataObject (directory, all_run_objects)
 

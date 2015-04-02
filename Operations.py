@@ -288,28 +288,22 @@ def obj_regression_p3(elution_ends, log_efflux, num_points_reg):
     return x1, x2, y1, y2, r2[3], slope [3], intercept [3], current_index + 3,\
            r2, slope, intercept
 
-def subj_regression(elution_ends, log_efflux, reg_start, reg_end): 
+def subj_regression_p3(elution_ends, log_efflux, p3_start, p3_end): 
     ''' Doing a custom regression on a data set wherein
     the limits of the regression are known.
     
-    reg_start and reg_end are INDEXS corresponding to the lists elution_ends
+    p3_start and p3_end are INDEXS corresponding to the lists elution_ends
     and log_efflux
     
     Unlike obj_regression, returning variables r2, slope, intercept are not
     lists but single values
     '''
         
-    x = elution_ends[reg_start: reg_end +1] # last index is not inclusive!!
-    y = log_efflux[reg_start: reg_end + 1]
-    # print x
-    # print y
+    x = elution_ends[p3_start: p3_end + 1] # last index is not inclusive!!
+    y = log_efflux[p3_start: p3_end + 1]
     
     # Doing the regression and storing the parameters
-    current_regression = linear_regression (x, y)
-    
-    r2 = current_regression[0]
-    slope= current_regression[1]
-    intercept= current_regression[2]
+    r2, slope, intercept = linear_regression (x, y)
     
     # Write points for graphing equation of linear regression
     x1, x2, y1, y2 = grab_x_ys (elution_ends, intercept, slope)

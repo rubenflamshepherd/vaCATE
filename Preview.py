@@ -49,6 +49,7 @@ class MainFrame(wx.Frame):
 	
 	self.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
 	
+	# Attribute of the frame object, not he data/run object(s)
 	self.run_num = 0
 	
 	self.data_object = data_object
@@ -140,30 +141,30 @@ class MainFrame(wx.Frame):
 	    size=(50,-1),
 	    style=wx.TE_PROCESS_ENTER)
         
-        self.subj_p1_1textbox = wx.TextCtrl(
+        self.subj_p1_start_textbox = wx.TextCtrl(
 	    self.panel, 
 	    size=(50,-1),
 	    style=wx.TE_PROCESS_ENTER)        
 	
-	self.subj_p1_2textbox = wx.TextCtrl(
+	self.subj_p1_end_textbox = wx.TextCtrl(
 	    self.panel, 
 	    size=(50,-1),
 	    style=wx.TE_PROCESS_ENTER)
         
-        self.subj_p2_1textbox = wx.TextCtrl(
+        self.subj_p2_start_textbox = wx.TextCtrl(
 	    self.panel, 
 	    size=(50,-1),
 	    style=wx.TE_PROCESS_ENTER)        
-        self.subj_p2_2textbox = wx.TextCtrl(
+        self.subj_p2_end_textbox = wx.TextCtrl(
 	    self.panel, 
 	    size=(50,-1),
 	    style=wx.TE_PROCESS_ENTER)
         
-        self.subj_p3_1textbox = wx.TextCtrl(
+        self.subj_p3_start_textbox = wx.TextCtrl(
 	    self.panel, 
 	    size=(50,-1),
 	    style=wx.TE_PROCESS_ENTER)        
-        self.subj_p3_2textbox = wx.TextCtrl(
+        self.subj_p3_end_textbox = wx.TextCtrl(
 	    self.panel, 
 	    size=(50,-1),
 	    style=wx.TE_PROCESS_ENTER)        
@@ -225,23 +226,23 @@ class MainFrame(wx.Frame):
                 
         self.gridbox_subj.Add (wx.StaticText (self.panel, label="Phase I:"),
 	                       0, border=3, flag=flags)        
-        self.gridbox_subj.Add (self.subj_p1_1textbox, 0, border=3,
+        self.gridbox_subj.Add (self.subj_p1_start_textbox, 0, border=3,
 	                       flag=box_flag)
-        self.gridbox_subj.Add (self.subj_p1_2textbox, 0, border=3,
+        self.gridbox_subj.Add (self.subj_p1_end_textbox, 0, border=3,
 	                       flag=box_flag)
                 
         self.gridbox_subj.Add (wx.StaticText (self.panel, label="Phase II:"),
 	                       0, border=3, flag=flags)        
-        self.gridbox_subj.Add (self.subj_p2_1textbox, 0, border=3,
+        self.gridbox_subj.Add (self.subj_p2_start_textbox, 0, border=3,
 	                       flag=box_flag)
-        self.gridbox_subj.Add (self.subj_p2_2textbox, 0, border=3,
+        self.gridbox_subj.Add (self.subj_p2_end_textbox, 0, border=3,
 	                       flag=box_flag)
                 
         self.gridbox_subj.Add (wx.StaticText (self.panel, label="Phase III:"),
 	                       0, border=3, flag=flags)        
-        self.gridbox_subj.Add (self.subj_p3_1textbox, 0, border=3,
+        self.gridbox_subj.Add (self.subj_p3_start_textbox, 0, border=3,
 	                       flag=box_flag)
-        self.gridbox_subj.Add (self.subj_p3_2textbox, 0, border=3,
+        self.gridbox_subj.Add (self.subj_p3_end_textbox, 0, border=3,
 	                       flag=box_flag)
                 
         self.vbox_subj = wx.BoxSizer(wx.VERTICAL)
@@ -558,8 +559,9 @@ class MainFrame(wx.Frame):
         """
 	
 	run_object = self.data_object.run_objects [self.run_num]
-		
-	self.obj_textbox.SetValue (str (run_object.pts_used))	
+	
+	if run_object.analysis_type [0] == 'obj':
+	    self.obj_textbox.SetValue (str (run_object.analysis_type[1]))	
 	
 	title_string = 'Compartmental Analysis of Tracer Efflux: Data Analyzer - '
 	detail_string = "Run " + str (self.run_num + 1) + "/"\
@@ -606,17 +608,7 @@ class MainFrame(wx.Frame):
         self.plot_phase3.set_ylabel (u"Log cpm released/g RFW/min")
         self.plot_phase3.set_xlim (left = 0)
         self.plot_phase3.set_ylim (bottom = 0)
-                
-        # OBJECTIVE REGRESSION
-	
-	num_points_obj = self.obj_textbox.GetValue ()
-	self.num_points_obj = int (num_points_obj)
-	if num_points_obj < 3:
-	    num_points_obj = 3
-	    self.obj_textbox.SetValue ('3')
-	
-	
-		    
+                	    
 	# Graphing the p3 series and regression line
 	self.plot_phase3.scatter(
                     run_object.x_p3,
@@ -636,14 +628,15 @@ class MainFrame(wx.Frame):
 	
 	# Distiguishing the intial points used to start the regression
 	# and plotting them (solid red)
-	self.plot_phase3.scatter(
-                    run_object.x_reg_start,
-                    run_object.y_reg_start,
-                    s = self.slider_width.GetValue(),
-                    alpha = 0.5,
-                    edgecolors = 'r',
-                    facecolors = 'r'
-                )	
+	if run_object.analysis_type[0] == 'obj':
+	    self.plot_phase3.scatter(
+		        run_object.x_reg_start,
+		        run_object.y_reg_start,
+		        s = self.slider_width.GetValue(),
+		        alpha = 0.5,
+		        edgecolors = 'r',
+		        facecolors = 'r'
+		    )	
 			    
 	# Graphing the p2 series and regression line
 	
@@ -766,14 +759,15 @@ class MainFrame(wx.Frame):
         self.canvas.draw()
         
     def on_obj_draw (self, event):
-        self.subj_p1_1textbox.SetValue ('')
-        self.subj_p1_2textbox.SetValue ('')
-        self.subj_p2_1textbox.SetValue ('')
-        self.subj_p2_2textbox.SetValue ('')
-        self.subj_p3_1textbox.SetValue ('')
-        self.subj_p3_2textbox.SetValue ('')
+        self.subj_p1_start_textbox.SetValue ('')
+        self.subj_p1_end_textbox.SetValue ('')
+        self.subj_p2_start_textbox.SetValue ('')
+        self.subj_p2_end_textbox.SetValue ('')
+        self.subj_p3_start_textbox.SetValue ('')
+        self.subj_p3_end_textbox.SetValue ('')
 	
 	old_run_object = self.data_object.run_objects [self.run_num]
+	new_analysis_type = ('obj', int (self.obj_textbox.GetValue ()))
 	
 	new_run_object = RunObject.RunObject (old_run_object.run_name,\
 	                                      old_run_object.SA,\
@@ -784,7 +778,7 @@ class MainFrame(wx.Frame):
 	                                      old_run_object.load_time,\
 	                                      old_run_object.elution_times,\
 	                                      old_run_object.elution_cpms,\
-	                                      int (self.obj_textbox.GetValue ()) )
+	                                      new_analysis_type)
 	
 	self.data_object.run_objects [self.run_num] = new_run_object
 		
@@ -792,7 +786,7 @@ class MainFrame(wx.Frame):
 	
     def on_obj_propagate (self, event):
 	
-	num_points = int (self.obj_textbox.GetValue ())
+	new_analysis_type = ('obj', int (self.obj_textbox.GetValue ()))
 	for run_num in range (0, len(self.data_object.run_objects)):
 	    old_run_object = self.data_object.run_objects [run_num]
 	    new_run_object = RunObject.RunObject (old_run_object.run_name,\
@@ -804,13 +798,34 @@ class MainFrame(wx.Frame):
 			                                  old_run_object.load_time,\
 			                                  old_run_object.elution_times,\
 			                                  old_run_object.elution_cpms,\
-			                                  num_points
+			                                  new_analysis_type
 	                                                  )
 	    self.data_object.run_objects [run_num] = new_run_object
     
         
     def on_subj_draw (self, event):
         self.obj_textbox.SetValue ('')
+	old_run_object = self.data_object.run_objects [self.run_num]
+	new_analysis_type = ('subj', (
+	    (int (self.subj_p1_start_textbox.GetValue ())  - 1, int (self.subj_p1_end_textbox.GetValue ()) - 1),
+	    (int (self.subj_p2_start_textbox.GetValue ()) - 1, int (self.subj_p2_end_textbox.GetValue ()) - 1),
+	    (int (self.subj_p3_start_textbox.GetValue ()) - 1, int (self.subj_p3_end_textbox.GetValue ()) - 1)
+	)
+	                     )
+	
+	new_run_object = RunObject.RunObject (old_run_object.run_name,\
+                                      old_run_object.SA,\
+                                      old_run_object.root_cnts,\
+                                      old_run_object.shoot_cnts,\
+                                      old_run_object.root_weight,\
+                                      old_run_object.g_factor,\
+                                      old_run_object.load_time,\
+                                      old_run_object.elution_times,\
+                                      old_run_object.elution_cpms,\
+                                      new_analysis_type)
+	
+	self.data_object.run_objects [self.run_num] = new_run_object
+		
         self.draw_figure()
 	
     def on_subj_propagate (self, event):
