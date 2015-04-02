@@ -172,11 +172,17 @@ class MainFrame(wx.Frame):
         # Buttons for identifying collect regression parameter event
         self.obj_drawbutton = wx.Button(self.panel, -1,
 	                                "Draw Objective Regresssion")
+	self.obj_propagatebutton = wx.Button(self.panel, -1,
+		                                "Propagate Regresssion")	
         self.Bind(wx.EVT_BUTTON, self.on_obj_draw, self.obj_drawbutton)
+	self.Bind(wx.EVT_BUTTON, self.on_obj_propagate, self.obj_propagatebutton)
         
         self.subj_drawbutton = wx.Button(self.panel, -1,
 	                                 "Draw Subjective Regression")
+	self.subj_propagatebutton = wx.Button(self.panel, -1,
+		                                 "Propagate Regresssion")	
         self.Bind(wx.EVT_BUTTON, self.on_subj_draw, self.subj_drawbutton)
+	self.Bind(wx.EVT_BUTTON, self.on_subj_draw, self.subj_propagatebutton)
         self.line = wx.StaticLine(self.panel, -1, style=wx.LI_VERTICAL)
         self.line2 = wx.StaticLine(self.panel, -1, style=wx.LI_VERTICAL)
         self.line3 = wx.StaticLine(self.panel, -1, style=wx.LI_VERTICAL)
@@ -204,7 +210,9 @@ class MainFrame(wx.Frame):
         self.vbox_obj.AddSpacer(5)
         self.vbox_obj.Add (self.obj_textbox, 0, border=3, flag=box_flag)
         self.vbox_obj.AddSpacer(5)
-        self.vbox_obj.Add (self.obj_drawbutton, 0, border=3, flag=button_flag)
+        self.vbox_obj.Add (self.obj_drawbutton, 0, border=3, flag=box_flag)
+	self.vbox_obj.AddSpacer(1)
+	self.vbox_obj.Add (self.obj_propagatebutton, 0, border=3, flag=box_flag)	
         
         # Adding subjective widgets to subjective sizer
         self.gridbox_subj = wx.GridSizer (rows=4, cols=3, hgap=1, vgap=1)
@@ -241,6 +249,8 @@ class MainFrame(wx.Frame):
         self.vbox_subj.Add (self.gridbox_subj, 0, border=3, flag=box_flag)
         self.vbox_subj.Add (self.subj_drawbutton, 0, border=3,
 	                    flag=box_flag)
+	self.vbox_subj.Add (self.subj_propagatebutton, 0, border=3,
+		                    flag=box_flag)	
         self.vbox_subj.Add (self.subj_disclaimer, 0, border=3,
 	                    flag=box_flag)
         
@@ -779,11 +789,32 @@ class MainFrame(wx.Frame):
 	self.data_object.run_objects [self.run_num] = new_run_object
 		
         self.draw_figure()
+	
+    def on_obj_propagate (self, event):
+	
+	num_points = int (self.obj_textbox.GetValue ())
+	for run_num in range (0, len(self.data_object.run_objects)):
+	    old_run_object = self.data_object.run_objects [run_num]
+	    new_run_object = RunObject.RunObject (old_run_object.run_name,\
+			                                  old_run_object.SA,\
+			                                  old_run_object.root_cnts,\
+			                                  old_run_object.shoot_cnts,\
+			                                  old_run_object.root_weight,\
+			                                  old_run_object.g_factor,\
+			                                  old_run_object.load_time,\
+			                                  old_run_object.elution_times,\
+			                                  old_run_object.elution_cpms,\
+			                                  num_points
+	                                                  )
+	    self.data_object.run_objects [run_num] = new_run_object
     
         
     def on_subj_draw (self, event):
         self.obj_textbox.SetValue ('')
-        self.draw_figure()    
+        self.draw_figure()
+	
+    def on_subj_propagate (self, event):
+	pass    
     
     def on_cb_grid(self, event):
         self.draw_figure()
