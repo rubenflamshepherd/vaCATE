@@ -170,6 +170,7 @@ def generate_summary (workbook, data_object):
     
     # Row labels
     row_headers = [
+            "Analysis Type",\
             u"Specific Activity (cpm \u00B7 \u00B5mol\u207b\u00b9)",\
             "Root Cnts (cpm)", "Shoot Cnts (cpm)", "Root weight (g)",\
             "G-Factor", "Load Time (min)", "", "Influx", "Net flux",\
@@ -179,79 +180,93 @@ def generate_summary (workbook, data_object):
                          "Efflux"]    
     
     # Writing row Labels
+    
     for y in range (0, len (row_headers)):
-        worksheet.merge_range (y + 1, 0, y + 1, 1,\
-                               row_headers [y], req)
-        
+        if y != 7:
+            worksheet.merge_range (y + 1, 0, y + 1, 1, row_headers [y], req)
+
+    
     for z in range (0, len (phasedata_headers)):
-        worksheet.merge_range (z + 12, 0, z + 12, 1,\
+        worksheet.merge_range (z + 13, 0, z + 13, 1,\
                                phasedata_headers [z], req)
-        worksheet.merge_range (z + 19, 0, z + 19, 1,\
+        worksheet.merge_range (z + 20, 0, z + 20, 1,\
                                phasedata_headers [z], req)        
-        worksheet.merge_range (z + 26, 0, z + 26, 1,\
+        worksheet.merge_range (z + 27, 0, z + 27, 1,\
                                phasedata_headers [z], req)
     
-    worksheet.write (7, 0, "Phase III", phase_format)
-    worksheet.write (7, 1, "Phase III", phase_format)
-    worksheet.merge_range (18, 0, 18, 1, "Phase II", phase_format)
-    worksheet.merge_range (25, 0, 25, 1, "Phase I", phase_format)
-    
+    worksheet.merge_range (8, 0, 8, 1, "Phase III", phase_format)
+    worksheet.merge_range (19, 0, 19, 1, "Phase II", phase_format)
+    worksheet.merge_range (26, 0, 26, 1, "Phase I", phase_format)
+        
     # Writing elution time points/headers for respective series
     run_length_counter = len (data_object.run_objects [0].elution_ends)
-    log_efflux_row = 32
+    phase_corrected_efflux_row = 33
+    log_efflux_row = phase_corrected_efflux_row + run_length_counter + 1
     efflux_row = log_efflux_row + run_length_counter + 1
     corrected_row = efflux_row + run_length_counter + 1
     raw_row = corrected_row + run_length_counter + 1
     
-    worksheet.merge_range (log_efflux_row, 0, log_efflux_row, 1, "Log Efflux", phase_format)
-    worksheet.merge_range (efflux_row, 0, efflux_row, 1, "Efflux", phase_format)
-    worksheet.merge_range (corrected_row, 0, corrected_row, 1, "Corrected AIE", phase_format)
-    worksheet.merge_range (raw_row, 0, raw_row, 1, "Activity in eluant", phase_format)    
+    worksheet.merge_range (phase_corrected_efflux_row, 0,\
+                           phase_corrected_efflux_row, 1,\
+                           "Phase-Corr. Log Eff.", phase_format)    
+    worksheet.merge_range (log_efflux_row, 0, log_efflux_row, 1,\
+                           "Log Efflux", phase_format)
+    worksheet.merge_range (efflux_row, 0, efflux_row, 1,\
+                           "Efflux", phase_format)
+    worksheet.merge_range (corrected_row, 0, corrected_row, 1,\
+                           "Corrected AIE", phase_format)
+    worksheet.merge_range (raw_row, 0, raw_row, 1,\
+                           "Activity in eluant", phase_format)    
     
     for x in range (0, run_length_counter):
         time_point = data_object.run_objects [0].elution_ends [x]
 
+        worksheet.merge_range (1 + phase_corrected_efflux_row + x, 0, 1 + phase_corrected_efflux_row + x, 1, time_point, right_format)
         worksheet.merge_range (1 + log_efflux_row + x, 0, 1 + log_efflux_row + x, 1, time_point, right_format)
         worksheet.merge_range (1 + efflux_row + x, 0, 1 + efflux_row + x, 1, time_point, right_format)
         worksheet.merge_range (1 + corrected_row + x, 0, 1 + corrected_row + x, 1, time_point, right_format)
         worksheet.merge_range (1 + raw_row + x, 0, 1 + raw_row + x, 1, time_point, right_format)
+        
+    
     
     # Writing Runobject data to sheet
     counter = 2
     for run_object in data_object.run_objects:
         worksheet.write (0, counter, run_object.run_name, middle_format)
-        worksheet.write (1, counter, run_object.SA)
-        worksheet.write (2, counter, run_object.root_cnts)
-        worksheet.write (3, counter, run_object.shoot_cnts)
-        worksheet.write (4, counter, run_object.root_weight)
-        worksheet.write (5, counter, run_object.g_factor)
-        worksheet.write (6, counter, run_object.load_time)
+        worksheet.write (1, counter, run_object.analysis_type [0])
+        worksheet.write (2, counter, run_object.SA)
+        worksheet.write (3, counter, run_object.root_cnts)
+        worksheet.write (4, counter, run_object.shoot_cnts)
+        worksheet.write (5, counter, run_object.root_weight)
+        worksheet.write (6, counter, run_object.g_factor)
+        worksheet.write (7, counter, run_object.load_time)
         
-        worksheet.write (8, counter, run_object.influx)
-        worksheet.write (9, counter, run_object.netflux)
-        worksheet.write (10, counter, run_object.ratio)
-        worksheet.write (11, counter, run_object.poolsize)
-        worksheet.write (12, counter, run_object.slope_p3)
-        worksheet.write (13, counter, run_object.intercept_p3)
-        worksheet.write (14, counter, run_object.r2_p3)
-        worksheet.write (15, counter, run_object.k_p3)
-        worksheet.write (16, counter, run_object.t05_p3)
-        worksheet.write (17, counter, run_object.efflux_p3)
+        worksheet.write (9, counter, run_object.influx)
+        worksheet.write (10, counter, run_object.netflux)
+        worksheet.write (11, counter, run_object.ratio)
+        worksheet.write (12, counter, run_object.poolsize)
+        worksheet.write (13, counter, run_object.slope_p3)
+        worksheet.write (14, counter, run_object.intercept_p3)
+        worksheet.write (15, counter, run_object.r2_p3)
+        worksheet.write (16, counter, run_object.k_p3)
+        worksheet.write (17, counter, run_object.t05_p3)
+        worksheet.write (18, counter, run_object.efflux_p3)
         
-        worksheet.write (19, counter, run_object.slope_p2)
-        worksheet.write (20, counter, run_object.intercept_p2)
-        worksheet.write (21, counter, run_object.r2_p2)
-        worksheet.write (22, counter, run_object.k_p2)
-        worksheet.write (23, counter, run_object.t05_p2)
-        worksheet.write (24, counter, run_object.efflux_p2)
+        worksheet.write (20, counter, run_object.slope_p2)
+        worksheet.write (21, counter, run_object.intercept_p2)
+        worksheet.write (22, counter, run_object.r2_p2)
+        worksheet.write (23, counter, run_object.k_p2)
+        worksheet.write (24, counter, run_object.t05_p2)
+        worksheet.write (25, counter, run_object.efflux_p2)
 
-        worksheet.write (26, counter, run_object.slope_p1)
-        worksheet.write (27, counter, run_object.intercept_p1)
-        worksheet.write (28, counter, run_object.r2_p1)
-        worksheet.write (29, counter, run_object.k_p1)
-        worksheet.write (30, counter, run_object.t05_p1)
-        worksheet.write (31, counter, run_object.efflux_p1)
+        worksheet.write (27, counter, run_object.slope_p1)
+        worksheet.write (28, counter, run_object.intercept_p1)
+        worksheet.write (29, counter, run_object.r2_p1)
+        worksheet.write (30, counter, run_object.k_p1)
+        worksheet.write (31, counter, run_object.t05_p1)
+        worksheet.write (32, counter, run_object.efflux_p1)
         
+        # Writing efflux elution data that is not phase corrected
         for x in range (0, len (run_object.elution_ends)):
             worksheet.write (1 + log_efflux_row + x, counter, run_object.elution_cpms_log [x])        
             worksheet.write (1 + efflux_row + x, counter, run_object.elution_cpms_gRFW [x])
@@ -263,7 +278,8 @@ def generate_summary (workbook, data_object):
 def generate_analysis (data_object):
     '''
     Creating an excel file in directory using a preset naming convention
-    Data in the file are the product of CATE analysis from a template file containing the raw information
+    Data in the file are the product of CATE analysis from a template file
+    containing the raw information
     Nothing is returned
     '''
     

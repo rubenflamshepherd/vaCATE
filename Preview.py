@@ -167,9 +167,8 @@ class MainFrame(wx.Frame):
         self.subj_p3_end_textbox = wx.TextCtrl(
 	    self.panel, 
 	    size=(50,-1),
-	    style=wx.TE_PROCESS_ENTER)        
-                    
-        
+	    style=wx.TE_PROCESS_ENTER)
+	
         # Buttons for identifying collect regression parameter event
         self.obj_drawbutton = wx.Button(self.panel, -1,
 	                                "Draw Objective Regresssion")
@@ -750,12 +749,12 @@ class MainFrame(wx.Frame):
 	self.data_p2_t05.SetValue ('%0.3f'%(run_object.t05_p2))
 	self.data_p2_efflux.SetValue ('%0.2f'%(run_object.efflux_p2))
 	
-	self.data_p3_slope.SetValue ('%0.3f'%(run_object.slope_p3))
-	self.data_p3_int.SetValue ('%0.3f'%(run_object.intercept_p3))
-	self.data_p3_r2.SetValue ('%0.3f'%(run_object.r2_p3))         
-	self.data_p3_k.SetValue ('%0.3f'%(run_object.k_p3))
-	self.data_p3_t05.SetValue ('%0.3f'%(run_object.t05_p3))
-	self.data_p3_efflux.SetValue ('%0.3f'%(run_object.efflux_p3))
+	self.data_p3_slope.SetValue ('%0.4f'%(run_object.slope_p3))
+	self.data_p3_int.SetValue ('%0.4f'%(run_object.intercept_p3))
+	self.data_p3_r2.SetValue ('%0.4f'%(run_object.r2_p3))         
+	self.data_p3_k.SetValue ('%0.4f'%(run_object.k_p3))
+	self.data_p3_t05.SetValue ('%0.4f'%(run_object.t05_p3))
+	self.data_p3_efflux.SetValue ('%0.4f'%(run_object.efflux_p3))
 	
 	self.data_SA.SetValue ('%0.0f'%(run_object.SA))
 	self.data_shootcnts.SetValue ('%0.0f'%(run_object.shoot_cnts))
@@ -823,9 +822,12 @@ class MainFrame(wx.Frame):
         self.obj_textbox.SetValue ('')
 	old_run_object = self.data_object.run_objects [self.run_num]
 	new_analysis_type = ('subj', (
-	    (int (self.subj_p1_start_textbox.GetValue ())  - 1, int (self.subj_p1_end_textbox.GetValue ()) - 1),
-	    (int (self.subj_p2_start_textbox.GetValue ()) - 1, int (self.subj_p2_end_textbox.GetValue ()) - 1),
-	    (int (self.subj_p3_start_textbox.GetValue ()) - 1, int (self.subj_p3_end_textbox.GetValue ()) - 1)
+	    (int (self.subj_p1_start_textbox.GetValue ())  - 1,\
+	     int (self.subj_p1_end_textbox.GetValue ()) - 1),\	    
+	    (int (self.subj_p2_start_textbox.GetValue ()) - 1,\
+	     int (self.subj_p2_end_textbox.GetValue ()) - 1),\	    
+	    (int (self.subj_p3_start_textbox.GetValue ()) - 1,\
+	     int (self.subj_p3_end_textbox.GetValue ()) - 1)
 	)
 	                     )
 	

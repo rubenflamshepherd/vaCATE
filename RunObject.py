@@ -115,7 +115,7 @@ class RunObject():
 	        self.intercept_p2
 	    )
 	
-	# Linear regression on curve-stripped p3 data and plotting line
+	# Linear regression on curve-stripped p1 data and plotting line
 	self.r2_p1, self.slope_p1, self.intercept_p1 = Operations.linear_regression (
 	    self.x_p1_curvestrippedof_p23,
 	    self.y_p1_curvestrippedof_p23
