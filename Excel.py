@@ -404,10 +404,6 @@ def generate_analysis (data_object):
         worksheet.write (4, 12, run_object.ratio)
         worksheet.write (4, 13, run_object.poolsize)
         
-        
-        p1_regression_counter = len (run_object.elution_ends)\
-            - len (run_object.r2s_p3_list) - run_object.analysis_type [1]
-        
         for x in range (0, len (run_object.elution_ends)):
             worksheet.write (8 + x, 0, x + 1)
             worksheet.write (8 + x, 1, run_object.elution_ends [x])
@@ -417,20 +413,46 @@ def generate_analysis (data_object):
             worksheet.write (8 + x, 5, run_object.elution_cpms_log [x])
         
         if run_object.analysis_type[0] == 'obj':
+
+            p1_regression_counter = len (run_object.elution_ends)\
+                - len (run_object.r2s_p3_list) - run_object.analysis_type [1]
+            chart_col = "L"
+            
             for y in range (0, len (run_object.r2s_p3_list)):
                 worksheet.write (9 + p1_regression_counter + y, 6, run_object.r2s_p3_list [y])
                 worksheet.write (9 + p1_regression_counter + y, 7, run_object.slopes_p3_list [y])
                 worksheet.write (9 + p1_regression_counter + y, 8, run_object.intercepts_p3_list [y])
                 
             # Emphasizing data actually used for p3
-            worksheet.write (9 + p1_regression_counter + 3, 6, run_object.r2s_p3_list [3], emphasis_format)
-            worksheet.write (9 + p1_regression_counter + 3, 7, run_object.slopes_p3_list [3], emphasis_format)
-            worksheet.write (9 + p1_regression_counter + 3, 8, run_object.intercepts_p3_list [3], emphasis_format)        
+            worksheet.write (9 + p1_regression_counter + 3, 6,\
+                             run_object.r2s_p3_list [3], emphasis_format)
+            worksheet.write (9 + p1_regression_counter + 3, 7,\
+                             run_object.slopes_p3_list [3], emphasis_format)
+            worksheet.write (9 + p1_regression_counter + 3, 8,\
+                             run_object.intercepts_p3_list [3], emphasis_format)
+            
+            p2_column = 10
+            
+        else: # No columns for lists of r2/intercept/slope
+            # p2_column = 7
+            pass
+
+        # Writing Phase-corrected data in appropriate column
+        row_counter = 8
+        for z in range (0, len (run_object.y_p1_curvestrippedof_p23)):
+            worksheet.write (row_counter, p2_column,\
+                             run_object.y_p1_curvestrippedof_p23[z])
+            row_counter += 1
+        
+        for z in range (0, len (run_object.y_p2_curvestrippedof_p3)):
+            worksheet.write (row_counter, p2_column - 1,\
+                             run_object.y_p2_curvestrippedof_p3[z])
+            row_counter += 1        
         
             
         # Graphing the RunObject Data
         chart = workbook.add_chart({'type': 'scatter'})
-        worksheet.insert_chart('L6', chart)
+        worksheet.insert_chart(chart_col + '6', chart)
         
         series_end = len (run_object.elution_cpms_log) + 9
         
@@ -463,8 +485,8 @@ def generate_analysis (data_object):
                          run_object.elution_ends[-1] + run_object.intercept_p3)
 
         chart.add_series({
-            'categories': [run_object.run_name, 7, 10, 8,10],
-            'values': [run_object.run_name, 7, 11, 8, 11],
+            'categories': [run_object.run_name, 7, 11, 8,11],
+            'values': [run_object.run_name, 7, 12, 8, 12],
             'line' : {'color': 'red',
                       'dash_type' : 'dash'},
             'marker': {'type': 'none',
