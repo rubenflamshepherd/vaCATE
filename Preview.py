@@ -823,9 +823,9 @@ class MainFrame(wx.Frame):
 	old_run_object = self.data_object.run_objects [self.run_num]
 	new_analysis_type = ('subj', (
 	    (int (self.subj_p1_start_textbox.GetValue ())  - 1,\
-	     int (self.subj_p1_end_textbox.GetValue ()) - 1),\	    
+	     int (self.subj_p1_end_textbox.GetValue ()) - 1),	    
 	    (int (self.subj_p2_start_textbox.GetValue ()) - 1,\
-	     int (self.subj_p2_end_textbox.GetValue ()) - 1),\	    
+	     int (self.subj_p2_end_textbox.GetValue ()) - 1),	    
 	    (int (self.subj_p3_start_textbox.GetValue ()) - 1,\
 	     int (self.subj_p3_end_textbox.GetValue ()) - 1)
 	)

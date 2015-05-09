@@ -154,7 +154,10 @@ def generate_summary (workbook, data_object):
     req.set_align ('right')
     req.set_align ('vcenter')
     req.set_bold ()
-    req.set_right ()    
+    req.set_right ()
+    
+    bot_line = workbook.add_format ()
+    bot_line.set_bottom ()    
     
     phase_format = workbook.add_format ()
     phase_format.set_align ('right')
@@ -266,12 +269,37 @@ def generate_summary (workbook, data_object):
         worksheet.write (31, counter, run_object.t05_p1)
         worksheet.write (32, counter, run_object.efflux_p1)
         
+        # Writing Phase I phase-corrected efflux data
+        for w in range (0, len (run_object.y_p1_curvestrippedof_p23)):
+            if w != len (run_object.y_p1) - 1:
+                worksheet.write (1 + phase_corrected_efflux_row + w, counter,\
+                                 run_object.y_p1_curvestrippedof_p23 [w])
+            else:
+                worksheet.write (1 + phase_corrected_efflux_row + w, counter,\
+                                                 run_object.y_p1_curvestrippedof_p23 [w], bot_line)
+        
+        # Writing Phase II phase-corrected efflux data
+        phase_2_row_counter = phase_corrected_efflux_row + len (run_object.y_p1)
+        for x in range (0, len (run_object.y_p2_curvestrippedof_p3)):
+            if x != len (run_object.y_p2_curvestrippedof_p3) - 1:
+                worksheet.write (1 + phase_2_row_counter + x, counter,\
+                                 run_object.y_p2_curvestrippedof_p3 [x])
+            else:
+                worksheet.write (1 + phase_2_row_counter + x, counter,\
+                                                 run_object.y_p2_curvestrippedof_p3 [x], bot_line)    
+                
+        # Writing Phase III phase-corrected efflux data
+        phase_3_row_counter = phase_2_row_counter + len (run_object.y_p2_curvestrippedof_p3)
+        for y in range (0, len (run_object.y_p3)):
+            worksheet.write (1 + phase_3_row_counter + y, counter,\
+                             run_object.y_p3 [y])
+        
         # Writing efflux elution data that is not phase corrected
-        for x in range (0, len (run_object.elution_ends)):
-            worksheet.write (1 + log_efflux_row + x, counter, run_object.elution_cpms_log [x])        
-            worksheet.write (1 + efflux_row + x, counter, run_object.elution_cpms_gRFW [x])
-            worksheet.write (1 + corrected_row + x, counter, run_object.elution_cpms_gfactor [x])
-            worksheet.write (1 + raw_row + x, counter, run_object.elution_cpms [x])
+        for z in range (0, len (run_object.elution_ends)):
+            worksheet.write (1 + log_efflux_row + z, counter, run_object.elution_cpms_log [z])        
+            worksheet.write (1 + efflux_row + z, counter, run_object.elution_cpms_gRFW [z])
+            worksheet.write (1 + corrected_row + z, counter, run_object.elution_cpms_gfactor [z])
+            worksheet.write (1 + raw_row + z, counter, run_object.elution_cpms [z])
         
         counter += 1
                 
@@ -317,7 +345,9 @@ def generate_analysis (data_object):
                ("Log Efflux", 8.86),\
                (u"R\u00b2", 7),\
                (u"Slope (min\u207b\u00b9)", 8.14),\
-               ("Intercept", 8.5)]
+               ("Intercept", 8.5),\
+               ("Phase-Corr. PII", 8.86),\
+               ("Phase-Corr. PI", 8.86)]    
     
     phasedata_headers = ["Slope", "Intercept", u"R\u00b2", "k", "Half-Life",\
                          "Efflux", "Influx", "Net flux", "E:I Ratio",\
@@ -327,8 +357,9 @@ def generate_analysis (data_object):
         worksheet = generate_sheet (workbook, run_object.run_name)
         
         for y in range (0, len (basic_headers)):
-            worksheet.write (7, y + 3, basic_headers[y][0], analyzed_header)   
-            worksheet.set_column (y + 3, y + 3, basic_headers [y][1])
+            if (y < 2 and y > 6) or run_object.analysis_type [0] == 'obj':
+                worksheet.write (7, y + 3, basic_headers[y][0], analyzed_header)   
+                worksheet.set_column (y + 3, y + 3, basic_headers [y][1])
                 
         for z in range (0, len (phasedata_headers)):
             worksheet.write (1, z + 4, phasedata_headers[z], analyzed_header) 
@@ -373,7 +404,7 @@ def generate_analysis (data_object):
         worksheet.write (4, 12, run_object.ratio)
         worksheet.write (4, 13, run_object.poolsize)
         
-    
+        
         p1_regression_counter = len (run_object.elution_ends)\
             - len (run_object.r2s_p3_list) - run_object.analysis_type [1]
         
@@ -384,21 +415,22 @@ def generate_analysis (data_object):
             worksheet.write (8 + x, 3, run_object.elution_cpms_gfactor [x])
             worksheet.write (8 + x, 4, run_object.elution_cpms_gRFW [x])
             worksheet.write (8 + x, 5, run_object.elution_cpms_log [x])
-    
-        for y in range (0, len (run_object.r2s_p3_list)):
-            worksheet.write (9 + p1_regression_counter + y, 6, run_object.r2s_p3_list [y])
-            worksheet.write (9 + p1_regression_counter + y, 7, run_object.slopes_p3_list [y])
-            worksheet.write (9 + p1_regression_counter + y, 8, run_object.intercepts_p3_list [y])
-            
-        # Emphasizing data actually used for p3
-        worksheet.write (9 + p1_regression_counter + 3, 6, run_object.r2s_p3_list [3], emphasis_format)
-        worksheet.write (9 + p1_regression_counter + 3, 7, run_object.slopes_p3_list [3], emphasis_format)
-        worksheet.write (9 + p1_regression_counter + 3, 8, run_object.intercepts_p3_list [3], emphasis_format)        
+        
+        if run_object.analysis_type[0] == 'obj':
+            for y in range (0, len (run_object.r2s_p3_list)):
+                worksheet.write (9 + p1_regression_counter + y, 6, run_object.r2s_p3_list [y])
+                worksheet.write (9 + p1_regression_counter + y, 7, run_object.slopes_p3_list [y])
+                worksheet.write (9 + p1_regression_counter + y, 8, run_object.intercepts_p3_list [y])
+                
+            # Emphasizing data actually used for p3
+            worksheet.write (9 + p1_regression_counter + 3, 6, run_object.r2s_p3_list [3], emphasis_format)
+            worksheet.write (9 + p1_regression_counter + 3, 7, run_object.slopes_p3_list [3], emphasis_format)
+            worksheet.write (9 + p1_regression_counter + 3, 8, run_object.intercepts_p3_list [3], emphasis_format)        
         
             
         # Graphing the RunObject Data
         chart = workbook.add_chart({'type': 'scatter'})
-        worksheet.insert_chart('J6', chart)
+        worksheet.insert_chart('L6', chart)
         
         series_end = len (run_object.elution_cpms_log) + 9
         
@@ -424,10 +456,10 @@ def generate_analysis (data_object):
         })        
         
         # Add p3 regression line
-        worksheet.write (7, 10, 0)          
-        worksheet.write (7, 11, run_object.intercept_p3)          
-        worksheet.write (8, 10, run_object.elution_ends[-1]) 
-        worksheet.write (8, 11, run_object.slope_p3 *\
+        worksheet.write (7, 11, 0)          
+        worksheet.write (7, 12, run_object.intercept_p3)          
+        worksheet.write (8, 11, run_object.elution_ends[-1]) 
+        worksheet.write (8, 12, run_object.slope_p3 *\
                          run_object.elution_ends[-1] + run_object.intercept_p3)
 
         chart.add_series({
