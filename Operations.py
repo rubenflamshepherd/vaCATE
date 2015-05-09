@@ -161,7 +161,7 @@ def p1_curvestrippedof_p23(x_p1_curvestrippedof_p3, y_p1_curvestrippedof_p3, slo
         if corrected_p1_x_raw > 0: # We can perform a log operation
             corrected_p1_y.append(math.log10 (corrected_p1_x_raw))
             corrected_p1_x.append(x_p1_curvestrippedof_p3[value])
-                 
+
     return corrected_p1_x, corrected_p1_y
    
 def determine_p1_xy(p12_elution_ends, p12_log_efflux):     

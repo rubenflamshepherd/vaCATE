@@ -40,8 +40,7 @@ def generate_sheet (workbook, sheet_name):
     empty_row.set_right ()    
     empty_row.set_left ()
     
-    # Setting the height of the SA row to ~2 lines
-    worksheet.set_row (1, 30.75)
+    worksheet.set_row (1, 30.75) # Setting the height of the SA row to ~2 lines
     
     # Lists of ordered tuples contaning (title, formatting, column width) 
     # in order theay are to be written to the file
@@ -64,6 +63,7 @@ def generate_sheet (workbook, sheet_name):
     for x in range (0, len (col_headers)):
         worksheet.write (7, x, col_headers[x][0], col_headers[x][1])
         worksheet.set_column (x, x, col_headers [x][2])
+        
     for y in range (0, len (row_headers)):
         worksheet.merge_range (y + 1, 0, y + 1, 1,\
                                row_headers[y][0], row_headers[y][1])
@@ -71,15 +71,10 @@ def generate_sheet (workbook, sheet_name):
         
     return worksheet
 
-def generate_template (output_file_path, workbook):
+def generate_template (workbook):
     '''
-    Generates an our CATE Data template in an already created workbook.
-    
-    INPUTS
-    output_file_path - path/filename (str)
-    
-    OUTPUT
-    worksheet, workbook as an ordered tuple pair
+    Generates a CATE template sheet in an already created workbook. No need to
+    return the sheet as nothing further is done after this.
     '''
     
     # Formatting for run headers ("Run x")
@@ -88,45 +83,39 @@ def generate_template (output_file_path, workbook):
     run_header.set_align ('vcenter')      
     
     worksheet = generate_sheet (workbook, 'Template')               
+    
     # Writing headers columns containing individual runs 
     worksheet.write (0, 2, "Run 1", run_header)
+    worksheet.write (0, 3, "etc.", run_header)
         
 def grab_data (directory, filename):
     '''
-    Extracts data from an excel file in directory/filename (INPUT) formated according 
-    to generate_template
+    Extracts data from an excel file in directory/filename (INPUT) formated
+    according to generate_sheet/generate_template
     
-    OUTPUT
-    Data (run_name SA, root_cnts, shoot_cnts, root_weight, g_factor,
-          load_time, elution_times (list), elution_cpms(list)) in a list 
+    OUTPUT:
+    Data [run_name SA, root_cnts, shoot_cnts, root_weight, g_factor,
+          load_time, elution_times (list), elution_cpms(list)] in a list 
     '''
-        
-    # Formatign the directory (and path) to unicode w/ forward slash
-    # so it can be passed between methods/classes w/o bugs
-    directory = u'%s' %directory
-    directory = directory.replace (u'\\', '/')
-    
-    # Accessing the file from which data is grabbed
+
+    # Accessing the file from which data is to be grabbed
     input_file = '/'.join ((directory, filename))
     input_book = open_workbook (input_file)
     input_sheet = input_book.sheet_by_index (0)
     
-    # List where all run info is stored with ind list entries as RunObjects
+    # List where all run info is stored with RunObjects as ind. entries
     all_run_objects = []
     
     # Creating elution time point list to be used by all runs 
     raw_elution_times = input_sheet.col (1) # Col w/elution times given in file
-    elution_times = [0.0] # Elution times USED for caluclating cpms/g/hr
+    elution_times = [0.0] # Elution times TO BE used for caluclating cpms/g/hr
+    
     # Parsing elution times, correcting for header offset (8)
     for x in range (8, len (raw_elution_times)):                   
         elution_times.append (raw_elution_times [x].value)    
     
     for row_index in range (2, input_sheet.row_len (0)):
-    
-        # Create lists to store series of data from ind. run
-        raw_cpm_column = input_sheet.col (row_index) # Raw counts given by file
-        elution_cpms = []
-            
+        
         # Grab individual CATE values of interest
         run_name = input_sheet.cell (0, row_index).value
         SA = input_sheet.cell (1, row_index).value
@@ -135,20 +124,27 @@ def grab_data (directory, filename):
         root_weight = input_sheet.cell (4, row_index).value
         g_factor = input_sheet.cell (5, row_index).value
         load_time = input_sheet.cell (6, row_index).value
+        
+        # Create lists to store SERIES' of data from ind. run
+        raw_cpm_column = input_sheet.col (row_index) # Raw counts given by file
+        elution_cpms = []
                 
         # Grabing elution cpms, correcting for header offset (8)
         for x in range (8, len (raw_cpm_column)):                   
             elution_cpms.append (raw_cpm_column [x].value)
         
-        all_run_objects.append (RunObject.RunObject(run_name, SA, root_cnts, shoot_cnts, root_weight,\
-                          g_factor, load_time, elution_times, elution_cpms, ("obj", 3)))
+        all_run_objects.append (RunObject.RunObject(run_name, SA, root_cnts,\
+                                                    shoot_cnts, root_weight,\
+                                                    g_factor, load_time,\
+                                                    elution_times, elution_cpms,\
+                                                    ("obj", 3)))
    
     return DataObject.DataObject (directory, all_run_objects)
 
 def generate_summary (workbook, data_object):
     '''
     Given an open workbook, create a summary sheet containing relavent data
-    froom runobjects in data_object
+    from all run_objects in data_object.run_objects
     '''
     worksheet = workbook.add_worksheet ("Summary")
     worksheet.freeze_panes (1,2)
@@ -445,24 +441,54 @@ def generate_analysis (data_object):
 
         # Writing Phase-corrected data in appropriate column
         row_counter = 8
-        for z in range (0, len (run_object.y_p1_curvestrippedof_p23)):
-            worksheet.write (row_counter, p2_column,\
-                             run_object.y_p1_curvestrippedof_p23[z])
+        elution_counter = 0
+        series_counter = 0 
+        elution_p2_counter = len (run_object.x_p1_curvestrippedof_p23)
+        
+        while series_counter < len (run_object.y_p1_curvestrippedof_p23):
+            # Need to be sure that y value we are entering wasn't skipped as a 
+            # result of a negative log operation
+            if run_object.x_p1_curvestrippedof_p23[series_counter] == run_object.elution_ends[elution_counter]:
+                worksheet.write (row_counter, p2_column,\
+                             run_object.y_p1_curvestrippedof_p23[series_counter])
+                elution_counter += 1
+                series_counter += 1
+                                
+            else: # a series entry has been skipped, move elution list forward
+                elution_counter += 1
+                elution_p2_counter += 1 # len of p1 y-series artificially short
             row_counter += 1
+            
+        series_counter = 0
         
-        for z in range (0, len (run_object.y_p2_curvestrippedof_p3)):
-            worksheet.write (row_counter, p2_column - 1,\
-                             run_object.y_p2_curvestrippedof_p3[z])
+        while series_counter < len (run_object.y_p2_curvestrippedof_p3):
+            # Need to be account for x,y data points missed due to potential
+            # negative antilog operation
+            print run_object.x_p2_curvestrippedof_p3[series_counter], run_object.elution_ends[elution_counter]
+            if run_object.x_p2_curvestrippedof_p3[series_counter] == run_object.elution_ends[elution_counter]:
+                worksheet.write (row_counter, p2_column - 1,\
+                             run_object.y_p2_curvestrippedof_p3[series_counter])
+                elution_counter += 1
+                series_counter += 1    
+                
+            else: # a series entry has been skipped, move elution list forward
+                elution_counter += 1
+                
             row_counter += 1        
-        
             
         # Graphing the RunObject Data
+        
+        # Graphing Phase III data
         chart = workbook.add_chart({'type': 'scatter'})
+        chart.set_title({
+            'name': 'Phase III',
+            'overlay': True
+        })
         worksheet.insert_chart(chart_col + '6', chart)
         
         series_end = len (run_object.elution_cpms_log) + 9
         
-        # Add log efflux data to chart
+        # Add log efflux data to Phase III chart
         chart.add_series({
             'categories': '=' + run_object.run_name + '!$B$9:' + '$B$' + str (series_end),
             'values': '=' + run_object.run_name + '!$F$9:' + '$F$' + str (series_end),
@@ -470,12 +496,24 @@ def generate_analysis (data_object):
             'marker': {'type': 'circle',
                        'size,': 5,
                        'border': {'color': 'black'},
-                       'fill':   {'color': 'gray'}}            
+                       'fill':   {'color': 'white'}}            
         })
         
+        # Add Phase III data to Phase III chart
+        p3_chart_start = str(series_end - len (run_object.y_p3))
+        chart.add_series({
+            'categories': '=' + run_object.run_name + '!$B$'+ p3_chart_start +':' + '$B$' + str (series_end),
+            'values': '=' + run_object.run_name + '!$F$'+ p3_chart_start + ':' + '$F$' + str (series_end),
+            'name' : run_object.run_name,
+            'marker': {'type': 'circle',
+                       'size,': 5,
+                       'border': {'color': 'black'},
+                       'fill':   {'color': 'gray'}}            
+        })  
+        
         # Add last point of p3
-        last_point = 9 + len(run_object.y_p1_curvestrippedof_p23) +\
-            len(run_object.y_p2_curvestrippedof_p3)
+        last_point = 9 + len(run_object.elution_ends) -\
+            len(run_object.y_p3)
         chart.add_series({
             'categories': '=' + run_object.run_name + '!$B$'+ str(last_point),
             'values': '=' + run_object.run_name + '!$F$'+ str(last_point),            
@@ -483,7 +521,7 @@ def generate_analysis (data_object):
                        'size,': 5,
                        'border': {'color': 'black'},
                        'fill':   {'color': 'red'}}            
-        })        
+        })
         
         # Add p3 regression line
         worksheet.write (7, 11, 0)          

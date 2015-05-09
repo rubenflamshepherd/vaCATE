@@ -102,10 +102,15 @@ class DialogFrame(wx.Frame):
         dlg = wx.FileDialog(self, "Choose the file which contains the data you'd like to perform CATE upon", os.getcwd(), "", "")
         if dlg.ShowModal() == wx.ID_OK:
             directory, filename = dlg.GetDirectory(), dlg.GetFilename()
+
+            # Formatting the directory (and path) to unicode w/ forward slash
+            # so it can be passed between methods/classes w/o bugs
+            directory = u'%s' %directory
+            directory = directory.replace (u'\\', '/')            
             
             temp_CATE_data = Excel.grab_data (directory, filename)
             
-            frame = Preview.MainFrame (*(temp_CATE_data [0]  + [directory]))
+            frame = Preview.MainFrame (temp_CATE_data)
             frame.Show (True)
             frame.MakeModal (True)            
             dlg.Destroy()
@@ -129,15 +134,16 @@ class DialogFrame(wx.Frame):
             dlgChoose.Destroy()
             # self.Close()            
             
-            # Format the directory (and path) to unicode w/ forward slash so
+            # Formatting the directory (and path) to unicode w/ forward slash so
             # it can be passed between methods/classes w/o bugs
             directory = u'%s' %directory
             self.directory = directory.replace (u'\\', '/')
+            
             output_name = 'CATE Template - ' + time.strftime ("(%Y_%m_%d).xlsx")
             output_file_path = '/'.join ((directory, output_name))            
             
             workbook = xlsxwriter.Workbook(output_file_path)
-            Excel.generate_template (output_file_path, workbook)
+            Excel.generate_template (workbook)
             
             workbook.close()        
                
