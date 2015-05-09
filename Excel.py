@@ -8,6 +8,12 @@ import DataObject
 import RunObject
 
 def generate_sheet (workbook, sheet_name):
+    """
+    Generates and returns the basic excel sheet template (in existing workbook)
+    upon which all subsequent sheets (which the exception of summary sheets) are
+    built
+    """
+    
     worksheet = workbook.add_worksheet (sheet_name)
     
     # Formatting for header items for which inputs ARE NOT required
@@ -33,11 +39,6 @@ def generate_sheet (workbook, sheet_name):
     empty_row.set_bottom ()    
     empty_row.set_right ()    
     empty_row.set_left ()
-    
-    # Formatting for run headers ("Run x")
-    run_header = workbook.add_format ()    
-    run_header.set_align ('center')
-    run_header.set_align ('vcenter')    
     
     # Setting the height of the SA row to ~2 lines
     worksheet.set_row (1, 30.75)
@@ -72,8 +73,7 @@ def generate_sheet (workbook, sheet_name):
 
 def generate_template (output_file_path, workbook):
     '''
-    Generates an our CATE Data template in an in an already created workbook and
-    worksheet.
+    Generates an our CATE Data template in an already created workbook.
     
     INPUTS
     output_file_path - path/filename (str)
@@ -82,7 +82,12 @@ def generate_template (output_file_path, workbook):
     worksheet, workbook as an ordered tuple pair
     '''
     
-    generate_worksheet (workbook, 'Template')               
+    # Formatting for run headers ("Run x")
+    run_header = workbook.add_format ()    
+    run_header.set_align ('center')
+    run_header.set_align ('vcenter')      
+    
+    worksheet = generate_sheet (workbook, 'Template')               
     # Writing headers columns containing individual runs 
     worksheet.write (0, 2, "Run 1", run_header)
         
@@ -356,10 +361,12 @@ def generate_analysis (data_object):
     for run_object in data_object.run_objects:
         worksheet = generate_sheet (workbook, run_object.run_name)
         
+        counter = 3
         for y in range (0, len (basic_headers)):
-            if (y < 2 and y > 6) or run_object.analysis_type [0] == 'obj':
-                worksheet.write (7, y + 3, basic_headers[y][0], analyzed_header)   
-                worksheet.set_column (y + 3, y + 3, basic_headers [y][1])
+            if (y < 3 or y > 5) or run_object.analysis_type [0] == 'obj':
+                worksheet.write (7, counter, basic_headers[y][0], analyzed_header)   
+                worksheet.set_column (counter, counter, basic_headers [y][1])
+                counter += 1
                 
         for z in range (0, len (phasedata_headers)):
             worksheet.write (1, z + 4, phasedata_headers[z], analyzed_header) 
@@ -414,28 +421,27 @@ def generate_analysis (data_object):
         
         if run_object.analysis_type[0] == 'obj':
 
-            p1_regression_counter = len (run_object.elution_ends)\
+            p1_regression_counter = 9 + len (run_object.elution_ends)\
                 - len (run_object.r2s_p3_list) - run_object.analysis_type [1]
             chart_col = "L"
-            
-            for y in range (0, len (run_object.r2s_p3_list)):
-                worksheet.write (9 + p1_regression_counter + y, 6, run_object.r2s_p3_list [y])
-                worksheet.write (9 + p1_regression_counter + y, 7, run_object.slopes_p3_list [y])
-                worksheet.write (9 + p1_regression_counter + y, 8, run_object.intercepts_p3_list [y])
-                
-            # Emphasizing data actually used for p3
-            worksheet.write (9 + p1_regression_counter + 3, 6,\
-                             run_object.r2s_p3_list [3], emphasis_format)
-            worksheet.write (9 + p1_regression_counter + 3, 7,\
-                             run_object.slopes_p3_list [3], emphasis_format)
-            worksheet.write (9 + p1_regression_counter + 3, 8,\
-                             run_object.intercepts_p3_list [3], emphasis_format)
-            
             p2_column = 10
             
+            for y in range (0, len (run_object.r2s_p3_list)):
+                worksheet.write (p1_regression_counter + y, 6, run_object.r2s_p3_list [y])
+                worksheet.write (p1_regression_counter + y, 7, run_object.slopes_p3_list [y])
+                worksheet.write (p1_regression_counter + y, 8, run_object.intercepts_p3_list [y])
+                
+            # Emphasizing data actually used for p3
+            worksheet.write (p1_regression_counter + 3, 6,\
+                             run_object.r2s_p3_list [3], emphasis_format)
+            worksheet.write (p1_regression_counter + 3, 7,\
+                             run_object.slopes_p3_list [3], emphasis_format)
+            worksheet.write (p1_regression_counter + 3, 8,\
+                             run_object.intercepts_p3_list [3], emphasis_format)
+                        
         else: # No columns for lists of r2/intercept/slope
-            # p2_column = 7
-            pass
+            chart_col = "I"
+            p2_column = 7
 
         # Writing Phase-corrected data in appropriate column
         row_counter = 8
@@ -468,9 +474,11 @@ def generate_analysis (data_object):
         })
         
         # Add last point of p3
+        last_point = 9 + len(run_object.y_p1_curvestrippedof_p23) +\
+            len(run_object.y_p2_curvestrippedof_p3)
         chart.add_series({
-            'categories': '=' + run_object.run_name + '!$B$'+ str(9+p1_regression_counter + 4),
-            'values': '=' + run_object.run_name + '!$F$'+ str(9+p1_regression_counter + 4),            
+            'categories': '=' + run_object.run_name + '!$B$'+ str(last_point),
+            'values': '=' + run_object.run_name + '!$F$'+ str(last_point),            
             'marker': {'type': 'circle',
                        'size,': 5,
                        'border': {'color': 'black'},
