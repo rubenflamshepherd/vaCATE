@@ -6,7 +6,7 @@ class RunObject():
     '''
     Class that stores ALL data in a single run.
     This data includes values derived from objective or 
-    subjetive analysis (calculated within the class)
+    subjetive analyses (calculated within the class)
     '''
         
     def __init__(self, run_name, SA, root_cnts, shoot_cnts, root_weight,\

@@ -271,6 +271,8 @@ def generate_summary (workbook, data_object):
         worksheet.write (32, counter, run_object.efflux_p1)
         
         # Writing Phase I phase-corrected efflux data
+        write_phase_corrected_p12 (workbook, worksheet, run_object, counter, counter, sheet_type='summary')
+        '''
         for w in range (0, len (run_object.y_p1_curvestrippedof_p23)):
             if w != len (run_object.y_p1) - 1:
                 worksheet.write (1 + phase_corrected_efflux_row + w, counter,\
@@ -288,13 +290,13 @@ def generate_summary (workbook, data_object):
             else:
                 worksheet.write (1 + phase_2_row_counter + x, counter,\
                                                  run_object.y_p2_curvestrippedof_p3 [x], bot_line)    
-                
+        '''        
         # Writing Phase III phase-corrected efflux data
-        phase_3_row_counter = phase_2_row_counter + len (run_object.y_p2_curvestrippedof_p3)
+        phase_3_row_counter = 34 + len (run_object.y_p12) - 1
         for y in range (0, len (run_object.y_p3)):
             worksheet.write (1 + phase_3_row_counter + y, counter,\
                              run_object.y_p3 [y])
-        
+                          
         # Writing efflux elution data that is not phase corrected
         for z in range (0, len (run_object.elution_ends)):
             worksheet.write (1 + log_efflux_row + z, counter, run_object.elution_cpms_log [z])        
@@ -439,43 +441,10 @@ def generate_analysis (data_object):
             chart_col = "I"
             p2_column = 7
 
-        # Writing Phase-corrected data in appropriate column
-        row_counter = 8
-        elution_counter = 0
-        series_counter = 0 
-        elution_p2_counter = len (run_object.x_p1_curvestrippedof_p23)
+        # Writing Phase-corrected data in appropriate column and with missing
+        # cells (if applicable due to potential negative log operations
+        write_phase_corrected_p12 (workbook, worksheet, run_object, p2_column - 1, p2_column, sheet_type='single')
         
-        while series_counter < len (run_object.y_p1_curvestrippedof_p23):
-            # Need to be sure that y value we are entering wasn't skipped as a 
-            # result of a negative log operation
-            if run_object.x_p1_curvestrippedof_p23[series_counter] == run_object.elution_ends[elution_counter]:
-                worksheet.write (row_counter, p2_column,\
-                             run_object.y_p1_curvestrippedof_p23[series_counter])
-                elution_counter += 1
-                series_counter += 1
-                                
-            else: # a series entry has been skipped, move elution list forward
-                elution_counter += 1
-                elution_p2_counter += 1 # len of p1 y-series artificially short
-            row_counter += 1
-            
-        series_counter = 0
-        
-        while series_counter < len (run_object.y_p2_curvestrippedof_p3):
-            # Need to be account for x,y data points missed due to potential
-            # negative antilog operation
-            print run_object.x_p2_curvestrippedof_p3[series_counter], run_object.elution_ends[elution_counter]
-            if run_object.x_p2_curvestrippedof_p3[series_counter] == run_object.elution_ends[elution_counter]:
-                worksheet.write (row_counter, p2_column - 1,\
-                             run_object.y_p2_curvestrippedof_p3[series_counter])
-                elution_counter += 1
-                series_counter += 1    
-                
-            else: # a series entry has been skipped, move elution list forward
-                elution_counter += 1
-                
-            row_counter += 1        
-            
         # Graphing the RunObject Data
         
         # Graphing Phase III data
@@ -555,6 +524,64 @@ def generate_analysis (data_object):
     generate_summary (workbook, data_object)
             
     workbook.close()
+    
+def write_phase_corrected_p12 (workbook, worksheet, run_object, p1_column, p2_column, sheet_type):
+    '''
+    sheet = 'single'/'summary
+    '''
+    
+    bot_line = workbook.add_format ()
+    bot_line.set_bottom ()  
+    
+    # Writing Phase-corrected data in appropriate column
+    if sheet_type == 'single':
+        row_counter = 8
+    elif sheet_type == 'summary':
+        row_counter = 34 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    elution_counter = 0
+    series_counter = 0 
+    elution_p2_counter = len (run_object.x_p1_curvestrippedof_p23)
+    
+    while series_counter < len (run_object.y_p1_curvestrippedof_p23):
+        # Need to be sure that y value we are entering wasn't skipped as a 
+        # result of a negative log operation
+        if run_object.x_p1_curvestrippedof_p23[series_counter] == run_object.elution_ends[elution_counter]:
+            if series_counter != len (run_object.y_p1) -1:
+                worksheet.write (row_counter, p2_column,\
+                                 run_object.y_p1_curvestrippedof_p23[series_counter])
+            else:
+                worksheet.write (row_counter, p2_column,\
+                                 run_object.y_p1_curvestrippedof_p23[series_counter], bot_line)                
+            elution_counter += 1
+            series_counter += 1
+                            
+        else: # a series entry has been skipped, move elution list forward
+            elution_counter += 1
+            elution_p2_counter += 1 # len of p1 y-series artificially short
+        row_counter += 1
+        
+    series_counter = 0
+    
+    while series_counter < len (run_object.y_p2_curvestrippedof_p3):
+        # Need to be sure that y value we are entering wasn't skipped as a 
+        # result of a negative log operation
+        if run_object.x_p2_curvestrippedof_p3[series_counter] == run_object.elution_ends[elution_counter]:
+            if series_counter != len (run_object.y_p2_curvestrippedof_p3) -1:
+                worksheet.write (row_counter, p1_column,\
+                         run_object.y_p2_curvestrippedof_p3[series_counter])
+            else:
+                worksheet.write (row_counter, p1_column,\
+                                         run_object.y_p2_curvestrippedof_p3[series_counter], bot_line)                
+            elution_counter += 1
+            series_counter += 1    
+            
+        else: # a series entry has been skipped, move elution list forward
+            elution_counter += 1
+            
+        row_counter += 1     
+    
+
      
 if __name__ == "__main__":
     #temp_book = xlsxwriter.Workbook('filename.xlsx')
