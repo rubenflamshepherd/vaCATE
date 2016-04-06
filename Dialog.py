@@ -37,8 +37,12 @@ class DialogFrame(wx.Frame):
         buttonBox2 = wx.BoxSizer(wx.HORIZONTAL)
         
         # Main text presented to user
-        txt1 = wx.StaticText(innerPanel, id=-1, label="     Welcome to the CATE Data Analyzer!     ",style=wx.ALIGN_CENTER, name="")
-        txt2 = wx.StaticText(innerPanel, id=-1, label="Please choose an option below:",style=wx.ALIGN_CENTER, name="")
+        txt1 = "     Welcome to the CATE Data Analyzer!     "
+        txt2 = "Please choose an option below:"
+        static_txt1 = wx.StaticText(
+            innerPanel, id=-1, label=txt1, style=wx.ALIGN_CENTER, name="")
+        static_txt2 = wx.StaticText(
+            innerPanel, id=-1, label=txt2, style=wx.ALIGN_CENTER, name="")
         
         # Disclaimer text (under buttons)
         txt3 = wx.StaticText(innerPanel, id=-1, label="Note: .xls output files will be written in the same folder", style=wx.ALIGN_CENTER, name="")
@@ -62,9 +66,9 @@ class DialogFrame(wx.Frame):
         
         # Adding main text to main spacer 'innerBox'
         innerBox.AddSpacer((150,15))
-        innerBox.Add(txt1, 0, wx.CENTER)
+        innerBox.Add(static_txt1, 0, wx.CENTER)
         innerBox.AddSpacer((150,15))
-        innerBox.Add(txt2, 0, wx.CENTER)
+        innerBox.Add(static_txt2, 0, wx.CENTER)
         innerBox.AddSpacer((150,15))
         
         # Adding main program buttons to main spacer 'innerBox'
@@ -161,5 +165,4 @@ if __name__ == '__main__':
     app.frame = DialogFrame(None, -1, 'CATE Data Analyzer')
     app.frame.Show(True)
     app.frame.Center()
-    app.MainLoop()
-    
+    app.MainLoop()    

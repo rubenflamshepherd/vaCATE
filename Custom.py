@@ -9,7 +9,6 @@ from matplotlib.backends.backend_wx import _load_bitmap
 class Toolbar(NavigationToolbar2WxAgg):
     """
     Extend the default wx toolbar with your own event handlers
-    
     """
     
     #Ids for buttons being added to toolbar.
@@ -19,8 +18,7 @@ class Toolbar(NavigationToolbar2WxAgg):
         
     def __init__(self, frame_object):
         NavigationToolbar2WxAgg.__init__(self, frame_object.canvas)
-        self.frame_object = frame_object
-        
+        self.frame_object = frame_object        
         
         self.DeleteToolByPos(8)
         self.DeleteToolByPos(1)

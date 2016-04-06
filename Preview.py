@@ -20,14 +20,7 @@ Last modified: 30.07.2008
 # backend. 
 #
 import RunObject
-
-import os
-import pprint
-import random
-import math
 import wx
-import numpy as np
-import Operations
 import matplotlib
 matplotlib.use('WXAgg')
 from matplotlib.figure import Figure
@@ -37,6 +30,7 @@ from matplotlib.backends.backend_wxagg import \
 from matplotlib import gridspec
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_wx import _load_bitmap
+import numpy as np
 import Custom
 	
 class MainFrame(wx.Frame):
@@ -47,17 +41,15 @@ class MainFrame(wx.Frame):
     def __init__(self, data_object):
         wx.Frame.__init__(self, None, -1, self.title)
 	
-	self.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
-	
-	# Attribute of the frame object, not he data/run object(s)
-	self.run_num = 0
-	
-	self.data_object = data_object
-	self.create_main_panel()
-        
-        # Default analysis:objective regression using the last 2 data points
-        # self.obj_textbox.SetValue ('3')
-	        
+    	self.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
+    	
+    	# Attribute of the frame object, not he data/run object(s)
+    	self.run_num = 0
+    	
+    	self.data_object = data_object
+    	self.create_main_panel()
+            
+        # Default analysis:objective regression using the last 3 data points
         self.draw_figure()
 	
     def create_main_panel(self):
