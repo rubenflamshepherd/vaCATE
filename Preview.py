@@ -624,8 +624,8 @@ class MainFrame(wx.Frame):
         self.subj_p3_start_textbox.SetValue('')
         self.subj_p3_end_textbox.SetValue('')
 	
-	   old_run_object = self.data_object.run_objects [self.run_num]
-	   new_analysis_type = ('obj', int (self.obj_textbox.GetValue ()))
+        old_run_object = self.data_object.run_objects [self.run_num]
+        new_analysis_type = ('obj', int (self.obj_textbox.GetValue ()))
 	
     	new_run_object = RunObject.RunObject(
             old_run_object.run_name, old_run_object.SA, old_run_object.root_cnts,
@@ -715,7 +715,7 @@ class MainFrame(wx.Frame):
         ind = event.ind
         # print event.artist
         run_object = self.data_object.run_objects [self.run_num]
-	    x_clicked = np.take(run_object.x, ind)       
+        x_clicked = np.take(run_object.x, ind)       
         self.x_clicked_data.SetValue ('%0.2f'%(np.take(run_object.x, ind)[0]))
         self.y_clicked_data.SetValue ('%0.3f'%(np.take(run_object.y, ind)[0]))
         self.num_clicked_data.SetValue ('%0.0f'%(ind[0]+1))
