@@ -7,7 +7,6 @@ import xlsxwriter
 # Custom modules
 import Excel
 import Preview
-import Operations
 
 # The recommended way to use wx with mpl is with the WXAgg
 # backend. 
@@ -17,8 +16,103 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import \
     FigureCanvasWxAgg as FigCanvas, \
     NavigationToolbar2WxAgg as NavigationToolbar
-
 #-------------------------------------------------------
+
+class AboutDialog(wx.Dialog):
+    def __init__(self, parent, id, title):
+        wx.Dialog.__init__(self, parent, id, title)
+
+        self.SetIcon(wx.Icon('Images/questionmark.ico', wx.BITMAP_TYPE_ICO))                
+        self.rootPanel = wx.Panel(self)        
+        innerPanel = wx.Panel(self.rootPanel,-1, size=(500,260), style=wx.ALIGN_CENTER)
+        hbox = wx.BoxSizer(wx.HORIZONTAL) 
+        vbox = wx.BoxSizer(wx.VERTICAL)
+        innerBox = wx.BoxSizer(wx.VERTICAL)
+
+        txt1 = "     Compartment Analysis by Tracer Efflux Automator (CATEautomator)     "
+        txt2 = "     Beta Version 1.0 as of April 6 2016     "
+        txt3 = "     This program is designed to automate the output of parameters     "
+        txt4 = "     extracted by CATE (as input into a generated template file)     "
+        txt5 = "     Prior to extraction of automated data analysis into an Microsoft Excel (.xls)     "
+        txt6 = "     users are able to preview data and dynamically change the analysis.     "
+        txt7 = "     More detailed information about how to do this can be found     "
+        txt8 = "     in the 'README.txt' file found in the directory from which     "
+        txt9 = "     the CATEautomator was downloaded/cloned.     "
+        txt10 = "Copyright 2016 Ruben Flam-Shepherd. All rights reserved."
+        txt11 = "This work is licensed under a"
+        txt12 = "Creative Commons Attribution 4.0 International License."
+                
+        static_txt1 = wx.StaticText(
+            innerPanel, id=-1, label=txt1, style=wx.ALIGN_CENTER, name="")
+        static_txt2 = wx.StaticText(
+            innerPanel, id=-1, label=txt2, style=wx.ALIGN_CENTER, name="")
+        static_txt3 = wx.StaticText(
+            innerPanel, id=-1, label=txt3, style=wx.ALIGN_CENTER, name="")
+        static_txt4 = wx.StaticText(
+            innerPanel, id=-1, label=txt4, style=wx.ALIGN_CENTER, name="")
+        static_txt5 = wx.StaticText(
+            innerPanel, id=-1, label=txt5, style=wx.ALIGN_CENTER, name="")
+        static_txt6 = wx.StaticText(
+            innerPanel, id=-1, label=txt6, style=wx.ALIGN_CENTER, name="")
+        static_txt7 = wx.StaticText(
+            innerPanel, id=-1, label=txt7, style=wx.ALIGN_CENTER, name="")
+        static_txt8 = wx.StaticText(
+            innerPanel, id=-1, label=txt8, style=wx.ALIGN_CENTER, name="")
+        static_txt9 = wx.StaticText(
+            innerPanel, id=-1, label=txt9, style=wx.ALIGN_CENTER, name="")
+        static_txt10 = wx.StaticText(
+            innerPanel, id=-1, label=txt10, style=wx.ALIGN_CENTER, name="")
+        static_txt11 = wx.StaticText(
+            innerPanel, id=-1, label=txt11, style=wx.ALIGN_CENTER, name="")
+        static_txt12 = wx.HyperlinkCtrl(
+            innerPanel, id=-1, label=txt12, url="http://creativecommons.org/licenses/by/4.0/", name="")
+        btn1 = wx.Button (innerPanel, id=1, label="Close")
+        
+        line1 = wx.StaticLine(innerPanel, -1, style=wx.LI_HORIZONTAL)
+        line2 = wx.StaticLine(innerPanel, -1, style=wx.LI_HORIZONTAL)
+        
+        self.Bind(wx.EVT_BUTTON, self.OnClose, id=1)
+        
+        innerBox.AddSpacer((150,10))
+        innerBox.Add(static_txt1, 0, wx.CENTER)
+        innerBox.AddSpacer((150,6))
+        innerBox.Add(static_txt2, 0, wx.CENTER)
+        innerBox.AddSpacer((150,6))
+        
+        innerBox.Add(line1, 0, wx.CENTER|wx.EXPAND)
+        innerBox.AddSpacer((150,6))
+        innerBox.Add(static_txt3, 0, wx.CENTER)
+        innerBox.Add(static_txt4, 0, wx.CENTER)
+        innerBox.Add(static_txt5, 0, wx.CENTER)
+        innerBox.Add(static_txt6, 0, wx.CENTER)
+        innerBox.AddSpacer((150,6))
+        innerBox.Add(static_txt7, 0, wx.CENTER)
+        innerBox.Add(static_txt8, 0, wx.CENTER)
+        innerBox.Add(static_txt9, 0, wx.CENTER)
+        innerBox.AddSpacer((150,6))
+        
+        innerBox.Add(line2, 0, wx.CENTER|wx.EXPAND)
+        innerBox.AddSpacer((150,6))
+        innerBox.Add(static_txt10, 0, wx.CENTER)
+        innerBox.AddSpacer((150,6))        
+        innerBox.Add(static_txt11, 0, wx.CENTER)
+        innerBox.AddSpacer((150,3))    
+        innerBox.Add(static_txt12, 0, wx.CENTER)
+        innerBox.AddSpacer((150,10))        
+        innerBox.Add(btn1, 0, wx.CENTER)
+        innerBox.AddSpacer((150,6))
+        
+        innerPanel.SetSizer(innerBox)
+
+        hbox.Add(innerPanel, 0, wx.ALL|wx.ALIGN_CENTER)
+        vbox.Add(hbox, 1, wx.ALL|wx.ALIGN_CENTER, 5)
+        
+
+        self.rootPanel.SetSizer(vbox)
+        vbox.Fit(self)        
+        
+    def OnClose(self, event):
+        self.Close()
 
 # Main dialog window presented to the user        
 class DialogFrame(wx.Frame):
@@ -45,18 +139,22 @@ class DialogFrame(wx.Frame):
             innerPanel, id=-1, label=txt2, style=wx.ALIGN_CENTER, name="")
         
         # Disclaimer text (under buttons)
-        txt3 = wx.StaticText(innerPanel, id=-1, label="Note: .xls output files will be written in the same folder", style=wx.ALIGN_CENTER, name="")
-        txt4 = wx.StaticText(innerPanel, id=-1, label="that data is being extracted from", style=wx.ALIGN_CENTER, name="")
+        txt3 = "Note: .xls output files will be written in the same folder"
+        txt4 = "that data is being extracted from"
+        static_txt3 = wx.StaticText(
+            innerPanel, id=-1, label=txt3, style=wx.ALIGN_CENTER, name="")
+        static_txt4 = wx.StaticText(
+            innerPanel, id=-1, label=txt4, style=wx.ALIGN_CENTER, name="")
         
-        font3 = wx.Font (7, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
-        txt3.SetFont (font3)
-        txt4.SetFont (font3)
+        font3 = wx.Font(7, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
+        static_txt3.SetFont(font3)
+        static_txt4.SetFont(font3)
         
         # Option Buttons        
-        btn1 = wx.Button (innerPanel, id=1, label="Analyze CATE Data")
-        btn2 = wx.Button (innerPanel, id=2, label="Generate CATE Template")
-        btn3 = wx.Button (innerPanel, id=3, label="About")
-        btn4 = wx.Button (innerPanel, id=4, label="Quit")
+        btn1 = wx.Button(innerPanel, id=1, label="Analyze CATE Data")
+        btn2 = wx.Button(innerPanel, id=2, label="Generate CATE Template")
+        btn3 = wx.Button(innerPanel, id=3, label="About")
+        btn4 = wx.Button(innerPanel, id=4, label="Quit")
         
         # Binding events to buttons
         self.Bind(wx.EVT_BUTTON, self.OnAnalyze, id=1)        
@@ -87,20 +185,19 @@ class DialogFrame(wx.Frame):
         innerBox.AddSpacer ((150,10))
         
         # Adding disclaimer text to main spacer 'innerBox' (under buttons)
-        innerBox.Add(txt3, 0, wx.CENTER)
-        innerBox.Add(txt4, 0, wx.CENTER)
+        innerBox.Add(static_txt3, 0, wx.CENTER)
+        innerBox.Add(static_txt4, 0, wx.CENTER)
         innerBox.AddSpacer((150,10))        
         innerPanel.SetSizer(innerBox)
 
         hbox.Add(innerPanel, 0, wx.ALL|wx.ALIGN_CENTER)
         vbox.Add(hbox, 1, wx.ALL|wx.ALIGN_CENTER, 5)
         
-
         self.rootPanel.SetSizer(vbox)
         vbox.Fit(self)
         
     def OnClose(self, event): # Event when 'Close' button is pressed
-            self.Close()
+        self.Close()
         
     def OnAnalyze(self, event): # Event when 'Analyze CATE data' button is pushed
         dlg = wx.FileDialog(self, "Choose the file which contains the data you'd like to perform CATE upon", os.getcwd(), "", "")
@@ -120,13 +217,9 @@ class DialogFrame(wx.Frame):
             dlg.Destroy()
                         
         self.Close()                         
-        
-        # to generate FINAL excel file (probably won't be in this module)
-        # CATE.generate_workbook (directory, individual_inputs, series_inputs)
-            
+                    
     def OnAbout(self, event): # Event when 'About' button is pushed
         dlg = AboutDialog (self, -1, 'About')
-        #dlg.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
         val = dlg.ShowModal()
         dlg.Destroy()
     
@@ -136,8 +229,7 @@ class DialogFrame(wx.Frame):
         if dlgChoose.ShowModal() == wx.ID_OK:
             directory = dlgChoose.GetPath()
             dlgChoose.Destroy()
-            # self.Close()            
-            
+                    
             # Formatting the directory (and path) to unicode w/ forward slash so
             # it can be passed between methods/classes w/o bugs
             directory = u'%s' %directory
@@ -153,8 +245,7 @@ class DialogFrame(wx.Frame):
                
 class MyApp(wx.App):
     def OnInit(self):
-        frame = DialogFrame(None, -1, 'CATE Data Analyzer')
-        frame.SetIcon(wx.Icon('testtube.ico', wx.BITMAP_TYPE_ICO))
+        frame = DialogFrame(None, -1, 'CATEautomator')
         frame.Show(True)
         frame.Center()
         #self.SetTopWindow(frame)
