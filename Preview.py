@@ -36,7 +36,7 @@ import Custom
 class MainFrame(wx.Frame):
     """ The main frame of the application
     """
-    title = 'Compartmental Analysis of Tracer Efflux: Data Analyzer'
+    title = 'Compartmental Analysis of Tracer Efflux Automator - '
     
     def __init__(self, data_object):
         wx.Frame.__init__(self, None, -1, self.title)
@@ -718,7 +718,7 @@ class MainFrame(wx.Frame):
 if __name__ == '__main__':
     import Excel
     
-    temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Test Run.xlsx")
+    temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
 
     app = wx.PySimpleApp()
     app.frame = MainFrame(temp_data)

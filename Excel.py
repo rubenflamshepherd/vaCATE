@@ -1,143 +1,122 @@
 import xlsxwriter
 from xlrd import *
-import math
-import numpy
 import time
 
 import DataObject
 import RunObject
 
-def generate_sheet (workbook, sheet_name):
+def generate_sheet(workbook, sheet_name):
     """
     Generates and returns the basic excel sheet template (in existing workbook)
     upon which all subsequent sheets (which the exception of summary sheets) are
     built
     """
-    
-    worksheet = workbook.add_worksheet (sheet_name)
+    worksheet = workbook.add_worksheet(sheet_name)
+    worksheet.set_row(1, 30.75) # Setting the height of the SA row to ~2 lines
     
     # Formatting for header items for which inputs ARE NOT required
-    not_req = workbook.add_format ()
-    not_req.set_text_wrap ()
-    not_req.set_align ('center')
-    not_req.set_align ('vcenter')
-    not_req.set_bottom ()
-    
+    not_req = workbook.add_format()
+    not_req.set_text_wrap()
+    not_req.set_align('center')
+    not_req.set_align('vcenter')
+    not_req.set_bottom()    
     # Formatting for items for which inputs ARE required
-    req = workbook.add_format ()
-    req.set_text_wrap ()
-    req.set_align ('center')
-    req.set_align ('vcenter')
-    req.set_bold ()
-    req.set_bottom ()
-    
+    req = workbook.add_format()
+    req.set_text_wrap()
+    req.set_align('center')
+    req.set_align('vcenter')
+    req.set_bold()
+    req.set_bottom()    
     # Formatting for row cells that are to recieve input
-    empty_row = workbook.add_format ()
-    empty_row.set_align ('center')
-    empty_row.set_align ('vcenter')
-    empty_row.set_top ()    
-    empty_row.set_bottom ()    
-    empty_row.set_right ()    
-    empty_row.set_left ()
-    
-    worksheet.set_row (1, 30.75) # Setting the height of the SA row to ~2 lines
-    
+    empty_row = workbook.add_format()
+    empty_row.set_align('center')
+    empty_row.set_align('vcenter')
+    empty_row.set_top()    
+    empty_row.set_bottom()    
+    empty_row.set_right()    
+    empty_row.set_left()
+       
     # Lists of ordered tuples contaning (title, formatting, column width) 
-    # in order theay are to be written to the file
+    # in order they are to be written to the file
     col_headers = [
-        ("Vial #", not_req, 3.57),\
-        ("Elution time (min)", req, 11.7),\
-        ("Activity in eluant (cpm)", req, 15)\
-    ]
-    
+        ("Vial #", not_req, 3.57), ("Elution time (min)", req, 11.7),
+        ("Activity in eluant (cpm)", req, 15)]
     row_headers = [
-        (u"Specific Activity (cpm \u00B7 \u00B5mol\u207b\u00b9)", req, 14.45),\
-        ("Root Cnts (cpm)", req, 8.5),\
-        ("Shoot Cnts (cpm)", req, 9.7),\
-        ("Root weight (g)", req, 11),\
-        ("G-Factor", req, 8),\
-        ("Load Time (min)", req, 9)\
-    ]
+        (u"Specific Activity (cpm \u00B7 \u00B5mol\u207b\u00b9)", req, 14.45),
+        ("Root Cnts (cpm)", req, 8.5), ("Shoot Cnts (cpm)", req, 9.7),
+        ("Root weight (g)", req, 11), ("G-Factor", req, 8), 
+        ("Load Time (min)", req, 9)]
     
     # Writing the row and column titles, setting the format and column width
-    for x in range (0, len (col_headers)):
-        worksheet.write (7, x, col_headers[x][0], col_headers[x][1])
-        worksheet.set_column (x, x, col_headers [x][2])
-        
-    for y in range (0, len (row_headers)):
-        worksheet.merge_range (y + 1, 0, y + 1, 1,\
-                               row_headers[y][0], row_headers[y][1])
+    for x in range(0, len (col_headers)):
+        worksheet.write(7, x, col_headers[x][0], col_headers[x][1])
+        worksheet.set_column(x, x, col_headers [x][2])
+    for y in range(0, len (row_headers)):
+        worksheet.merge_range (
+            y + 1, 0, y + 1, 1, row_headers[y][0], row_headers[y][1])
         worksheet.write (y + 1, 2, "", empty_row)
         
     return worksheet
 
-def generate_template (workbook):
+def generate_template(workbook):
     '''
     Generates a CATE template sheet in an already created workbook. No need to
     return the sheet as nothing further is done after this.
-    '''
-    
+    '''    
+    worksheet = generate_sheet(workbook, 'Template')               
+
     # Formatting for run headers ("Run x")
-    run_header = workbook.add_format ()    
-    run_header.set_align ('center')
-    run_header.set_align ('vcenter')      
-    
-    worksheet = generate_sheet (workbook, 'Template')               
-    
+    run_header = workbook.add_format()    
+    run_header.set_align('center')
+    run_header.set_align('vcenter')        
+
     # Writing headers columns containing individual runs 
-    worksheet.write (0, 2, "Run 1", run_header)
-    worksheet.write (0, 3, "etc.", run_header)
+    worksheet.write(0, 2, "Run 1", run_header)
+    worksheet.write(0, 3, "etc.", run_header)
         
-def grab_data (directory, filename):
+def grab_data(directory, filename):
     '''
     Extracts data from an excel file in directory/filename (INPUT) formated
-    according to generate_sheet/generate_template
-    
-    OUTPUT:
-    Data [run_name SA, root_cnts, shoot_cnts, root_weight, g_factor,
-          load_time, elution_times (list), elution_cpms(list)] in a list 
+    according to generate_sheet/generate_template    
+    OUTPUT: DataObject[run_name SA, root_cnts, shoot_cnts, root_weight,
+                        g_factor, load_time, [elution_times], [elution_cpms]]
     '''
-
     # Accessing the file from which data is to be grabbed
-    input_file = '/'.join ((directory, filename))
-    input_book = open_workbook (input_file)
-    input_sheet = input_book.sheet_by_index (0)
-    
+    input_file = '/'.join((directory, filename))
+    input_book = open_workbook(input_file)
+    input_sheet = input_book.sheet_by_index(0)
+
     # List where all run info is stored with RunObjects as ind. entries
     all_run_objects = []
-    
+
     # Creating elution time point list to be used by all runs 
-    raw_elution_times = input_sheet.col (1) # Col w/elution times given in file
-    elution_times = [0.0] # Elution times TO BE used for caluclating cpms/g/hr
+    raw_elution_times = input_sheet.col(1) # Col w/elution times given in file
+    elution_times = [0.0] # Elution times TO BE used for caluclating cpms/g/h
     
     # Parsing elution times, correcting for header offset (8)
-    for x in range (8, len (raw_elution_times)):                   
-        elution_times.append (raw_elution_times [x].value)    
+    for x in range(8, len(raw_elution_times)):                   
+        elution_times.append(raw_elution_times[x].value)    
     
-    for row_index in range (2, input_sheet.row_len (0)):
-        
+    for col_index in range(2, input_sheet.row_len(0)):        
         # Grab individual CATE values of interest
-        run_name = input_sheet.cell (0, row_index).value
-        SA = input_sheet.cell (1, row_index).value
-        root_cnts = input_sheet.cell (2, row_index).value
-        shoot_cnts = input_sheet.cell (3, row_index).value
-        root_weight = input_sheet.cell (4, row_index).value
-        g_factor = input_sheet.cell (5, row_index).value
-        load_time = input_sheet.cell (6, row_index).value
-        
+        run_name = input_sheet.cell(0, col_index).value
+        SA = input_sheet.cell(1, col_index).value
+        root_cnts = input_sheet.cell(2, col_index).value
+        shoot_cnts = input_sheet.cell(3, col_index).value
+        root_weight = input_sheet.cell(4, col_index).value
+        g_factor = input_sheet.cell(5, col_index).value
+        load_time = input_sheet.cell(6, col_index).value
         # Create lists to store SERIES' of data from ind. run
-        raw_cpm_column = input_sheet.col (row_index) # Raw counts given by file
+        raw_cpm_column = input_sheet.col(col_index) # Raw counts given by file
         elution_cpms = []
-                
         # Grabing elution cpms, correcting for header offset (8)
-        for x in range (8, len (raw_cpm_column)):                   
-            elution_cpms.append (raw_cpm_column [x].value)
+        for x in range(8, len(raw_cpm_column)):                   
+            elution_cpms.append(raw_cpm_column[x].value)
         
-        all_run_objects.append (RunObject.RunObject(run_name, SA, root_cnts,\
-                                                    shoot_cnts, root_weight,\
-                                                    g_factor, load_time,\
-                                                    elution_times, elution_cpms,\
-                                                    ("obj", 3)))
+        all_run_objects.append(
+            RunObject.RunObject(
+                run_name, SA, root_cnts, shoot_cnts, root_weight, g_factor,
+                load_time, elution_times, elution_cpms, ("obj", 3)))
    
     return DataObject.DataObject (directory, all_run_objects)
 
@@ -585,7 +564,7 @@ def write_phase_corrected_p12 (workbook, worksheet, run_object, p1_column, p2_co
      
 if __name__ == "__main__":
     #temp_book = xlsxwriter.Workbook('filename.xlsx')
-    temp_data = grab_data("C:\Users\daniel\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
+    temp_data = grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
     generate_analysis (temp_data)
     #generate_template ("C:\Users\Ruben\Desktop\CATE_EXCEL_TEST.xlsx")
                
