@@ -3,39 +3,36 @@ import math
 import Operations
 
 class RunObject():
-    '''
-    Class that stores ALL data of a single CATE run.
-    This data includes values derived from objective or 
-    subjetive analyses (calculated within the class)
-    '''
+'''
+Class that stores ALL data of a single CATE run.
+This data includes values derived from objective or 
+subjetive analyses (calculated within the class)
+'''
         
     def __init__(
-    	self, run_name, SA, root_cnts, shoot_cnts, root_weight, g_factor,
-    	load_time, elution_times, elution_cpms, analysis_type):       
+    	   self, run_name, SA, rt_cnts, sht_cnts, rt_wght, gfact,
+    	   load_time, elut_times, elut_cpms, analysis_type):       
         self.run_name = run_name
         self.SA = SA
-        self.root_cnts = root_cnts
-        self.shoot_cnts = shoot_cnts
-        self.root_weight = root_weight
-        self.g_factor = g_factor
+        self.rt_cnts = rt_cnts
+        self.sht_cnts = sht_cnts
+        self.rt_wght = rt_wght
+        self.gfact = gfact
         self.load_time = load_time
-        self.elution_times = elution_times
-        self.elution_cpms = elution_cpms
+        self.elut_times = elut_times
+        self.elut_cpms = elut_cpms
         self.analysis_type = analysis_type #("obj", pts_used) -  default
-        self.elution_ends = elution_times[1:]
-        self.elution_starts = elution_times[:len (elution_times) - 1]
+        self.elut_ends = elut_times[1:]
+        self.elut_starts = elut_times[:len (elut_times) - 1]
 
-        temp = Operations.basic_CATE_analysis(
-			SA, root_cnts, shoot_cnts, root_weight, g_factor, load_time,
-			elution_times, elution_cpms)
-			
-        self.elution_cpms_gfactor = temp[0]
-        self.elution_cpms_gRFW = temp[1]
-        self.elution_cpms_log = temp[2]
-		
+        self.elut_cpms_gfactor, self.elut_cpms_gRFW, self.elut_cpms_log = \
+            Operations.basic_CATE_analysis(
+                SA, rt_cnts, sht_cnts, rt_wght, gfact, load_time, 
+                elut_times, elut_cpms)
+
 		# x and y data for graphing (numpy-fied)
-        self.x = np.array(self.elution_ends)
-        self.y = np.array(self.elution_cpms_log)
+        self.x = np.array(self.elut_ends)
+        self.y = np.array(self.elut_cpms_log)
 		
 		# Default analysis is objective analysis with 2 points
         if self.analysis_type[0] == 'obj':
@@ -116,11 +113,11 @@ class RunObject():
         self.efflux_p3 = 60 * (
             self.R0_p3 / (self.SA * (1 - math.exp (-self.k_p3 * self.load_time))))
 	
-        self.elution_period = self.elution_ends[-1]
-        self.tracer_retained = (self.shoot_cnts + self.root_cnts)/self.root_weight
+        self.elut_period = self.elut_ends[-1]
+        self.tracer_retained = (self.sht_cnts + self.rt_cnts)/self.rt_wght
 	
         self.netflux = 60 * (self.tracer_retained - (self.R0_p3/self.k_p3) *\
-            math.exp (-self.k_p3 * self.elution_period))/self.SA/self.load_time
+            math.exp (-self.k_p3 * self.elut_period))/self.SA/self.load_time
         self.influx = self.efflux_p3 + self.netflux
         self.ratio = self.efflux_p3 / self.influx
         self.poolsize = self.influx * self.t05_p3 / (3 * 0.693)
@@ -199,15 +196,16 @@ class RunObject():
         self.efflux_p3 = 60 * (self.R0_p3 / (
 	           self.SA * (1 - math.exp (-self.k_p3 * self.load_time))))
 	
-        self.elution_period = self.elution_ends[-1]
+        self.elut_period = self.elut_ends[-1]
         self.tracer_retained =\
-            (self.shoot_cnts + self.root_cnts)/self.root_weight
+            (self.sht_cnts + self.rt_cnts)/self.rt_wght
 	
         self.netflux = 60 * (self.tracer_retained - (self.R0_p3/self.k_p3) * \
-            math.exp (-self.k_p3 * self.elution_period))/self.SA/self.load_time
+            math.exp (-self.k_p3 * self.elut_period))/self.SA/self.load_time
         self.influx = self.efflux_p3 + self.netflux
         self.ratio = self.efflux_p3 / self.influx
-        self.poolsize = self.influx * self.t05_p3 / (3 * 0.693)	
+        self.poolsize = self.influx * self.t05_p3 / (3 * 0.693)
+        
 		
 if __name__ == "__main__":
     import Excel
@@ -218,13 +216,13 @@ if __name__ == "__main__":
     
     new_run_object = RunObject (old_run_object.run_name,\
                                   old_run_object.SA,\
-                                  old_run_object.root_cnts,\
-                                  old_run_object.shoot_cnts,\
-                                  old_run_object.root_weight,\
-                                  old_run_object.g_factor,\
+                                  old_run_object.rt_cnts,\
+                                  old_run_object.sht_cnts,\
+                                  old_run_object.rt_wght,\
+                                  old_run_object.gfact,\
                                   old_run_object.load_time,\
-                                  old_run_object.elution_times,\
-                                  old_run_object.elution_cpms,\
+                                  old_run_object.elut_times,\
+                                  old_run_object.elut_cpms,\
                                   new_analysis_type)
     
     temp_data.run_objects [0] = new_run_object    

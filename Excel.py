@@ -251,17 +251,17 @@ def generate_summary(workbook, data_object):
             sheet_type='summary')
 
         # Writing Phase III phase-corrected efflux data
-        phase_3_row_counter = 34 + len (run_object.y_p12) - 1
-        for y in range (0, len (run_object.y_p3)):
-            worksheet.write (1 + phase_3_row_counter + y, counter,\
-                             run_object.y_p3 [y])
+        phase_3_row_counter = 34 + len(run_object.y_p12) - 1
+        for y in range(0, len(run_object.y_p3)):
+            worksheet.write(
+                1 + phase_3_row_counter + y, counter, run_object.y_p3[y])
                           
         # Writing efflux elution data that is not phase corrected
-        for z in range (0, len (run_object.elution_ends)):
-            worksheet.write (1 + log_efflux_row + z, counter, run_object.elution_cpms_log [z])        
-            worksheet.write (1 + efflux_row + z, counter, run_object.elution_cpms_gRFW [z])
-            worksheet.write (1 + corrected_row + z, counter, run_object.elution_cpms_gfactor [z])
-            worksheet.write (1 + raw_row + z, counter, run_object.elution_cpms [z])
+        for z in range (0, len(run_object.elution_ends)):
+            worksheet.write(1 + log_efflux_row + z, counter, run_object.elut_cpms_log[z])        
+            worksheet.write(1 + efflux_row + z, counter, run_object.elut_cpms_gRFW[z])
+            worksheet.write(1 + corrected_row + z, counter, run_object.elut_cpms_gfact[z])
+            worksheet.write(1 + raw_row + z, counter, run_object.elut_cpms[z])
         
         counter += 1
                 
@@ -538,6 +538,4 @@ if __name__ == "__main__":
     #temp_book = xlsxwriter.Workbook('filename.xlsx')
     temp_data = grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
     generate_analysis(temp_data)
-    #generate_template ("C:\Users\Ruben\Desktop\CATE_EXCEL_TEST.xlsx")
-               
-    
+    #generate_template ("C:\Users\Ruben\Desktop\CATE_EXCEL_TEST.xlsx")  

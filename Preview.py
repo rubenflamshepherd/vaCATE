@@ -110,7 +110,8 @@ class MainFrame(wx.Frame):
         self.subj2_label = wx.StaticText (self.panel,
 	       label="Last Point:", style=wx.ALIGN_CENTER)
         self.subj_disclaimer = wx.StaticText (self.panel,
-	       label="Points are numbered from left to right", style=wx.ALIGN_CENTER)
+	       label="Points are numbered from left to right",
+           style=wx.ALIGN_CENTER)
         self.linedata_title = wx.StaticText (self.panel,
 	       label="Regression Parameters", style=wx.ALIGN_CENTER)
         
@@ -135,18 +136,18 @@ class MainFrame(wx.Frame):
 	       style=wx.TE_PROCESS_ENTER)
 	
         # Buttons + Bindings for identifying collect regression parameter events
-        self.obj_drawbutton = wx.Button(self.panel, -1,
+        self.obj_draw_bttn = wx.Button(self.panel, -1,
 	                                "Draw Objective Regresssion")
-        self.obj_propagatebutton = wx.Button(self.panel, -1,
+        self.obj_prop_bttn = wx.Button(self.panel, -1,
 		                            "Propagate Regresssion")	
-        self.subj_drawbutton = wx.Button(self.panel, -1, 
+        self.subj_draw_bttn = wx.Button(self.panel, -1, 
                                                 "Draw Subjective Regression")
-        self.subj_propagatebutton = wx.Button(self.panel, -1, 
+        self.subj_prop_bttn = wx.Button(self.panel, -1, 
                                                 "Propagate Regresssion")    
-        self.Bind(wx.EVT_BUTTON, self.on_obj_draw, self.obj_drawbutton)
-        self.Bind(wx.EVT_BUTTON, self.on_obj_propagate, self.obj_propagatebutton)
-        self.Bind(wx.EVT_BUTTON, self.on_subj_draw, self.subj_drawbutton)
-        self.Bind(wx.EVT_BUTTON, self.on_subj_propagate, self.subj_propagatebutton)
+        self.Bind(wx.EVT_BUTTON, self.on_obj_draw, self.obj_draw_bttn)
+        self.Bind(wx.EVT_BUTTON, self.on_obj_prop, self.obj_prop_bttn)
+        self.Bind(wx.EVT_BUTTON, self.on_subj_draw, self.subj_draw_bttn)
+        self.Bind(wx.EVT_BUTTON, self.on_subj_prop, self.subj_prop_bttn)
         
         # Lines demarking seperation between GUI sections
         self.line = wx.StaticLine(self.panel, -1, style=wx.LI_VERTICAL)
@@ -157,7 +158,7 @@ class MainFrame(wx.Frame):
         # Alignment flags (for adding things to spacers) and fonts
         flags = wx.ALIGN_RIGHT | wx.ALL | wx.ALIGN_CENTER_VERTICAL
         box_flag = wx.ALIGN_CENTER | wx.ALL | wx.ALIGN_CENTER_VERTICAL
-        button_flag = wx.ALIGN_BOTTOM
+        bttn_flag = wx.ALIGN_BOTTOM
         title_font = wx.Font (8, wx.DEFAULT, wx.NORMAL, wx.BOLD)
         widget_title_font = wx.Font (8, wx.DEFAULT, wx.NORMAL, wx.NORMAL, True)
         disclaimer_font = wx.Font (6, wx.DEFAULT, wx.NORMAL, wx.NORMAL)
@@ -176,9 +177,9 @@ class MainFrame(wx.Frame):
         self.vbox_obj.AddSpacer(5)
         self.vbox_obj.Add (self.obj_textbox, 0, border=3, flag=box_flag)
         self.vbox_obj.AddSpacer(5)
-        self.vbox_obj.Add (self.obj_drawbutton, 0, border=3, flag=box_flag)
+        self.vbox_obj.Add (self.obj_draw_bttn, 0, border=3, flag=box_flag)
         self.vbox_obj.AddSpacer(1)
-        self.vbox_obj.Add (self.obj_propagatebutton, 0, border=3, flag=box_flag)	
+        self.vbox_obj.Add (self.obj_prop_bttn, 0, border=3, flag=box_flag)	
         
         # Adding subjective widgets to subjective sizer
         self.gridbox_subj = wx.GridSizer (rows=4, cols=3, hgap=1, vgap=1)
@@ -208,8 +209,8 @@ class MainFrame(wx.Frame):
         self.vbox_subj = wx.BoxSizer(wx.VERTICAL)
         self.vbox_subj.Add (self.subj_title, 0, border=3, flag=box_flag)
         self.vbox_subj.Add (self.gridbox_subj, 0, border=3, flag=box_flag)
-        self.vbox_subj.Add (self.subj_drawbutton, 0, border=3, flag=box_flag)
-        self.vbox_subj.Add (self.subj_propagatebutton, 0, border=3, flag=box_flag)	
+        self.vbox_subj.Add (self.subj_draw_bttn, 0, border=3, flag=box_flag)
+        self.vbox_subj.Add (self.subj_prop_bttn, 0, border=3, flag=box_flag)	
         self.vbox_subj.Add (self.subj_disclaimer, 0, border=3, flag=box_flag)
         
         # Creating widgets for data output
@@ -254,11 +255,11 @@ class MainFrame(wx.Frame):
 	
         self.data_SA = wx.TextCtrl(self.panel, size=(50,-1), 
                                         style=wx.TE_READONLY)	
-        self.data_shootcnts = wx.TextCtrl(self.panel, size=(50,-1),
+        self.data_shtcnts = wx.TextCtrl(self.panel, size=(50,-1),
                                         style=wx.TE_READONLY)	
-        self.data_rootcnts = wx.TextCtrl(self.panel, size=(50,-1),
+        self.data_rtcnts = wx.TextCtrl(self.panel, size=(50,-1),
                                         style=wx.TE_READONLY)	
-        self.data_rootweight = wx.TextCtrl(self.panel, size=(50,-1),
+        self.data_rtwght = wx.TextCtrl(self.panel, size=(50,-1),
                                         style=wx.TE_READONLY) 
         self.data_loadtime = wx.TextCtrl(self.panel, size=(50,-1),
                                         style=wx.TE_READONLY)	
@@ -284,9 +285,9 @@ class MainFrame(wx.Frame):
 
         # Labels for gridsizer2
         SA_text = wx.StaticText (self.panel, label = "SA")
-        rootcnts_text = wx.StaticText (self.panel, label = "Rt Cnts")
-        shootcnts_text = wx.StaticText (self.panel, label = "Sh Cnts")
-        rootweight_text = wx.StaticText (self.panel, label = "Rt Weight")
+        rtcnts_text = wx.StaticText (self.panel, label = "Rt Cnts")
+        shtcnts_text = wx.StaticText (self.panel, label = "Sh Cnts")
+        rtwght_text = wx.StaticText (self.panel, label = "Rt Weight")
         loadtime_text = wx.StaticText (self.panel, label = "Load Time")
         influx_text = wx.StaticText (self.panel, label = "Influx")
         netflux_text = wx.StaticText (self.panel, label = "Net Flux")
@@ -331,18 +332,18 @@ class MainFrame(wx.Frame):
 	
         self.gridbox_data2 = wx.GridSizer (rows=2, cols=9, hgap=1, vgap=1)
         self.gridbox_data2.Add (SA_text, 0, border=3, flag=box_flag)
-        self.gridbox_data2.Add (shootcnts_text, 0, border=3, flag=box_flag)
-        self.gridbox_data2.Add (rootcnts_text, 0, border=3, flag=box_flag)
-        self.gridbox_data2.Add (rootweight_text, 0, border=3, flag=box_flag)
+        self.gridbox_data2.Add (shtcnts_text, 0, border=3, flag=box_flag)
+        self.gridbox_data2.Add (rtcnts_text, 0, border=3, flag=box_flag)
+        self.gridbox_data2.Add (rtwght_text, 0, border=3, flag=box_flag)
         self.gridbox_data2.Add (loadtime_text, 0, border=3, flag=box_flag)
         self.gridbox_data2.Add (influx_text, 0, border=3, flag=box_flag)
         self.gridbox_data2.Add (netflux_text, 0, border=3, flag=box_flag)
         self.gridbox_data2.Add (ratio_text, 0, border=3, flag=box_flag)
         self.gridbox_data2.Add (poolsize_text, 0, border=3, flag=box_flag)
         self.gridbox_data2.Add (self.data_SA, 0, border=3, flag=box_flag)
-        self.gridbox_data2.Add (self.data_shootcnts, 0, border=3, flag=box_flag)
-        self.gridbox_data2.Add (self.data_rootcnts, 0, border=3, flag=box_flag)
-        self.gridbox_data2.Add (self.data_rootweight, 0, border=3, flag=box_flag)
+        self.gridbox_data2.Add (self.data_shtcnts, 0, border=3, flag=box_flag)
+        self.gridbox_data2.Add (self.data_rtcnts, 0, border=3, flag=box_flag)
+        self.gridbox_data2.Add (self.data_rtwght, 0, border=3, flag=box_flag)
         self.gridbox_data2.Add (self.data_loadtime, 0, border=3, flag=box_flag)	
         self.gridbox_data2.Add (self.data_influx, 0, border=3, flag=box_flag)
         self.gridbox_data2.Add (self.data_netflux, 0, border=3, flag=box_flag)
@@ -592,9 +593,9 @@ class MainFrame(wx.Frame):
     	self.data_p3_efflux.SetValue ('%0.4f'%(run_object.efflux_p3))
     	
     	self.data_SA.SetValue ('%0.0f'%(run_object.SA))
-    	self.data_shootcnts.SetValue ('%0.0f'%(run_object.shoot_cnts))
-    	self.data_rootcnts.SetValue ('%0.0f'%(run_object.root_cnts))
-    	self.data_rootweight.SetValue ('%0.3f'%(run_object.root_weight))
+    	self.data_shtcnts.SetValue ('%0.0f'%(run_object.sht_cnts))
+    	self.data_rtcnts.SetValue ('%0.0f'%(run_object.rt_cnts))
+    	self.data_rtwght.SetValue ('%0.3f'%(run_object.rt_wght))
     	self.data_loadtime.SetValue ('%0.2f'%(run_object.load_time))
     	self.data_influx.SetValue ('%0.3f'%(run_object.influx))
     	self.data_netflux.SetValue ('%0.3f'%(run_object.netflux))
@@ -620,26 +621,26 @@ class MainFrame(wx.Frame):
         new_analysis_type = ('obj', int (self.obj_textbox.GetValue ()))
 	
     	new_run_object = RunObject.RunObject(
-            old_run_object.run_name, old_run_object.SA, old_run_object.root_cnts,
-            old_run_object.shoot_cnts, old_run_object.root_weight,
-            old_run_object.g_factor, old_run_object.load_time,
-            old_run_object.elution_times, old_run_object.elution_cpms,
+            old_run_object.run_name, old_run_object.SA, old_run_object.rt_cnts,
+            old_run_object.sht_cnts, old_run_object.rt_wght,
+            old_run_object.gfact, old_run_object.load_time,
+            old_run_object.elut_times, old_run_object.elut_cpms,
             new_analysis_type)
     	
     	self.data_object.run_objects [self.run_num] = new_run_object
     		
         self.draw_figure()
 	
-    def on_obj_propagate (self, event):	
+    def on_obj_prop (self, event):	
     	new_analysis_type = ('obj', int(self.obj_textbox.GetValue ()))
     	for run_num in range(0, len(self.data_object.run_objects)):
     	    old_run_object = self.data_object.run_objects [run_num]
     	    new_run_object = RunObject.RunObject(
                 old_run_object.run_name, old_run_object.SA,
-                old_run_object.root_cnts, old_run_object.shoot_cnts,
-                old_run_object.root_weight, old_run_object.g_factor,
-                old_run_object.load_time, old_run_object.elution_times,
-                old_run_object.elution_cpms, new_analysis_type)
+                old_run_object.rt_cnts, old_run_object.sht_cnts,
+                old_run_object.rt_wght, old_run_object.gfact,
+                old_run_object.load_time, old_run_object.elut_times,
+                old_run_object.elut_cpms, new_analysis_type)
         self.data_object.run_objects[run_num] = new_run_object
     
         
@@ -658,16 +659,16 @@ class MainFrame(wx.Frame):
             )
 	
     	new_run_object = RunObject.RunObject (
-            old_run_object.run_name, old_run_object.SA, old_run_object.root_cnts,
-            old_run_object.shoot_cnts, old_run_object.root_weight,
-            old_run_object.g_factor, old_run_object.load_time,
-            old_run_object.elution_times, old_run_object.elution_cpms,
+            old_run_object.run_name, old_run_object.SA, old_run_object.rt_cnts,
+            old_run_object.sht_cnts, old_run_object.rt_wght,
+            old_run_object.gfact, old_run_object.load_time,
+            old_run_object.elut_times, old_run_object.elut_cpms,
             new_analysis_type)
     	
     	self.data_object.run_objects [self.run_num] = new_run_object
     	self.draw_figure()
 	
-    def on_subj_propagate(self, event):
+    def on_subj_prop(self, event):
         new_analysis_type = (
             'subj', (
                 (int(self.subj_p1_start_textbox.GetValue ())  - 1,
@@ -680,13 +681,13 @@ class MainFrame(wx.Frame):
             )
     	for run_num in range (0, len(self.data_object.run_objects)):
     	    old_run_object = self.data_object.run_objects [run_num]
-    	    new_run_object = RunObject.RunObject (
+    	    new_run_object = RunObject.RunObject(
                 old_run_object.run_name, old_run_object.SA,
-                old_run_object.root_cnts, old_run_object.shoot_cnts,
-                old_run_object.root_weight, old_run_object.g_factor,
-                old_run_object.load_time, old_run_object.elution_times,
-                old_run_object.elution_cpms, new_analysis_type)
-	    self.data_object.run_objects [run_num] = new_run_object   
+                old_run_object.rt_cnts, old_run_object.sht_cnts,
+                old_run_object.rt_wght, old_run_object.gfact,
+                old_run_object.load_time, old_run_object.elut_times,
+                old_run_object.elut_cpms, new_analysis_type)
+	    self.data_object.run_objects[run_num] = new_run_object   
     
     def on_cb_grid(self, event):
         self.draw_figure()
@@ -694,7 +695,7 @@ class MainFrame(wx.Frame):
     def on_slider_width(self, event):
         self.draw_figure()
     
-    def on_draw_button(self, event):
+    def on_draw_bttn(self, event):
         self.draw_figure()
     
     def on_pick_p3(self, event):
@@ -717,9 +718,15 @@ class MainFrame(wx.Frame):
            
 if __name__ == '__main__':
     import Excel
-    
-    temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
-
+        
+    temp_data = Excel.grab_data(
+        r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1",
+        "CATE Template - (2016_04_09).xlsx")
+    '''
+    temp_data = Excel.grab_data(
+        r"C:\Users\Ruben\Projects\CATEAnalysis",
+        "CATE Template - Single Run.xlsx")
+    '''
     app = wx.PySimpleApp()
     app.frame = MainFrame(temp_data)
     app.frame.Show()
