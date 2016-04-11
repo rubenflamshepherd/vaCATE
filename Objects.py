@@ -1,17 +1,51 @@
-import numpy as np
+import numpy
 import math
 import Operations
 
-class RunObject():
-'''
-Class that stores ALL data of a single CATE run.
-This data includes values derived from objective or 
-subjetive analyses (calculated within the class)
-'''
+def linear_regression(x, y):
+    ''' Linear regression of x and y series (lists)
+    Returns r^2 and m (slope), b (intercept) of y=mx+b
+    '''
+    coeffs = numpy.polyfit(x, y, 1)
         
+    # Conversion to "convenience class" in numpy for working with polynomials        
+    p = numpy.poly1d(coeffs)     
+    
+    # Determining R^2 on the current data set, fit values, and mean
+    yhat = p(x)                         # or [p(z) for z in x]
+    ybar = numpy.sum(y)/len(y)          # or sum(y)/len(y)
+    ssreg = numpy.sum((yhat-ybar)**2)   # or sum([ (yihat - ybar)**2 for yihat in yhat])
+    sstot = numpy.sum((y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
+    r2 = ssreg/sstot
+    slope = coeffs[0]
+    intercept = coeffs[1]
+    
+    return r2, slope, intercept
+
+class Experiment(object):
+    def __init__(self, analyses):
+        self.analyses = analyses # List of Analysis objects
+
+class Analysis(object):
+    def __init__(self, kind, run, p1_indexs=None, p2_indexs=None, p3_indexs=None):
+        self.kind = kind
+        self.run = run
+        self.p1_indexs = p1_indexs
+        self.p2_indexs = p2_indexs
+        self.p3_indexs = p3_indexs
+
+        if kind == None:
+            self.
+
+class Run():
+    '''
+    Class that stores ALL data of a single CATE run.
+    This data includes values derived from objective or 
+    subjetive analyses (calculated within the class)
+    '''        
     def __init__(
     	   self, run_name, SA, rt_cnts, sht_cnts, rt_wght, gfact,
-    	   load_time, elut_times, elut_cpms, analysis_type):       
+    	   load_time, elut_ends, elut_cpms):       
         self.run_name = run_name
         self.SA = SA
         self.rt_cnts = rt_cnts
@@ -19,26 +53,42 @@ subjetive analyses (calculated within the class)
         self.rt_wght = rt_wght
         self.gfact = gfact
         self.load_time = load_time
-        self.elut_times = elut_times
-        self.elut_cpms = elut_cpms
-        self.analysis_type = analysis_type #("obj", pts_used) -  default
-        self.elut_ends = elut_times[1:]
-        self.elut_starts = elut_times[:len (elut_times) - 1]
+        self.elut_ends = elut_ends
+        self.elut_cpms = elut_cpms        
+        self.elut_starts = [0.0] + elut_ends[:-1]
+        # Basic analysis of CATE data
+        self.elut_cpms_gfact = [x * self.gfact for x in self.elut_cpms]
+        self.elut_cpms_gRFW = []
+        self.elut_cpms_log = []
 
-        self.elut_cpms_gfactor, self.elut_cpms_gRFW, self.elut_cpms_log = \
-            Operations.basic_CATE_analysis(
-                SA, rt_cnts, sht_cnts, rt_wght, gfact, load_time, 
-                elut_times, elut_cpms)
-
+        for index, item in enumerate(self.elut_cpms_gfact):
+            temp = item / self.rt_wght / \
+                (self.elut_ends[index] - self.elut_starts[index])
+            self.elut_cpms_gRFW.append(temp)
+            self.elut_cpms_log.append(math.log10(temp))
+        
 		# x and y data for graphing (numpy-fied)
-        self.x = np.array(self.elut_ends)
-        self.y = np.array(self.elut_cpms_log)
-		
-		# Default analysis is objective analysis with 2 points
-        if self.analysis_type[0] == 'obj':
-		    self.objective_analysis()
-        elif self.analysis_type[0] == 'subj':
-		    self.subjective_analysis()
+        self.x = numpy.array(self.elut_ends)
+        self.y = numpy.array(self.elut_cpms_log)
+
+    def find_obj_reg(self):
+        '''
+        Determine 3 phases of data by finding the point at which r2 decreases
+        for 3 points in a row, and, in the remaining data, the series' for 
+        p1 and p2 that gives the highest r2
+        '''
+        self.r2s = []
+        self.slopes = []
+        self.intercepts
+
+        for x in range(len(self.elut_cpms_log)-2, 0, -1):
+            temp_x = self.elut_ends[x:]
+            temp_y = self.elut_cpms_log[x:]
+            temp_r2, temp_slope, temp_intecept = linear_regression(temp_x, temp_y)
+            print temp_r2, temp_x
+            
+                
+    '''
 	
     def objective_analysis(self):
 	"""
@@ -205,24 +255,13 @@ subjetive analyses (calculated within the class)
         self.influx = self.efflux_p3 + self.netflux
         self.ratio = self.efflux_p3 / self.influx
         self.poolsize = self.influx * self.t05_p3 / (3 * 0.693)
-        
+        '''
 		
 if __name__ == "__main__":
     import Excel
     temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Single Run.xlsx")
     
-    old_run_object = temp_data.run_objects [0]
-    new_analysis_type = ('subj', ((0,2),(3,9),(10,29)))
-    
-    new_run_object = RunObject (old_run_object.run_name,\
-                                  old_run_object.SA,\
-                                  old_run_object.rt_cnts,\
-                                  old_run_object.sht_cnts,\
-                                  old_run_object.rt_wght,\
-                                  old_run_object.gfact,\
-                                  old_run_object.load_time,\
-                                  old_run_object.elut_times,\
-                                  old_run_object.elut_cpms,\
-                                  new_analysis_type)
-    
-    temp_data.run_objects [0] = new_run_object    
+    temp_object = temp_data.run_objects[0]
+    temp_object.find_obj_reg()
+    #print len(temp_object.elut_ends)
+    #print temp_object.elut_cpms_gRFW

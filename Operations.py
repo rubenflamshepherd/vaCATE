@@ -3,21 +3,17 @@ import math
 
 y_series = [5.134446324653075, 4.532511080497156, 3.9647696512150836, 3.6692523925695686, 3.509950796085591, 3.3869391729764766, 3.287809993163619, 3.230048067964903, 3.169204739621747, 3.1203409378545346, 2.95145986473132, 2.8916143915841324, 2.8589559610792583, 2.8463057128814175, 2.8413779879066166, 2.7532261939625293, 2.750050822474359, 2.6735829597693206, 2.7024903224651338, 2.661606690643107, 2.5998423959455335, 2.57889496358432, 2.5921979525818397, 2.557187996704314, 2.529320391444595, 2.558194007072854, 2.4833719392530966, 2.5557756556810562, 2.4045248209763437, 2.4642132678099204]
 
-def basic_CATE_analysis(SA, rt_cnts, sht_cnts, rt_wght, gfact, load_time,
-                        elut_times, elut_cpms):
+def basic_analysis(SA, rt_cnts, sht_cnts, rt_wght, gfact, load_time,
+                        elut_starts, elut_ends, elut_cpms):
     '''Given initial CATE data, return elution data as corrected for
     G Factor, normalized for root weight, and logged
     '''    
-    elut_cpms_gfact = []
+    elut_cpms_gfact = [x * gfact for x in elut_cpms]
     elut_cpms_gRFW = []
     elut_cpms_log = []
 
-    for index, item in enumerate(elut_cpms):
-        elut_cpms_gfact.append (item * gfact)            
-
-
-    for x in range (0, len(elut_cpms_gfact)):
-        temp = elut_cpms_gfact[x] / rt_wght / (elut_times[x + 1]-elut_times[x])
+    for index, item in enumerate(elut_cpms_gfact):
+        temp = item / rt_wght / (elut_ends[index] - elut_starts[index])
         elut_cpms_gRFW.append(temp)
         elut_cpms_log.append(math.log10(temp))
                 

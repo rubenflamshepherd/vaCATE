@@ -305,7 +305,7 @@ class MainFrame(wx.Frame):
         self.gridbox_data.Add (k_text, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (halflife_text, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (efflux_text, 0, border=3, flag=box_flag)
-
+        
         self.gridbox_data.Add (p1_text, 0, border=3, flag=flags)
         self.gridbox_data.Add (self.data_p1_slope, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (self.data_p1_int, 0, border=3, flag=box_flag)
@@ -329,7 +329,7 @@ class MainFrame(wx.Frame):
         self.gridbox_data.Add (self.data_p3_k, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (self.data_p3_t05, 0, border=3, flag=box_flag)
         self.gridbox_data.Add (self.data_p3_efflux, 0, border=3, flag=box_flag)
-	
+        	
         self.gridbox_data2 = wx.GridSizer (rows=2, cols=9, hgap=1, vgap=1)
         self.gridbox_data2.Add (SA_text, 0, border=3, flag=box_flag)
         self.gridbox_data2.Add (shtcnts_text, 0, border=3, flag=box_flag)
@@ -436,6 +436,8 @@ class MainFrame(wx.Frame):
         """
     	
     	run_object = self.data_object.run_objects[self.run_num]
+        run_object.find_obj_reg()
+        '''
     	
     	if run_object.analysis_type[0] == 'obj':
     	    self.obj_textbox.SetValue(str (run_object.analysis_type[1]))	    
@@ -458,7 +460,8 @@ class MainFrame(wx.Frame):
     	    self.subj_p3_start_textbox.SetValue (
                 str (run_object.analysis_type[1][2][0] + 1))
     	    self.subj_p3_end_textbox.SetValue (
-                str (run_object.analysis_type[1][2][1] + 1))	    
+                str (run_object.analysis_type[1][2][1] + 1))
+        '''	    
     	    
     	title_string = 'Compartmental Analysis of Tracer Efflux Automator - '
     	detail_string = "Run " + str (self.run_num + 1) + "/"\
@@ -499,7 +502,7 @@ class MainFrame(wx.Frame):
         self.plot_phase3.set_ylabel(u"Log cpm released/g RFW/min")
         self.plot_phase3.set_xlim(left = 0)
         self.plot_phase3.set_ylim(bottom = 0)
-                    	    
+        '''
     	# Graphing the p3 series and regression line
     	self.plot_phase3.scatter(
             run_object.x_p3, run_object.y_p3, s = self.slider_width.GetValue(),
@@ -571,6 +574,7 @@ class MainFrame(wx.Frame):
     	self.plot_phase1.add_line (self.line_p1)          
         
     	# Outputting the data from the linear regressions to widgets
+        
     	self.data_p1_slope.SetValue ('%0.3f'%(run_object.slope_p1))
     	self.data_p1_int.SetValue ('%0.3f'%(run_object.intercept_p1))
     	self.data_p1_r2.SetValue ('%0.3f'%(run_object.r2_p1))
@@ -601,6 +605,7 @@ class MainFrame(wx.Frame):
     	self.data_netflux.SetValue ('%0.3f'%(run_object.netflux))
     	self.data_ratio.SetValue ('%0.3f'%(run_object.ratio))
     	self.data_poolsize.SetValue ('%0.3f'%(run_object.poolsize))
+        '''
     	        
         # Adding our legends
         self.plot_phase1.legend(loc='upper right')
@@ -718,15 +723,15 @@ class MainFrame(wx.Frame):
            
 if __name__ == '__main__':
     import Excel
-        
+    '''
     temp_data = Excel.grab_data(
         r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1",
         "CATE Template - (2016_04_09).xlsx")
     '''
     temp_data = Excel.grab_data(
         r"C:\Users\Ruben\Projects\CATEAnalysis",
-        "CATE Template - Single Run.xlsx")
-    '''
+        "CATE Template - Test Run.xlsx")
+        
     app = wx.PySimpleApp()
     app.frame = MainFrame(temp_data)
     app.frame.Show()

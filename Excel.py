@@ -89,14 +89,10 @@ def grab_data(directory, filename):
     # List where all run info is stored with RunObjects as ind. entries
     all_run_objects = []
 
-    # Creating elution time point list to be used by all runs 
-    raw_elution_times = input_sheet.col(1) # Col w/elution times given in file
-    elution_times = [0.0] # Elution times TO BE used for caluclating cpms/g/h
-    
     # Parsing elution times, correcting for header offset (8)
-    for x in range(8, len(raw_elution_times)):                   
-        elution_times.append(raw_elution_times[x].value)    
-    
+    raw_elution_times = input_sheet.col(1) # Col w/elution times given in file
+    elution_ends = [float(x.value) for x in raw_elution_times[8:]]
+        
     for col_index in range(2, input_sheet.row_len(0)):        
         # Grab individual CATE values of interest
         run_name = input_sheet.cell(0, col_index).value
@@ -106,17 +102,14 @@ def grab_data(directory, filename):
         root_weight = input_sheet.cell(4, col_index).value
         g_factor = input_sheet.cell(5, col_index).value
         load_time = input_sheet.cell(6, col_index).value
-        # Create lists to store SERIES' of data from ind. run
-        raw_cpm_column = input_sheet.col(col_index) # Raw counts given by file
-        elution_cpms = []
         # Grabing elution cpms, correcting for header offset (8)
-        for x in range(8, len(raw_cpm_column)):                   
-            elution_cpms.append(raw_cpm_column[x].value)
+        raw_cpm_column = input_sheet.col(col_index) # Raw counts given by file
+        elution_cpms = [float(x.value) for x in raw_cpm_column[8:]]
         
         all_run_objects.append(
             RunObject.RunObject(
                 run_name, SA, root_cnts, shoot_cnts, root_weight, g_factor,
-                load_time, elution_times, elution_cpms, ("obj", 3)))
+                load_time, elution_ends, elution_cpms))
    
     return DataObject.DataObject(directory, all_run_objects)
 
