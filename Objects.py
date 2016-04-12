@@ -2,28 +2,9 @@ import numpy
 import math
 import Operations
 
-def linear_regression(x, y):
-    ''' Linear regression of x and y series (lists)
-    Returns r^2 and m (slope), b (intercept) of y=mx+b
-    '''
-    coeffs = numpy.polyfit(x, y, 1)
-        
-    # Conversion to "convenience class" in numpy for working with polynomials        
-    p = numpy.poly1d(coeffs)     
-    
-    # Determining R^2 on the current data set, fit values, and mean
-    yhat = p(x)                         # or [p(z) for z in x]
-    ybar = numpy.sum(y)/len(y)          # or sum(y)/len(y)
-    ssreg = numpy.sum((yhat-ybar)**2)   # or sum([ (yihat - ybar)**2 for yihat in yhat])
-    sstot = numpy.sum((y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
-    r2 = ssreg/sstot
-    slope = coeffs[0]
-    intercept = coeffs[1]
-    
-    return r2, slope, intercept
-
 class Experiment(object):
-    def __init__(self, analyses):
+    def __init__(self, directory, analyses):
+        self.directory = directory
         self.analyses = analyses # List of Analysis objects
 
 class Analysis(object):
@@ -34,10 +15,35 @@ class Analysis(object):
         self.p2_indexs = p2_indexs
         self.p3_indexs = p3_indexs
 
-        if kind == None:
-            self.
+        # Default values are None unless assigned
+        self.x1_p3, self.y1_p3, self.x2_p3, self.y2_p3 = None, None, None, None
+        self.x1_p2, self.y1_p2, self.x2_p2, self.y2_p2 = None, None, None, None
+        self.x1_p1, self.y1_p1, self.x2_p1, self.y2_p1 = None, None, None, None
 
-class Run():
+        self.r2_p3, self.m_p3, self.b_p3 = None, None, None # y=mx+b
+        self.r2_p2, self.m_p2, self.b_p2 = None, None, None
+        self.r2_p1, self.m_p1, self.b_p1 = None, None, None
+
+        self.obj_x_start, self.obj_y_start = None, None
+        self.r2s, self.bs = None, None # Lists, y=mx+b
+
+        self.x_p3, self.x_p2, self.x_p1, self.x_p12 = None, None, None, None
+        self.y_p3, self.y_p2, self.y_p1, self.y_p12 = None, None, None, None
+        self.x_p12_curvstrip_p3, self.y_p12_curvstrip_p3 = None, None
+        self.x_p2_curvstrip_p3, self.y_p2_curvstrip_p3 = None, None
+        self.x_p1_curvstrip_p3, self.y_p1_curvstrip_p3 = None, None
+        self.x_p1_curvstrip_p23, self.y_p1_curvstrip_p23 = None, None
+
+        self.k_p3, self.k_p2, self.k_p1 = None, None, None
+        self.t05_p3, self.t05_p2, self.t05_p1 = None, None, None
+        self.R0_p3, self.R0_p2, self.R0_p1 = None, None, None
+        self.efflux_p3, self.efflux_p2, self.efflux_p1 = None, None, None
+
+        self.elut_period, self.tracer_retained, self.poolsize = None, None, None
+        self.influx, self.netflux, self.ratio = None, None, None
+       
+
+class Run(object):
     '''
     Class that stores ALL data of a single CATE run.
     This data includes values derived from objective or 
@@ -71,21 +77,72 @@ class Run():
         self.x = numpy.array(self.elut_ends)
         self.y = numpy.array(self.elut_cpms_log)
 
-    def find_obj_reg(self):
-        '''
-        Determine 3 phases of data by finding the point at which r2 decreases
-        for 3 points in a row, and, in the remaining data, the series' for 
-        p1 and p2 that gives the highest r2
-        '''
-        self.r2s = []
-        self.slopes = []
-        self.intercepts
+def linear_regression(x, y):
+    ''' Linear regression of x and y series (lists)
+    Returns r^2 and m (slope), b (intercept) of y=mx+b
+    '''
+    coeffs = numpy.polyfit(x, y, 1)
+        
+    # Conversion to "convenience class" in numpy for working with polynomials        
+    p = numpy.poly1d(coeffs)     
+    
+    # Determining R^2 on the current data set, fit values, and mean
+    yhat = p(x)                         # or [p(z) for z in x]
+    ybar = numpy.sum(y)/len(y)          # or sum(y)/len(y)
+    ssreg = numpy.sum((yhat-ybar)**2)   # or sum([ (yihat - ybar)**2 for yihat in yhat])
+    sstot = numpy.sum((y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
+    r2 = ssreg/sstot
+    slope = coeffs[0]
+    intercept = coeffs[1]
+    
+    return r2, slope, intercept
 
-        for x in range(len(self.elut_cpms_log)-2, 0, -1):
-            temp_x = self.elut_ends[x:]
-            temp_y = self.elut_cpms_log[x:]
-            temp_r2, temp_slope, temp_intecept = linear_regression(temp_x, temp_y)
-            print temp_r2, temp_x
+def find_obj_reg(elut_ends, elut_cpms_log, num_points):
+    '''
+    Determine 3 phases of data by finding the point at which r2 decreases
+    for 3 points in a row, and, in the remaining data, the series' for 
+    p1 and p2 that gives the highest r2
+    Return lists of intercepts(bs)/slopes(ms)/r2s and tuples outlining 
+    limits of each phase
+    '''
+    r2s = []
+    ms = [] # y = mx+b
+    bs = []
+
+    # Storing all possible r2/m/b
+    for index in range(len(elut_cpms_log)-2, -1, -1):
+        temp_x = elut_ends[index:]
+        temp_y = elut_cpms_log[index:]
+        temp_r2, temp_m, temp_b = linear_regression(temp_x, temp_y)
+        r2s =[temp_r2] + r2s
+        ms = [temp_m] + ms
+        bs = [temp_b] + bs
+        
+    # Determining the index at which r2 drops three times in a row 
+    # from num_points from the end of the series
+    counter = 0
+    for index in range(len(elut_ends)-1-num_points, -1, -1):    
+        if r2s[index] < r2s[index + 1]:
+            counter += 1
+            if counter == 3:
+                p3_start_index = index + 3
+                break
+        else:
+            counter = 0
+
+    # Now we have to determine the p1/p2 combo that give us the highest r2
+    temp_x_p12 = elut_ends[:p3_start_index]
+    temp_y_p12 = elut_ends[:p3_start_index]
+    
+    print elut_ends[index], elut_cpms_log[index], r2s[index], counter
+    
+    print elut_ends[:p3_start_index], elut_cpms_log[index], r2s[index], counter
+    print r2s
+    
+    temp_x = elut_ends[:-num_points]
+    temp_y = elut_cpms_log[:-num_points]
+    #print elut_ends
+    #print temp_x
             
                 
     '''
@@ -261,7 +318,7 @@ if __name__ == "__main__":
     import Excel
     temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Single Run.xlsx")
     
-    temp_object = temp_data.run_objects[0]
-    temp_object.find_obj_reg()
+    temp_obj = temp_data.analyses[0]
+    find_obj_reg(temp_obj.elut_ends, temp_obj.elut_cpms_log, 3)
     #print len(temp_object.elut_ends)
     #print temp_object.elut_cpms_gRFW

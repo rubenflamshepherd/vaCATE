@@ -2,9 +2,7 @@ import xlsxwriter
 from xlrd import *
 import time
 
-import DataObject
-import RunObject
-
+import Objects
 def generate_sheet(workbook, sheet_name):
     """
     Generates and returns the basic excel sheet template (in existing workbook)
@@ -107,11 +105,11 @@ def grab_data(directory, filename):
         elution_cpms = [float(x.value) for x in raw_cpm_column[8:]]
         
         all_run_objects.append(
-            RunObject.RunObject(
+            Objects.Run(
                 run_name, SA, root_cnts, shoot_cnts, root_weight, g_factor,
                 load_time, elution_ends, elution_cpms))
    
-    return DataObject.DataObject(directory, all_run_objects)
+    return Objects.Experiment(directory, all_run_objects)
 
 def generate_summary(workbook, data_object):
     '''
