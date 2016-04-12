@@ -99,17 +99,20 @@ def linear_regression(x, y):
 
 def find_obj_reg(elut_ends, elut_cpms_log, num_points):
     '''
-    Determine 3 phases of data by finding the point at which r2 decreases
-    for 3 points in a row, and, in the remaining data, the series' for 
-    p1 and p2 that gives the highest r2
-    Return lists of intercepts(bs)/slopes(ms)/r2s and tuples outlining 
-    limits of each phase
+    Use objective regression to determine 3 phases exchange in data
+    Phase 3 is found by identifying where r2 decreases for 3 points in a row
+    Phase 1 and 2 is found by identifying the paired series in the remaining 
+        data that yields the highest combined r2s
+    num_points allows the user to specificy how mmany points we will ignore at
+        the end of the data series before we start comparing r2s
+    Returns tuples outlining limits of each phase, m and b of phase 3, and 
+        lists of initial intercepts(bs)/slopes(ms)/r2s
     '''
     r2s = []
     ms = [] # y = mx+b
     bs = []
 
-    # Storing all possible r2/m/b
+    # Storing all possible r2s/ms/bs
     for index in range(len(elut_cpms_log)-2, -1, -1):
         temp_x = elut_ends[index:]
         temp_y = elut_cpms_log[index:]
@@ -121,30 +124,48 @@ def find_obj_reg(elut_ends, elut_cpms_log, num_points):
     # Determining the index at which r2 drops three times in a row 
     # from num_points from the end of the series
     counter = 0
-    for index in range(len(elut_ends)-1-num_points, -1, -1):    
-        if r2s[index] < r2s[index + 1]:
+    for index in range(len(elut_ends) - 1 - num_points, -1, -1):    
+        # print elut_ends[index], elut_cpms_log[index], r2s[index], counter
+        if r2s[index-1] < r2s[index]:
             counter += 1
             if counter == 3:
-                p3_start_index = index + 3
                 break
         else:
             counter = 0
+    start_p3 = index + 3
+    end_p3 = -1 # end indexs are going to be inclusive of last result in phase
+    r2_p3 = r2s[start_p3]
+    m_p3 = ms[start_p3]
+    b_p3 = bs[start_p3]
 
-    # Now we have to determine the p1/p2 combo that give us the highest r2
-    temp_x_p12 = elut_ends[:p3_start_index]
-    temp_y_p12 = elut_ends[:p3_start_index]
-    
-    print elut_ends[index], elut_cpms_log[index], r2s[index], counter
-    
-    print elut_ends[:p3_start_index], elut_cpms_log[index], r2s[index], counter
-    print r2s
-    
-    temp_x = elut_ends[:-num_points]
-    temp_y = elut_cpms_log[:-num_points]
-    #print elut_ends
-    #print temp_x
+    # print elut_ends[:start_p3_index], elut_cpms_log[index], r2s[index], counter
+    # print r2s
+
+    # Now we have to determine the p1/p2 combo that gives us the highest r2
+    temp_x_p12 = elut_ends[:start_p3]
+    temp_y_p12 = elut_cpms_log[:start_p3]
+    highest_r2 = 0
+
+    for index in range(1, len(temp_x_p12) - 2): #-2 bec. min. len(list) = 2
+        temp_start_p2 = index + 1
+        temp_x_p2 = temp_x_p12[temp_start_p2:]
+        temp_y_p2 = temp_y_p12[temp_start_p2:]
+        temp_x_p1 = temp_x_p12[:temp_start_p2]
+        temp_y_p1 = temp_y_p12[:temp_start_p2]
+        temp_r2_p2, temp_m_p2, temp_b_p2 = linear_regression(temp_x_p2, temp_y_p2)
+        temp_r2_p1, temp_m_p1, temp_b_p1 = linear_regression(temp_x_p1, temp_y_p1)
+        if temp_r2_p1 + temp_r2_p2 > highest_r2:
+            # print temp_x_p1, temp_x_p2, temp_r2_p1, temp_r2_p2
+            highest_r2 = temp_r2_p1 + temp_r2_p2
+            start_p2, p2_end = temp_start_p2, start_p3
+            start_p1, p1_end = 0, temp_start_p2
+            r2_p2, m_p2, b_p2 = temp_r2_p2, temp_m_p2, temp_b_p2 # these values are stored but I don't think I will need them (are calcylated by more general algorithms)
+            r2_p1, m_p1, b_p1 = temp_r2_p1, temp_m_p1, temp_b_p1
+
+    return start_p3, end_p3, start_p2, p2_end, start_p1, p1_end, r2s, ms, bs
             
-                
+
+        
     '''
 	
     def objective_analysis(self):
@@ -316,7 +337,7 @@ def find_obj_reg(elut_ends, elut_cpms_log, num_points):
 		
 if __name__ == "__main__":
     import Excel
-    temp_data = Excel.grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Single Run.xlsx")
+    temp_data = Excel.grab_data(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "CATE Template - Test1.xlsx")
     
     temp_obj = temp_data.analyses[0]
     find_obj_reg(temp_obj.elut_ends, temp_obj.elut_cpms_log, 3)
