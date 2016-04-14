@@ -125,7 +125,7 @@ def find_obj_reg(elut_ends, elut_cpms_log, num_points):
     # from num_points from the end of the series
     counter = 0
     for index in range(len(elut_ends) - 1 - num_points, -1, -1):    
-        # print elut_ends[index], elut_cpms_log[index], r2s[index], counter
+        print elut_ends[index], elut_cpms_log[index], r2s[index], counter
         if r2s[index-1] < r2s[index]:
             counter += 1
             if counter == 3:
@@ -158,14 +158,12 @@ def find_obj_reg(elut_ends, elut_cpms_log, num_points):
             # print temp_x_p1, temp_x_p2, temp_r2_p1, temp_r2_p2
             highest_r2 = temp_r2_p1 + temp_r2_p2
             start_p2, p2_end = temp_start_p2, start_p3
-            start_p1, p1_end = 0, temp_start_p2
+            start_p1, end_p1 = 0, temp_start_p2
             r2_p2, m_p2, b_p2 = temp_r2_p2, temp_m_p2, temp_b_p2 # these values are stored but I don't think I will need them (are calcylated by more general algorithms)
             r2_p1, m_p1, b_p1 = temp_r2_p1, temp_m_p1, temp_b_p1
 
-    return start_p3, end_p3, start_p2, p2_end, start_p1, p1_end, r2s, ms, bs
-            
+    return start_p3, end_p3, start_p2, p2_end, start_p1, end_p1, r2s, ms, bs
 
-        
     '''
 	
     def objective_analysis(self):
@@ -253,7 +251,7 @@ def find_obj_reg(elut_ends, elut_cpms_log, num_points):
     def subjective_analysis(self):
 	
         self.p1_start = self.analysis_type[1][0][0]
-        self.p1_end = self.analysis_type[1][0][1]
+        self.end_p1 = self.analysis_type[1][0][1]
         self.p2_start = self.analysis_type[1][1][0]
         self.p2_end = self.analysis_type[1][1][1]	
         self.p3_start = self.analysis_type[1][2][0]
@@ -269,8 +267,8 @@ def find_obj_reg(elut_ends, elut_cpms_log, num_points):
         self.y_p3 = self.y[self.p3_start: self.p3_end + 1]
         self.x_p2 = self.x[self.p2_start: self.p2_end + 1] 
         self.y_p2 = self.y[self.p2_start: self.p2_end + 1]
-        self.x_p1 = self.x[self.p1_start: self.p1_end + 1]
-        self.y_p1 = self.y[self.p1_start: self.p1_end + 1]	
+        self.x_p1 = self.x[self.p1_start: self.end_p1 + 1]
+        self.y_p1 = self.y[self.p1_start: self.end_p1 + 1]	
         self.x_p12 = np.concatenate([self.x_p1, self.x_p2])
         self.y_p12 = np.concatenate([self.y_p1, self.y_p2])
 	
@@ -280,8 +278,8 @@ def find_obj_reg(elut_ends, elut_cpms_log, num_points):
                 self.x_p12, self.y_p12, self.slope_p3, self.intercept_p3)
 	
         # Isolating/Unpacking PARTIALLY curve-stripped p1 x/y series
-        self.x_p1_curvestrippedof_p3 =  self.x_p12_curvestrippedof_p3[self.p1_start: self.p1_end + 1] 
-        self.y_p1_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3[self.p1_start: self.p1_end + 1]
+        self.x_p1_curvestrippedof_p3 =  self.x_p12_curvestrippedof_p3[self.p1_start: self.end_p1 + 1] 
+        self.y_p1_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3[self.p1_start: self.end_p1 + 1]
 	
         # Isolating COMPLETELY curve-stripped p2 data
         self.x_p2_curvestrippedof_p3, self.y_p2_curvestrippedof_p3 =\
@@ -337,7 +335,7 @@ def find_obj_reg(elut_ends, elut_cpms_log, num_points):
 		
 if __name__ == "__main__":
     import Excel
-    temp_data = Excel.grab_data(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "CATE Template - Test1.xlsx")
+    temp_data = Excel.grab_data(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")
     
     temp_obj = temp_data.analyses[0]
     find_obj_reg(temp_obj.elut_ends, temp_obj.elut_cpms_log, 3)
