@@ -85,7 +85,7 @@ def grab_data(directory, filename):
     input_sheet = input_book.sheet_by_index(0)
 
     # List where all run info is stored with RunObjects as ind. entries
-    all_run_objects = []
+    all_analysis_objects = []
 
     # Parsing elution times, correcting for header offset (8)
     raw_elution_times = input_sheet.col(1) # Col w/elution times given in file
@@ -103,13 +103,15 @@ def grab_data(directory, filename):
         # Grabing elution cpms, correcting for header offset (8)
         raw_cpm_column = input_sheet.col(col_index) # Raw counts given by file
         elution_cpms = [float(x.value) for x in raw_cpm_column[8:]]
+
+        temp_run = Objects.Run(
+            run_name, SA, root_cnts, shoot_cnts, root_weight, g_factor, 
+            load_time, elution_ends, elution_cpms)
         
-        all_run_objects.append(
-            Objects.Run(
-                run_name, SA, root_cnts, shoot_cnts, root_weight, g_factor,
-                load_time, elution_ends, elution_cpms))
+        all_analysis_objects.append(Objects.Analysis(
+            None, temp_run))
    
-    return Objects.Experiment(directory, all_run_objects)
+    return Objects.Experiment(directory, all_analysis_objects)
 
 def generate_summary(workbook, data_object):
     '''

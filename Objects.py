@@ -8,12 +8,13 @@ class Experiment(object):
         self.analyses = analyses # List of Analysis objects
 
 class Analysis(object):
-    def __init__(self, kind, run, p1_indexs=None, p2_indexs=None, p3_indexs=None):
-        self.kind = kind
+    def __init__(self, kind, run, p1_indexs=(None, None), 
+            p2_indexs=(None, None), p3_indexs=(None, None)):
+        self.kind = kind # None, 'obj', or 'subj'
         self.run = run
-        self.p1_indexs = p1_indexs
-        self.p2_indexs = p2_indexs
         self.p3_indexs = p3_indexs
+        self.p2_indexs = p2_indexs
+        self.p1_indexs = p1_indexs
 
         # Default values are None unless assigned
         self.x1_p3, self.y1_p3, self.x2_p3, self.y2_p3 = None, None, None, None

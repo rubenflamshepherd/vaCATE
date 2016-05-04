@@ -1,12 +1,13 @@
-import Objects
 import xlrd
-
 from nose.tools import assert_equals
 
+import Excel
+import Objects
+
 class TestExperiment(object):
-	def __init__(self, directory, testruns):
+	def __init__(self, directory, analyses):
 		self.directory = directory
-		self.testruns = testruns # List of Analysis objects
+		self.analyses = analyses # List of Analysis objects
 
 class TestRun(object):
 	'''
@@ -57,14 +58,58 @@ def grab_answers(directory, filename, elut_ends):
 		g_factor = input_sheet.cell(5, col_index).value
 		load_time = input_sheet.cell(6, col_index).value
 		# Grabing elution cpms, correcting for header offset (8)
-		elut_cpms = input_sheet.col(col_index)[8:len(elut_ends)+8]
-		print len(elut_cpms)
-		elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log = [],[],[]
-   
+		start_cpms = 8
+		end_cpms = start_cpms + len(elut_ends)
+		raw_cpms = input_sheet.col(col_index)[start_cpms : end_cpms]
+		elut_cpms = [float(x.value) for x in raw_cpms]
+
+		start_gfact = end_cpms + 1 # row underneath cpms_gfact label
+		end_gfact = start_gfact + len(elut_ends)
+		raw_gfact = input_sheet.col(col_index)[start_gfact : end_gfact]
+		elut_cpms_gfact = [float(x.value) for x in raw_gfact]
+
+		start_gRFW = end_gfact + 1
+		end_gRFW = start_gRFW + len(elut_ends)
+		raw_gRFW = input_sheet.col(col_index)[start_gRFW : end_gRFW]
+		elut_cpms_gRFW = [float(x.value) for x in raw_gRFW]
+
+		start_log = end_gRFW + 1
+		end_log = start_log + len(elut_ends)
+		raw_log = input_sheet.col(col_index)[start_log : end_log]
+		elut_cpms_log = [float(x.value) for x in raw_log]
+
+		start_r2s = end_log + 1
+		end_r2s = start_r2s + len(elut_ends)
+		raw_r2s = input_sheet.col(col_index)[start_r2s : end_r2s]
+		r2s = []
+		for item in raw_r2s: # item is a cell.Value
+			try:
+				r2s.append(float(item.value))
+			except ValueError: # last row in r2 has no r2
+				r2s.append(None) # Messes up list comprehension (thus no list comprehension used)
+		
+		end_obj = int(input_sheet.col(col_index)[end_r2s].value) 
+
+		start_r2_p1 = end_r2s + 1 + 1 + 1 # First index has no r2
+		end_r2_p1 = start_r2_p1 + (end_obj - 3)
+		raw_r2_p1 = input_sheet.col(col_index)[start_r2_p1 : end_r2_p1]
+		r2_p1 = [float(x.value) for x in raw_r2_p1]
+
+		# Bypass ignored min p1 reg length (+3)
+		start_r2_p2 = end_r2s + 1 + len(elut_ends) + 1 + 3
+		end_r2_p2 = start_r2_p2 + (end_obj - 3)		
+		raw_r2_p2 = input_sheet.col(col_index)[start_r2_p2 : end_r2_p2]
+		r2_p2 = [float(x.value) for x in raw_r2_p2]
+
+		# Find index starting p2 (end index of p1)
+		start_p12_r2_sum = end_r2s + 1 + len(elut_ends) + 1 + len(elut_ends) + 2
+		end_p12_r2_sum = start_p12_r2_sum + len(elut_ends)
+		p12_r2_max = input_sheet.col(col_index)[end_p12_r2_sum + 1].value
+		
 		all_test_runs.append(
 			TestRun(
 				run_name, SA, root_cnts, shoot_cnts, root_weight, g_factor,
-				load_time, elut_ends, elut_cpms, elut_cpms_gfact,
+				load_time, elut_ends, elut_cpms, elut_cpms_gfact, 
 				elut_cpms_gRFW, elut_cpms_log))
 
 		return TestExperiment(directory, all_test_runs)
@@ -73,16 +118,22 @@ def test_all():
 	directory = r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1"
 	test_file = "Test - Single Run.xlsx"
 
-	temp_data = Excel.grab_data(directory, test_file)
-	single_run = temp_data[0]
-	Objects.find_obj_reg(single_run.elut_ends, single_run.elut_cpms_log, 3)
+	temp_question = Excel.grab_data(directory, test_file)
+	question = temp_question.analyses[0]
+	temp_answer = grab_answers(directory, test_file, question.run.elut_ends)
+	answer = temp_answer.analyses[0]
 
-	grab_answers(directory, test_file, single_run.elut_ends)
+	#Objects.find_obj_reg(single_run.elut_ends, single_run.elut_cpms_log, 3)
+	assert_equals (question.run.SA, answer.SA)
 
 if __name__ == '__main__':
+	'''
 	import Excel
 	temp_data = Excel.grab_data(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")
 	temp_obj = temp_data.analyses[0]
 	
-	temp_exp = grab_answers(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx", temp_obj.elut_ends)
+	temp_exp = grab_answers(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx", temp_obj.run.elut_ends)
 	temp_obj = temp_exp.testruns[0]
+	'''
+	test_all()
+
