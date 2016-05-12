@@ -114,7 +114,10 @@ def grab_answers(directory, filename, elut_ends):
 
 		return TestExperiment(directory, all_test_runs)
 
-def test_all():
+def test_basic():
+	'''
+	Tests regarding basic info (Data encoded into Run object, no analysis)
+	'''
 	directory = r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1"
 	test_file = "Test - Single Run.xlsx"
 
@@ -125,6 +128,18 @@ def test_all():
 
 	#Objects.find_obj_reg(single_run.elut_ends, single_run.elut_cpms_log, 3)
 	assert_equals (question.run.SA, answer.SA)
+	assert_equals (question.run.run_name, answer.run_name)
+	assert_equals (question.run.rt_cnts, answer.rt_cnts)
+	assert_equals (question.run.sht_cnts, answer.sht_cnts)
+	assert_equals (question.run.rt_wght, answer.rt_wght)
+	assert_equals (question.run.gfact, answer.gfact)
+	assert_equals (question.run.load_time, answer.load_time)
+	assert_equals (question.run.elut_ends, answer.elut_ends)
+	assert_equals (question.run.elut_cpms, answer.elut_cpms)
+	assert_equals (question.run.elut_starts, answer.elut_starts)
+	assert_equals (question.run.elut_cpms_gfact, answer.elut_cpms_gfact)
+	assert_equals (question.run.elut_cpms_gRFW, answer.elut_cpms_gRFW)
+	assert_equals (question.run.elut_cpms_log, answer.elut_cpms_log)
 
 if __name__ == '__main__':
 	'''
@@ -135,5 +150,3 @@ if __name__ == '__main__':
 	temp_exp = grab_answers(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx", temp_obj.run.elut_ends)
 	temp_obj = temp_exp.testruns[0]
 	'''
-	test_all()
-
