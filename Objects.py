@@ -8,13 +8,14 @@ class Experiment(object):
         self.analyses = analyses # List of Analysis objects
 
 class Analysis(object):
-    def __init__(self, kind, run, p1_indexs=(None, None), 
-            p2_indexs=(None, None), p3_indexs=(None, None)):
+    def __init__(self, kind, obj_num_pts, run, indexs_p1=(None, None), 
+            indexs_p2=(None, None), indexs_p3=(None, None)):
         self.kind = kind # None, 'obj', or 'subj'
+        self.obj_num_pts = obj_num_pts # None if not obj regression
         self.run = run
-        self.p3_indexs = p3_indexs
-        self.p2_indexs = p2_indexs
-        self.p1_indexs = p1_indexs
+        self.indexs_p3 = indexs_p3
+        self.indexs_p2 = indexs_p2
+        self.indexs_p1 = indexs_p1
 
         # Default values are None unless assigned
         self.x1_p3, self.y1_p3, self.x2_p3, self.y2_p3 = None, None, None, None
@@ -26,7 +27,7 @@ class Analysis(object):
         self.r2_p1, self.m_p1, self.b_p1 = None, None, None
 
         self.obj_x_start, self.obj_y_start = None, None
-        self.r2s, self.bs = None, None # Lists, y=mx+b
+        self.r2s, self.bs = None, None # Lists from obj analysis, y=mx+b
 
         self.x_p3, self.x_p2, self.x_p1, self.x_p12 = None, None, None, None
         self.y_p3, self.y_p2, self.y_p1, self.y_p12 = None, None, None, None
@@ -42,7 +43,24 @@ class Analysis(object):
 
         self.elut_period, self.tracer_retained, self.poolsize = None, None, None
         self.influx, self.netflux, self.ratio = None, None, None
-       
+
+    def analyze(self):
+        '''
+        Take Analysis object and define parameters based on which phase limits
+        have been provided.
+        Return Analysis object
+        '''
+        if self.kind == 'subj' or self.kind == 'obj':
+            if self.indexs_p3 != (None, None):
+                pass
+            if self.indexs_p2 != (None, None):
+                pass
+            if self.indexs_p1 != (None, None):
+                pass
+        elif self.kind == None:
+            pass
+        else:
+            assert False, "ERROR analysis.kind unknown kind (%s)" %(self.kind)       
 
 class Run(object):
     '''
@@ -63,107 +81,11 @@ class Run(object):
         self.elut_ends = elut_ends
         self.elut_cpms = elut_cpms        
         self.elut_starts = [0.0] + elut_ends[:-1]
-        # Basic analysis of CATE data
-        self.elut_cpms_gfact = [x * self.gfact for x in self.elut_cpms]
-        self.elut_cpms_gRFW = []
-        self.elut_cpms_log = []
-
-        for index, item in enumerate(self.elut_cpms_gfact):
-            temp = item / self.rt_wght / \
-                (self.elut_ends[index] - self.elut_starts[index])
-            self.elut_cpms_gRFW.append(temp)
-            self.elut_cpms_log.append(math.log10(temp))
-        
+        self.elut_cpms_gfact, self.elut_cpms_gRFW, self.elut_cpms_log = \
+            Operations.basic_analysis(rt_wght, gfact, self.elut_starts, elut_ends, elut_cpms)       
 		# x and y data for graphing (numpy-fied)
         self.x = numpy.array(self.elut_ends)
         self.y = numpy.array(self.elut_cpms_log)
-
-def linear_regression(x, y):
-    ''' Linear regression of x and y series (lists)
-    Returns r^2 and m (slope), b (intercept) of y=mx+b
-    '''
-    coeffs = numpy.polyfit(x, y, 1)
-        
-    # Conversion to "convenience class" in numpy for working with polynomials        
-    p = numpy.poly1d(coeffs)     
-    
-    # Determining R^2 on the current data set, fit values, and mean
-    yhat = p(x)                         # or [p(z) for z in x]
-    ybar = numpy.sum(y)/len(y)          # or sum(y)/len(y)
-    ssreg = numpy.sum((yhat-ybar)**2)   # or sum([ (yihat - ybar)**2 for yihat in yhat])
-    sstot = numpy.sum((y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
-    r2 = ssreg/sstot
-    slope = coeffs[0]
-    intercept = coeffs[1]
-    
-    return r2, slope, intercept
-
-def find_obj_reg(elut_ends, elut_cpms_log, num_points):
-    '''
-    Use objective regression to determine 3 phases exchange in data
-    Phase 3 is found by identifying where r2 decreases for 3 points in a row
-    Phase 1 and 2 is found by identifying the paired series in the remaining 
-        data that yields the highest combined r2s
-    num_points allows the user to specificy how mmany points we will ignore at
-        the end of the data series before we start comparing r2s
-    Returns tuples outlining limits of each phase, m and b of phase 3, and 
-        lists of initial intercepts(bs)/slopes(ms)/r2s
-    '''
-    r2s = []
-    ms = [] # y = mx+b
-    bs = []
-
-    # Storing all possible r2s/ms/bs
-    for index in range(len(elut_cpms_log)-2, -1, -1):
-        temp_x = elut_ends[index:]
-        temp_y = elut_cpms_log[index:]
-        temp_r2, temp_m, temp_b = linear_regression(temp_x, temp_y)
-        r2s =[temp_r2] + r2s
-        ms = [temp_m] + ms
-        bs = [temp_b] + bs
-        
-    # Determining the index at which r2 drops three times in a row 
-    # from num_points from the end of the series
-    counter = 0
-    for index in range(len(elut_ends) - 1 - num_points, -1, -1):    
-        print elut_ends[index], elut_cpms_log[index], r2s[index], counter
-        if r2s[index-1] < r2s[index]:
-            counter += 1
-            if counter == 3:
-                break
-        else:
-            counter = 0
-    start_p3 = index + 3
-    end_p3 = -1 # end indexs are going to be inclusive of last result in phase
-    r2_p3 = r2s[start_p3]
-    m_p3 = ms[start_p3]
-    b_p3 = bs[start_p3]
-
-    # print elut_ends[:start_p3_index], elut_cpms_log[index], r2s[index], counter
-    # print r2s
-
-    # Now we have to determine the p1/p2 combo that gives us the highest r2
-    temp_x_p12 = elut_ends[:start_p3]
-    temp_y_p12 = elut_cpms_log[:start_p3]
-    highest_r2 = 0
-
-    for index in range(1, len(temp_x_p12) - 2): #-2 bec. min. len(list) = 2
-        temp_start_p2 = index + 1
-        temp_x_p2 = temp_x_p12[temp_start_p2:]
-        temp_y_p2 = temp_y_p12[temp_start_p2:]
-        temp_x_p1 = temp_x_p12[:temp_start_p2]
-        temp_y_p1 = temp_y_p12[:temp_start_p2]
-        temp_r2_p2, temp_m_p2, temp_b_p2 = linear_regression(temp_x_p2, temp_y_p2)
-        temp_r2_p1, temp_m_p1, temp_b_p1 = linear_regression(temp_x_p1, temp_y_p1)
-        if temp_r2_p1 + temp_r2_p2 > highest_r2:
-            # print temp_x_p1, temp_x_p2, temp_r2_p1, temp_r2_p2
-            highest_r2 = temp_r2_p1 + temp_r2_p2
-            start_p2, p2_end = temp_start_p2, start_p3
-            start_p1, end_p1 = 0, temp_start_p2
-            r2_p2, m_p2, b_p2 = temp_r2_p2, temp_m_p2, temp_b_p2 # these values are stored but I don't think I will need them (are calcylated by more general algorithms)
-            r2_p1, m_p1, b_p1 = temp_r2_p1, temp_m_p1, temp_b_p1
-
-    return start_p3, end_p3, start_p2, p2_end, start_p1, end_p1, r2s, ms, bs
 
     '''
 	
@@ -339,6 +261,6 @@ if __name__ == "__main__":
     temp_data = Excel.grab_data(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")
     
     temp_obj = temp_data.analyses[0]
-    find_obj_reg(temp_obj.elut_ends, temp_obj.elut_cpms_log, 3)
+    print Operations.find_obj_reg(temp_obj.run.elut_ends, temp_obj.run.elut_cpms_log, 3)
     #print len(temp_object.elut_ends)
     #print temp_object.elut_cpms_gRFW

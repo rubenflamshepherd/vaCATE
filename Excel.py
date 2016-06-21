@@ -109,7 +109,7 @@ def grab_data(directory, filename):
             load_time, elution_ends, elution_cpms)
         
         all_analysis_objects.append(Objects.Analysis(
-            None, temp_run))
+            kind=None, obj_num_pts=None, run=temp_run))
    
     return Objects.Experiment(directory, all_analysis_objects)
 

@@ -1,10 +1,7 @@
 import numpy
 import math
 
-y_series = [5.134446324653075, 4.532511080497156, 3.9647696512150836, 3.6692523925695686, 3.509950796085591, 3.3869391729764766, 3.287809993163619, 3.230048067964903, 3.169204739621747, 3.1203409378545346, 2.95145986473132, 2.8916143915841324, 2.8589559610792583, 2.8463057128814175, 2.8413779879066166, 2.7532261939625293, 2.750050822474359, 2.6735829597693206, 2.7024903224651338, 2.661606690643107, 2.5998423959455335, 2.57889496358432, 2.5921979525818397, 2.557187996704314, 2.529320391444595, 2.558194007072854, 2.4833719392530966, 2.5557756556810562, 2.4045248209763437, 2.4642132678099204]
-
-def basic_analysis(SA, rt_cnts, sht_cnts, rt_wght, gfact, load_time,
-                        elut_starts, elut_ends, elut_cpms):
+def basic_analysis(rt_wght, gfact, elut_starts, elut_ends, elut_cpms):
     '''Given initial CATE data, return elution data as corrected for
     G Factor, normalized for root weight, and logged
     '''    
@@ -39,6 +36,91 @@ def linear_regression(x, y):
     
     return r2, slope, intercept
 
+def find_obj_reg(elut_ends, elut_cpms_log, num_obj_pts):
+    '''
+    Use objective regression to determine 3 phases exchange in data
+    Phase 3 is found by identifying where r2 decreases for 3 points in a row
+    Phase 1 and 2 is found by identifying the paired series in the remaining 
+        data that yields the highest combined r2s
+    num_obj_pts allows the user to specificy how mmany points we will ignore at
+        the end of the data series before we start comparing r2s
+    Returns tuples outlining limits of each phase, m and b of phase 3, and 
+        lists of initial intercepts(bs)/slopes(ms)/r2s
+    '''
+    r2s = []
+    ms = [] # y = mx+b
+    bs = []
+
+    # Storing all possible r2s/ms/bs
+    for index in range(len(elut_cpms_log)-2, -1, -1):
+        temp_x = elut_ends[index:]
+        temp_y = elut_cpms_log[index:]
+        temp_r2, temp_m, temp_b = linear_regression(temp_x, temp_y)
+        r2s =[temp_r2] + r2s
+        ms = [temp_m] + ms
+        bs = [temp_b] + bs
+        
+    # Determining the index at which r2 drops three times in a row 
+    # from num_obj_pts from the end of the series
+    counter = 0
+    for index in range(len(elut_ends) - 1 - num_obj_pts, -1, -1):    
+        # print elut_ends[index], elut_cpms_log[index], r2s[index], counter
+        if r2s[index-1] < r2s[index]:
+            counter += 1
+            if counter == 3:
+                break
+        else:
+            counter = 0
+    start_p3 = index + 3
+    end_p3 = -1 # end indexs are going to be inclusive of last result in phase
+    r2_p3 = r2s[start_p3]
+    m_p3 = ms[start_p3]
+    b_p3 = bs[start_p3]
+
+    # print elut_ends[:start_p3_index], elut_cpms_log[index], r2s[index], counter
+    # print r2s
+
+    # Now we have to determine the p1/p2 combo that gives us the highest r2
+    temp_x_p12 = elut_ends[:start_p3]
+    temp_y_p12 = elut_cpms_log[:start_p3]
+    highest_r2 = 0
+
+    for index in range(1, len(temp_x_p12) - 2): #-2 bec. min. len(list) = 2
+        temp_start_p2 = index + 1
+        temp_x_p2 = temp_x_p12[temp_start_p2:]
+        temp_y_p2 = temp_y_p12[temp_start_p2:]
+        temp_x_p1 = temp_x_p12[:temp_start_p2]
+        temp_y_p1 = temp_y_p12[:temp_start_p2]
+        temp_r2_p2, temp_m_p2, temp_b_p2 = linear_regression(temp_x_p2, temp_y_p2)
+        temp_r2_p1, temp_m_p1, temp_b_p1 = linear_regression(temp_x_p1, temp_y_p1)
+        if temp_r2_p1 + temp_r2_p2 > highest_r2:
+            # print temp_x_p1, temp_x_p2, temp_r2_p1, temp_r2_p2
+            highest_r2 = temp_r2_p1 + temp_r2_p2
+            start_p2, end_p2 = temp_start_p2, start_p3
+            start_p1, end_p1 = 0, temp_start_p2
+             # these values are stored but I don't think I will need them 
+             # (are calcylated by more general algorithms)
+             # UPDATE: I'm fairly certain that I am correct
+            r2_p2, m_p2, b_p2 = temp_r2_p2, temp_m_p2, temp_b_p2
+            r2_p1, m_p1, b_p1 = temp_r2_p1, temp_m_p1, temp_b_p1
+
+    return (start_p3, end_p3), (start_p2, end_p2), (start_p1, end_p1)
+
+def extract_p3(indexs_p3, x, y):
+    '''
+    Extract and return paramters from regression analysis of phase 3.
+    indexs_p3 are a 2 item tuple, x and y are nump arrays
+    '''
+    start_p3 = indexs_p3[0]
+    end_p3 = indexs_p3[1]
+    x_p3 = x[start_p3:end_p3]
+    y_p3 = y[start_p3:end_p3]
+
+    r2_p3, m_p3, b_p3 = linear_regression(x, y) # y=(M)x+(B)
+    x1_p3, x2_p3, y1_p3, y2_p3 = grab_x_ys(x, b, m)
+
+    return x1_p3, x2_p3, y1_p3, y2_p3, r2_p3, m_p3, b_p3
+
 def grab_x_ys(elution_ends, intercept, slope):
     ''' 
     Output two pairs of (x, y) coordinates for plotting a regression line
@@ -49,7 +131,7 @@ def grab_x_ys(elution_ends, intercept, slope):
     last_elution = elution_ends[len(elution_ends) - 1] 
     
     x1 = 0
-    x2 = last_elution
+    x2 = last_elution   
     y1 = intercept
     y2 = slope * last_elution + intercept
     
@@ -304,6 +386,7 @@ def subj_regression_p3(elution_ends, log_efflux, p3_start, p3_end):
     return x1, x2, y1, y2, r2, slope, intercept
     
 if __name__ == '__main__':
+    y_series = [5.134446324653075, 4.532511080497156, 3.9647696512150836, 3.6692523925695686, 3.509950796085591, 3.3869391729764766, 3.287809993163619, 3.230048067964903, 3.169204739621747, 3.1203409378545346, 2.95145986473132, 2.8916143915841324, 2.8589559610792583, 2.8463057128814175, 2.8413779879066166, 2.7532261939625293, 2.750050822474359, 2.6735829597693206, 2.7024903224651338, 2.661606690643107, 2.5998423959455335, 2.57889496358432, 2.5921979525818397, 2.557187996704314, 2.529320391444595, 2.558194007072854, 2.4833719392530966, 2.5557756556810562, 2.4045248209763437, 2.4642132678099204]
     test = obj_regression_p3(x_series, y_series, 2)
     '''print test [7]
     print x_series [test [7]]
