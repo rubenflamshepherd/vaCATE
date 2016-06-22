@@ -38,6 +38,7 @@ class TestRun(object):
 def grab_answers(directory, filename, elut_ends):
 	'''
 	Extracts data from an excel file in directory/filename (INPUT)
+	elut_ends required because can not be cleanly extracted from test sheet
 	Data are what analysis SHOULD be arriving at.
 	'''
 	# Accessing the file from which data is to be grabbed
@@ -82,11 +83,12 @@ def grab_answers(directory, filename, elut_ends):
 		end_r2s = start_r2s + len(elut_ends)
 		raw_r2s = input_sheet.col(col_index)[start_r2s : end_r2s]
 		r2s = []
+		print raw_r2s
 		for item in raw_r2s: # item is a cell.Value
 			try:
 				r2s.append(float(item.value))
 			except ValueError: # last row in r2 has no r2
-				r2s.append(None) # Messes up list comprehension (thus no list comprehension used)
+				r2s.append(None) # Messes up list comprehension
 		
 		end_obj = int(input_sheet.col(col_index)[end_r2s].value) 
 
@@ -105,7 +107,7 @@ def grab_answers(directory, filename, elut_ends):
 		start_p12_r2_sum = end_r2s + 1 + len(elut_ends) + 1 + len(elut_ends) + 2
 		end_p12_r2_sum = start_p12_r2_sum + len(elut_ends)
 		p12_r2_max = input_sheet.col(col_index)[end_p12_r2_sum + 1].value
-		
+		print elut_cpms_log
 		all_test_runs.append(
 			TestRun(
 				run_name, SA, root_cnts, shoot_cnts, root_weight, g_factor,
@@ -142,11 +144,11 @@ def test_basic():
 	assert_equals (question.run.elut_cpms_log, answer.elut_cpms_log)
 
 if __name__ == '__main__':
-	'''
+	
 	import Excel
 	temp_data = Excel.grab_data(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")
-	temp_obj = temp_data.analyses[0]
+	temp_analysis = temp_data.analyses[0]
 	
-	temp_exp = grab_answers(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx", temp_obj.run.elut_ends)
-	temp_obj = temp_exp.testruns[0]
-	'''
+	temp_exp = grab_answers(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx", temp_analysis.run.elut_ends)
+	temp_testanalysis = temp_exp.analyses[0]
+	

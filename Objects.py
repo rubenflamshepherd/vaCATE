@@ -60,7 +60,7 @@ class Analysis(object):
         elif self.kind == None:
             pass
         else:
-            assert False, "ERROR analysis.kind unknown kind (%s)" %(self.kind)       
+            assert False, "ERROR analysis.kind unknown kind: (%s)" %(self.kind)       
 
 class Run(object):
     '''
@@ -82,8 +82,9 @@ class Run(object):
         self.elut_cpms = elut_cpms        
         self.elut_starts = [0.0] + elut_ends[:-1]
         self.elut_cpms_gfact, self.elut_cpms_gRFW, self.elut_cpms_log = \
-            Operations.basic_analysis(rt_wght, gfact, self.elut_starts, elut_ends, elut_cpms)       
-		# x and y data for graphing (numpy-fied)
+            Operations.basic_analysis(
+                rt_wght, gfact, self.elut_starts, elut_ends, elut_cpms)       
+		# x and y data for graphing ('numpy-fied')
         self.x = numpy.array(self.elut_ends)
         self.y = numpy.array(self.elut_cpms_log)
 
@@ -260,7 +261,7 @@ if __name__ == "__main__":
     import Excel
     temp_data = Excel.grab_data(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")
     
-    temp_obj = temp_data.analyses[0]
-    print Operations.find_obj_reg(temp_obj.run.elut_ends, temp_obj.run.elut_cpms_log, 3)
+    temp_analysis = temp_data.analyses[0]
+    print Operations.find_obj_reg(run=temp_analysis.run, num_obj_pts=3)
     #print len(temp_object.elut_ends)
     #print temp_object.elut_cpms_gRFW

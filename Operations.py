@@ -36,7 +36,7 @@ def linear_regression(x, y):
     
     return r2, slope, intercept
 
-def find_obj_reg(elut_ends, elut_cpms_log, num_obj_pts):
+def find_obj_reg(run, num_obj_pts):
     '''
     Use objective regression to determine 3 phases exchange in data
     Phase 3 is found by identifying where r2 decreases for 3 points in a row
@@ -47,6 +47,7 @@ def find_obj_reg(elut_ends, elut_cpms_log, num_obj_pts):
     Returns tuples outlining limits of each phase, m and b of phase 3, and 
         lists of initial intercepts(bs)/slopes(ms)/r2s
     '''
+    elut_ends, elut_cpms_log = run.elut_ends, run.elut_cpms_log
     r2s = []
     ms = [] # y = mx+b
     bs = []
