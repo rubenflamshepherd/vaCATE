@@ -1,7 +1,24 @@
 import numpy
 import math
+import Objects
 
-def basic_analysis(rt_wght, gfact, elut_starts, elut_ends, elut_cpms):
+def grab_x_ys(elution_ends, slope, intercept):
+    ''' 
+    Output two pairs of (x, y) coordinates for plotting a regression line
+    elution_ends is the x-series (list)
+    intrecept and slope are ints
+    '''
+    
+    last_elution = elution_ends[len(elution_ends) - 1] 
+    
+    x1 = 0
+    x2 = last_elution   
+    y1 = intercept
+    y2 = slope * last_elution + intercept
+    
+    return (x1, y1), (x2, y2)
+
+def basic_run_calcs(rt_wght, gfact, elut_starts, elut_ends, elut_cpms):
     '''Given initial CATE data, return elution data as corrected for
     G Factor, normalized for root weight, and logged
     '''    
@@ -36,13 +53,13 @@ def linear_regression(x, y):
     
     return r2, slope, intercept
 
-def find_obj_reg(run, num_obj_pts):
+def set_obj_phases(run, obj_num_pts):
     '''
     Use objective regression to determine 3 phases exchange in data
     Phase 3 is found by identifying where r2 decreases for 3 points in a row
     Phase 1 and 2 is found by identifying the paired series in the remaining 
         data that yields the highest combined r2s
-    num_obj_pts allows the user to specificy how mmany points we will ignore at
+    obj_num_pts allows the user to specificy how mmany points we will ignore at
         the end of the data series before we start comparing r2s
     Returns tuples outlining limits of each phase, m and b of phase 3, and 
         lists of initial intercepts(bs)/slopes(ms)/r2s
@@ -62,9 +79,9 @@ def find_obj_reg(run, num_obj_pts):
         bs = [temp_b] + bs
         
     # Determining the index at which r2 drops three times in a row 
-    # from num_obj_pts from the end of the series
+    # from obj_num_pts from the end of the series
     counter = 0
-    for index in range(len(elut_ends) - 1 - num_obj_pts, -1, -1):    
+    for index in range(len(elut_ends) - 1 - obj_num_pts, -1, -1):    
         # print elut_ends[index], elut_cpms_log[index], r2s[index], counter
         if r2s[index-1] < r2s[index]:
             counter += 1
@@ -107,36 +124,26 @@ def find_obj_reg(run, num_obj_pts):
 
     return (start_p3, end_p3), (start_p2, end_p2), (start_p1, end_p1)
 
-def extract_p3(indexs_p3, x, y):
+def extract_phase3(indexs, x, y, SA, load_time):
     '''
     Extract and return paramters from regression analysis of phase 3.
-    indexs_p3 are a 2 item tuple, x and y are nump arrays
+    indexs are a 2 item tuple, x and y are numpy arrays of elut_ends and
+    elut_cpms_log 
     '''
-    start_p3 = indexs_p3[0]
-    end_p3 = indexs_p3[1]
+    start_p3 = indexs[0]
+    end_p3 = indexs[1]
     x_p3 = x[start_p3:end_p3]
     y_p3 = y[start_p3:end_p3]
 
-    r2_p3, m_p3, b_p3 = linear_regression(x, y) # y=(M)x+(B)
-    x1_p3, x2_p3, y1_p3, y2_p3 = grab_x_ys(x, b, m)
+    r2, slope, intercept = linear_regression(x, y) # y=(M)x+(B)
+    xy1, xy2 = grab_x_ys(x, slope, intercept)
+    k = abs(slope * 2.303)
+    t05 = 0.693/k
+    r0 = 10 ** intercept
+    efflux = 60 * (r0 / (SA * (1 - math.exp(-k * load_time))))
 
-    return x1_p3, x2_p3, y1_p3, y2_p3, r2_p3, m_p3, b_p3
-
-def grab_x_ys(elution_ends, intercept, slope):
-    ''' 
-    Output two pairs of (x, y) coordinates for plotting a regression line
-    elution_ends is the x-series (list)
-    intrecept and slope are ints
-    '''
-    
-    last_elution = elution_ends[len(elution_ends) - 1] 
-    
-    x1 = 0
-    x2 = last_elution   
-    y1 = intercept
-    y2 = slope * last_elution + intercept
-    
-    return x1, x2, y1, y2
+    return Objects.Phase(
+        indexs, xy1, xy2, r2, slope, intercept, x_p3, y_p3, k, t05, r0, efflux)
 
 def p1_curve_stripped(p1_x, p1_y, last_used_index, slope, intercept):
     '''
@@ -304,8 +311,8 @@ def obj_regression_p3(elution_ends, log_efflux, num_points_reg):
     ''' Figuring out R^2 (correlation) and parameters of linear regression.
     Linear regression gives the data about the 3rd phase of exchange (p3)
     
-    elutions_ends is the times elutions WERE CHANGED/REMOVED. 
-    elution_starts would be times elutions ADDED.
+    elutions_ends are teh times when elutions  CHANGED/REMOVED. 
+    elution_starts are times when elutions ADDED.
     
     Line parameters for the linear regression are returned as well as the lists containing the regression
     parameters for ALL the regressions done in the objective regression

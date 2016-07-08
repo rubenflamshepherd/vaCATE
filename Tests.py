@@ -83,7 +83,6 @@ def grab_answers(directory, filename, elut_ends):
 		end_r2s = start_r2s + len(elut_ends)
 		raw_r2s = input_sheet.col(col_index)[start_r2s : end_r2s]
 		r2s = []
-		print raw_r2s
 		for item in raw_r2s: # item is a cell.Value
 			try:
 				r2s.append(float(item.value))
@@ -107,7 +106,7 @@ def grab_answers(directory, filename, elut_ends):
 		start_p12_r2_sum = end_r2s + 1 + len(elut_ends) + 1 + len(elut_ends) + 2
 		end_p12_r2_sum = start_p12_r2_sum + len(elut_ends)
 		p12_r2_max = input_sheet.col(col_index)[end_p12_r2_sum + 1].value
-		print elut_cpms_log
+		print r2s
 		all_test_runs.append(
 			TestRun(
 				run_name, SA, root_cnts, shoot_cnts, root_weight, g_factor,
@@ -120,13 +119,13 @@ def test_basic():
 	'''
 	Tests regarding basic info (Data encoded into Run object, no analysis)
 	'''
-	directory = r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1"
+	directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
 	test_file = "Test - Single Run.xlsx"
 
-	temp_question = Excel.grab_data(directory, test_file)
-	question = temp_question.analyses[0]
-	temp_answer = grab_answers(directory, test_file, question.run.elut_ends)
-	answer = temp_answer.analyses[0]
+	question_experiment = Excel.grab_data(directory, test_file)
+	question = question_experiment.analyses[0]
+	answer_experiment = grab_answers(directory, test_file, question.run.elut_ends)
+	answer = answer_experiment.analyses[0]
 
 	#Objects.find_obj_reg(single_run.elut_ends, single_run.elut_cpms_log, 3)
 	assert_equals (question.run.SA, answer.SA)
@@ -146,9 +145,10 @@ def test_basic():
 if __name__ == '__main__':
 	
 	import Excel
-	temp_data = Excel.grab_data(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")
+	temp_data = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")
 	temp_analysis = temp_data.analyses[0]
 	
-	temp_exp = grab_answers(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx", temp_analysis.run.elut_ends)
+	temp_exp = grab_answers(
+		r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx", temp_analysis.run.elut_ends)
 	temp_testanalysis = temp_exp.analyses[0]
 	

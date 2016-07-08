@@ -18,6 +18,8 @@ class Analysis(object):
         self.indexs_p1 = indexs_p1
 
         # Default values are None unless assigned
+        self.phase3, self.phase2, self.phase1 = None, None, None
+
         self.x1_p3, self.y1_p3, self.x2_p3, self.y2_p3 = None, None, None, None
         self.x1_p2, self.y1_p2, self.x2_p2, self.y2_p2 = None, None, None, None
         self.x1_p1, self.y1_p1, self.x2_p1, self.y2_p1 = None, None, None, None
@@ -50,18 +52,19 @@ class Analysis(object):
         have been provided.
         Return Analysis object
         '''
-        if self.kind == 'subj' or self.kind == 'obj':
-            if self.indexs_p3 != (None, None):
-                pass
-            if self.indexs_p2 != (None, None):
-                pass
-            if self.indexs_p1 != (None, None):
-                pass
-        elif self.kind == None:
+        if self.kind == 'obj':
+            self.indexs_p3, self.indexs_p2, self.indexs_p1 = \
+                Operations.set_obj_phases(run=self.run, obj_num_pts=self.obj_num_pts)
+    
+        if self.indexs_p3 != (None, None):
+            self.phase3 = Operations.extract_phase3(
+                self.indexs_p3, self.run.x, self.run.y,\
+                self.run.SA, self.run.load_time)
+        if self.indexs_p2 != (None, None):
             pass
-        else:
-            assert False, "ERROR analysis.kind unknown kind: (%s)" %(self.kind)       
-
+        if self.indexs_p1 != (None, None):
+            pass
+        
 class Run(object):
     '''
     Class that stores ALL data of a single CATE run.
@@ -82,12 +85,25 @@ class Run(object):
         self.elut_cpms = elut_cpms        
         self.elut_starts = [0.0] + elut_ends[:-1]
         self.elut_cpms_gfact, self.elut_cpms_gRFW, self.elut_cpms_log = \
-            Operations.basic_analysis(
+            Operations.basic_run_calcs(
                 rt_wght, gfact, self.elut_starts, elut_ends, elut_cpms)       
 		# x and y data for graphing ('numpy-fied')
         self.x = numpy.array(self.elut_ends)
         self.y = numpy.array(self.elut_cpms_log)
 
+class Phase(object):
+    '''
+    Class that stores all data of a particular phase
+    '''
+    def __init__(
+        self, indexs, xy1, xy2, r2, slope, intercept, x, y,
+        k, t05, r0, efflux):
+        self.indexs = indexs
+        self.xy1, self.xy2 = xy1, xy2
+        self.r2, self.slope, self.intercept = r2, slope, intercept
+        self.x, self.y = x, y
+        self.k, self.t05, self.r0, self.efflux = k, t05, r0, efflux
+        
     '''
 	
     def objective_analysis(self):
@@ -259,9 +275,15 @@ class Run(object):
 		
 if __name__ == "__main__":
     import Excel
-    temp_data = Excel.grab_data(r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")
+    temp_data = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")
     
     temp_analysis = temp_data.analyses[0]
-    print Operations.find_obj_reg(run=temp_analysis.run, num_obj_pts=3)
+    temp_analysis.kind = 'obj'
+    temp_analysis.obj_num_pts = 3
+    temp_analysis.analyze()
+    print temp_analysis.indexs_p3, temp_analysis.indexs_p2, temp_analysis.indexs_p1
+    print temp_analysis.phase3.efflux
+    
+    #print Operations.set_obj_phases(run=temp_analysis.run, obj_pts=3)
     #print len(temp_object.elut_ends)
     #print temp_object.elut_cpms_gRFW
