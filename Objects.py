@@ -57,14 +57,14 @@ class Analysis(object):
                 Operations.set_obj_phases(run=self.run, obj_num_pts=self.obj_num_pts)
     
         if self.indexs_p3 != (None, None):
-            self.phase3 = Operations.extract_phase3(
+            self.phase3 = Operations.extract_phase(
                 self.indexs_p3, self.run.x, self.run.y,\
                 self.run.SA, self.run.load_time)
         if self.indexs_p2 != (None, None):
             self.x_p12 = self.run.x[self.indexs_p1[0]:self.indexs_p2[1]]
             self.y_p12 = self.run.y[self.indexs_p1[0]:self.indexs_p2[1]]
             self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3 = \
-                Operations.curvestrip_p12(
+                Operations.curvestrip(
                     self.x_p12, self.y_p12, 
                     self.phase3.slope, self.phase3.intercept)
         if self.indexs_p1 != (None, None):
