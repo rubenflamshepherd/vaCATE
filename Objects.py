@@ -54,21 +54,41 @@ class Analysis(object):
         '''
         if self.kind == 'obj':
             self.indexs_p3, self.indexs_p2, self.indexs_p1 = \
-                Operations.set_obj_phases(run=self.run, obj_num_pts=self.obj_num_pts)
+                Operations.set_obj_phases(
+                    run=self.run, obj_num_pts=self.obj_num_pts)
     
         if self.indexs_p3 != (None, None):
             self.phase3 = Operations.extract_phase(
                 self.indexs_p3, self.run.x, self.run.y,\
                 self.run.SA, self.run.load_time)
         if self.indexs_p2 != (None, None):
+            # Set series' to be curvestripped
             self.x_p12 = self.run.x[self.indexs_p1[0]:self.indexs_p2[1]]
             self.y_p12 = self.run.y[self.indexs_p1[0]:self.indexs_p2[1]]
+            # Curve strip phase 1 + 2 data of phase 3
             self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3 = \
                 Operations.curvestrip(
                     self.x_p12, self.y_p12, 
                     self.phase3.slope, self.phase3.intercept)
+            self.phase2 = Operations.extract_phase(
+                self.indexs_p2, 
+                self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3,
+                self.run.SA, self.run.load_time)
         if self.indexs_p1 != (None, None):
-            pass
+            # Set series' to be further curvestripped (already partially done)
+            self.x_p1_curvestrip_p3 =\
+                self.x_p12_curvestrip_p3[self.indexs_p1[0]:self.indexs_p1[1]]
+            self.y_p1_curvestrip_p3 =\
+                self.y_p12_curvestrip_p3[self.indexs_p1[0]:self.indexs_p1[1]]
+            # Curve strip phase 1 data of phase 3 (already stripped phase 3)
+            self.x_p1_curvestrip_p23, self.y_p1_curvestrip_p23 = \
+                Operations.curvestrip(
+                    self.x_p1_curvestrip_p3, self.y_p1_curvestrip_p3, 
+                    self.phase2.slope, self.phase2.intercept)
+            self.phase1 = Operations.extract_phase(
+                self.indexs_p1, 
+                self.x_p1_curvestrip_p23, self.y_p1_curvestrip_p23,
+                self.run.SA, self.run.load_time)
         
 class Run(object):
     '''
@@ -103,8 +123,8 @@ class Phase(object):
     def __init__(
         self, indexs, xy1, xy2, r2, slope, intercept, x, y,
         k, t05, r0, efflux):
-        self.indexs = indexs
-        self.xy1, self.xy2 = xy1, xy2
+        self.indexs = indexs # paired tuple (x, y)
+        self.xy1, self.xy2 = xy1, xy2 # Each is a paired tuple
         self.r2, self.slope, self.intercept = r2, slope, intercept
         self.x, self.y = x, y
         self.k, self.t05, self.r0, self.efflux = k, t05, r0, efflux
@@ -286,9 +306,22 @@ if __name__ == "__main__":
     temp_analysis.kind = 'obj'
     temp_analysis.obj_num_pts = 3
     temp_analysis.analyze()
+    print temp_analysis.x_p12
+    print temp_analysis.y_p12
+    print temp_analysis.x_p12_curvestrip_p3
+    print temp_analysis.y_p12_curvestrip_p3
+    print temp_analysis.phase2.x
+    print temp_analysis.phase2.y
+    print temp_analysis.phase1.x
+    print temp_analysis.phase1.y
+    print temp_analysis.phase2.efflux
+    print temp_analysis.phase1.efflux
+    '''
     print temp_analysis.indexs_p3, temp_analysis.indexs_p2, temp_analysis.indexs_p1
-    print temp_analysis.phase3.efflux
-    
+    print temp_analysis.phase3.efflux, temp_analysis.phase2.efflux, temp_analysis.phase1.efflux
+    print temp_analysis.phase2.t05
+    print temp_analysis.phase1.t05
+    '''
     #print Operations.set_obj_phases(run=temp_analysis.run, obj_pts=3)
     #print len(temp_object.elut_ends)
     #print temp_object.elut_cpms_gRFW
