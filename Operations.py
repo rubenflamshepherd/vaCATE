@@ -127,7 +127,7 @@ def set_obj_phases(run, obj_num_pts):
 def extract_phase3(indexs, x, y, SA, load_time):
     '''
     Extract and return paramters from regression analysis of phase 3.
-    indexs are a 2 item tuple, x and y are numpy arrays of elut_ends and
+    indexs is a 2 item tuple, x and y are numpy arrays of elut_ends and
     elut_cpms_log 
     '''
     start_p3 = indexs[0]
@@ -144,6 +144,65 @@ def extract_phase3(indexs, x, y, SA, load_time):
 
     return Objects.Phase(
         indexs, xy1, xy2, r2, slope, intercept, x_p3, y_p3, k, t05, r0, efflux)
+
+def extract_phase2(indexs, x, y, SA, load_time):
+    '''
+    Extract and return paramters from regression analysis of phase 2.
+    indexs is a 2 item tuple, x and y are numpy arrays of elut_ends and
+    elut_cpms_log 
+    '''
+    start_p3 = indexs[0]
+    end_p3 = indexs[1]
+    x_p3 = x[start_p3:end_p3]
+    y_p3 = y[start_p3:end_p3]
+
+    r2, slope, intercept = linear_regression(x, y) # y=(M)x+(B)
+    xy1, xy2 = grab_x_ys(x, slope, intercept)
+    k = abs(slope * 2.303)
+    t05 = 0.693/k
+    r0 = 10 ** intercept
+    efflux = 60 * (r0 / (SA * (1 - math.exp(-k * load_time))))
+
+    return Objects.Phase(
+        indexs, xy1, xy2, r2, slope, intercept, x_p3, y_p3, k, t05, r0, efflux)
+
+def curvestrip_p12(x_p12, y_p12, slope_p3, intercept_p3):
+    '''
+    Curve-strip p1 and p2 (in the same list) according to p3 data
+    INPUT:
+    [x_p12] (x-series; list) - elut_end_pts (min) for p1+p2 data (together)
+    [y_p12] (y-series; list) - logged efflux data for p12 data unstripped
+    RETURNED:
+    p12_x (x-series; list) - elution_ends limited to range of p1 and p2
+    corrected_p12_y (y-series; list) - corrected (curve-stripped) efflux data
+    '''
+    
+    # Calculating p3 data from extrapolation of p3 linear regression into p1/2
+
+    # Calculating p3 data extrapolated into p1/2 range
+    p3_extrapolated_raw = []
+    
+    for x in range (0, len(x_p12)):
+        extrapolated_x = (slope_p3*x_p12[x]) + intercept_p3
+        p3_extrapolated_raw.append(extrapolated_x)
+        
+    # Antilog extrapolated p3 data and p1/2 data, subtract them, and relog them
+    
+    # Containers for curve-stripped p1/2 data
+    x_p12_curvestrip_p3 = []
+    y_p12_curvestrip_p3 = []
+    
+    for value in range (0, len(y_p12)):
+        antilog_orig = 10 ** y_p12[value]
+        antilog_reg = 10 ** p3_extrapolated_raw[value]
+        corrected_p12_x_raw = antilog_orig - antilog_reg
+        if corrected_p12_x_raw > 0: # We can perform a log operation
+            y_p12_curvestrip_p3.append(math.log10 (corrected_p12_x_raw))
+            x_p12_curvestrip_p3.append(x_p12[value])
+    print y_p12_curvestrip_p3
+    print y_p12
+                
+    return x_p12_curvestrip_p3, y_p12_curvestrip_p3
 
 def p1_curve_stripped(p1_x, p1_y, last_used_index, slope, intercept):
     '''
@@ -167,44 +226,6 @@ def p1_curve_stripped(p1_x, p1_y, last_used_index, slope, intercept):
     for x1 in range (0, len(p1_x)):
         extrapolated_x = (slope * x1) + intercept
         p2_extrapolated_raw.append(extrapolated_x)    
-
-def p12_curvestrippedof_p3(x_p12, y_p12, slope, intercept):
-    '''
-    Curve-strip p1 and p2 (in the same list) according to p3 data
-    
-    INPUT:
-    x_p12 (x-series; list) - elution end points (min) for p12 data
-    y_p12 (y-series; list) - logged efflux data for p12 data unstripped
-    
-    RETURNED:
-    p12_x (x-series; list) - elution_ends limited to range of p1 and p2
-    corrected_p12_y (y-series; list) - corrected (curve-stripped) efflux data
-    '''
-    
-    # Calculating p3 data from extrapolation of p3 linear regression into p1/2
-
-    # Calculating p3 data extrapolated into p1/2 range
-    p3_extrapolated_raw = []
-    
-    for x in range (0, len(x_p12)):
-        extrapolated_x = (slope*x_p12[x]) + intercept
-        p3_extrapolated_raw.append(extrapolated_x)
-        
-    # Antilog extrapolated p3 data and p1/2 data, subtract them, and relog them
-    
-    # Containers for curve-stripped p1/2 data
-    corrected_p12_x = []
-    corrected_p12_y = []
-    
-    for value in range (0, len(y_p12)):
-        antilog_orig = 10 ** y_p12[value]
-        antilog_reg = 10 ** p3_extrapolated_raw[value]
-        corrected_p12_x_raw = antilog_orig - antilog_reg
-        if corrected_p12_x_raw > 0: # We can perform a log operation
-            corrected_p12_y.append(math.log10 (corrected_p12_x_raw))
-            corrected_p12_x.append(x_p12[value])
-                
-    return corrected_p12_x, corrected_p12_y
 
 def p1_curvestrippedof_p23(x_p1_curvestrippedof_p3, y_p1_curvestrippedof_p3, slope, intercept):
     '''

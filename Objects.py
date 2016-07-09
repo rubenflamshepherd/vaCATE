@@ -33,10 +33,10 @@ class Analysis(object):
 
         self.x_p3, self.x_p2, self.x_p1, self.x_p12 = None, None, None, None
         self.y_p3, self.y_p2, self.y_p1, self.y_p12 = None, None, None, None
-        self.x_p12_curvstrip_p3, self.y_p12_curvstrip_p3 = None, None
-        self.x_p2_curvstrip_p3, self.y_p2_curvstrip_p3 = None, None
-        self.x_p1_curvstrip_p3, self.y_p1_curvstrip_p3 = None, None
-        self.x_p1_curvstrip_p23, self.y_p1_curvstrip_p23 = None, None
+        self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3 = None, None
+        self.x_p2_curvestrip_p3, self.y_p2_curvestrip_p3 = None, None
+        self.x_p1_curvestrip_p3, self.y_p1_curvestrip_p3 = None, None
+        self.x_p1_curvestrip_p23, self.y_p1_curvestrip_p23 = None, None
 
         self.k_p3, self.k_p2, self.k_p1 = None, None, None
         self.t05_p3, self.t05_p2, self.t05_p1 = None, None, None
@@ -61,7 +61,12 @@ class Analysis(object):
                 self.indexs_p3, self.run.x, self.run.y,\
                 self.run.SA, self.run.load_time)
         if self.indexs_p2 != (None, None):
-            pass
+            self.x_p12 = self.run.x[self.indexs_p1[0]:self.indexs_p2[1]]
+            self.y_p12 = self.run.y[self.indexs_p1[0]:self.indexs_p2[1]]
+            self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3 = \
+                Operations.curvestrip_p12(
+                    self.x_p12, self.y_p12, 
+                    self.phase3.slope, self.phase3.intercept)
         if self.indexs_p1 != (None, None):
             pass
         
