@@ -19,7 +19,7 @@ Last modified: 30.07.2008
 # The recommended way to use wx with mpl is with the WXAgg
 # backend. 
 #
-import RunObject
+import Objects
 import wx
 import matplotlib
 matplotlib.use('WXAgg')
@@ -38,7 +38,7 @@ class MainFrame(wx.Frame):
     """
     title = 'Compartmental Analysis of Tracer Efflux Automator - '
     
-    def __init__(self, data_object):
+    def __init__(self, experiment):
         wx.Frame.__init__(self, None, -1, self.title)
 	
     	self.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
@@ -46,7 +46,7 @@ class MainFrame(wx.Frame):
     	# Attribute of the frame object, not he data/run object(s)
     	self.run_num = 0
     	
-    	self.data_object = data_object
+    	self.experiment = experiment
     	self.create_main_panel()
             
         # Default analysis:objective regression using the last 3 data points
@@ -435,38 +435,35 @@ class MainFrame(wx.Frame):
         """ Redraws the figures
         """
     	
-    	run_object = self.data_object.run_objects[self.run_num]
-        run_object.find_obj_reg()
-        '''
+    	analysis = self.experiment.analyses[self.run_num]        
     	
-    	if run_object.analysis_type[0] == 'obj':
-    	    self.obj_textbox.SetValue(str (run_object.analysis_type[1]))	    
+    	if analysis.kind == 'obj':
+    	    self.obj_textbox.SetValue(str (analysis.obj_num_pts))	    
     	    self.subj_p1_start_textbox.SetValue('')
     	    self.subj_p1_end_textbox.SetValue('')
     	    self.subj_p2_start_textbox.SetValue('')
     	    self.subj_p2_end_textbox.SetValue('')	    
     	    self.subj_p3_start_textbox.SetValue('')
     	    self.subj_p3_end_textbox.SetValue('')	    
-    	elif run_object.analysis_type [0] == 'subj':
+    	elif analysis.kind == 'subj':
     	    self.obj_textbox.SetValue ('')	    
     	    self.subj_p1_start_textbox.SetValue (
-                str (run_object.analysis_type[1][0][0] + 1))
+                str (analysis.indexs_p1[0] + 1))
     	    self.subj_p1_end_textbox.SetValue (
-                str (run_object.analysis_type[1][0][1] + 1))
+                str (analysis.indexs_p1[1] + 1))
     	    self.subj_p2_start_textbox.SetValue (
-                str (run_object.analysis_type[1][1][0] + 1))
+                str (analysis.indexs_p2[0] + 1))
     	    self.subj_p2_end_textbox.SetValue (
-                str (run_object.analysis_type[1][1][1] + 1))	    
+                str (analysis.indexs_p2[1] + 1))	    
     	    self.subj_p3_start_textbox.SetValue (
-                str (run_object.analysis_type[1][2][0] + 1))
+                str (analysis.analysis_type[1][2][0] + 1))
     	    self.subj_p3_end_textbox.SetValue (
-                str (run_object.analysis_type[1][2][1] + 1))
-        '''	    
+                str (analysis.analysis_type[1][2][1] + 1))  
     	    
     	title_string = 'Compartmental Analysis of Tracer Efflux Automator - '
     	detail_string = "Run " + str (self.run_num + 1) + "/"\
-    	    + str(len (self.data_object.run_objects))
-    	name_string = ' - "'+ run_object.run_name + '"'
+    	    + str(len (self.experiment.analyses))
+    	name_string = ' - "'+ analysis.run.name + '"'
     	self.SetTitle (title_string + detail_string + name_string)
     	
     	# Making sure toolbar buttons navigate to runs that exist
@@ -475,7 +472,7 @@ class MainFrame(wx.Frame):
     	else:
     	    self.toolbar.EnableTool (self.toolbar.ON_PREVIOUS, True)
     	
-    	if self.run_num == len(self.data_object.run_objects) - 1:
+    	if self.run_num == len(self.experiment.analyses) - 1:
     	    self.toolbar.EnableTool (self.toolbar.ON_NEXT, False)
     	else:
     	    self.toolbar.EnableTool (self.toolbar.ON_NEXT, True)
@@ -493,7 +490,7 @@ class MainFrame(wx.Frame):
     	
     	# Graphing complete log efflux data set
         self.plot_phase3.scatter(
-            run_object.x, run_object.y, s = self.slider_width.GetValue(),
+            analysis.run.x, analysis.run.y, s = self.slider_width.GetValue(),
             alpha = 0.5, edgecolors = 'k', facecolors = 'w', picker = 5)
             
         # Setting axes labels/limits
@@ -502,117 +499,121 @@ class MainFrame(wx.Frame):
         self.plot_phase3.set_ylabel(u"Log cpm released/g RFW/min")
         self.plot_phase3.set_xlim(left = 0)
         self.plot_phase3.set_ylim(bottom = 0)
-        '''
+        
     	# Graphing the p3 series and regression line
     	self.plot_phase3.scatter(
-            run_object.x_p3, run_object.y_p3, s = self.slider_width.GetValue(),
+            analysis.phase3.x, analysis.phase3.y, 
+            s = self.slider_width.GetValue(),
             alpha = 0.75, edgecolors = 'k', facecolors = 'k')            
     	line_p3 = matplotlib.lines.Line2D(
-            [run_object.x1_p3, run_object.x2_p3],
-            [run_object.y1_p3, run_object.y2_p3],
+            [analysis.phase3.xy1[0], analysis.phase3.xy2[0]],
+            [analysis.phase3.xy1[1], analysis.phase3.xy2[1]],
             color = 'r', ls = '-', label = 'Phase III')
     	self.plot_phase3.add_line(line_p3)
+        print analysis.phase3.xy1, analysis.phase3.xy2
+        print analysis.indexs_p3
     	
     	# Find+plot intial points used to start obj regression
-    	if run_object.analysis_type[0] == 'obj':
+    	if analysis.kind == 'obj':
     	    self.plot_phase3.scatter(
-                run_object.x_reg_start, run_object.y_reg_start,
+                analysis.obj_x_start, analysis.obj_y_start,
                 s = self.slider_width.GetValue(),
                 alpha = 0.5, edgecolors = 'r', facecolors = 'r')	
     			    
-    	# Graphing the p2 series and regression line	
     	# Graphing raw uncorrected data of p1 and p2
     	self.plot_phase2.scatter(
-            run_object.x_p12, run_object.y_p12, s = self.slider_width.GetValue(),
+            analysis.x_p12, analysis.y_p12, s = self.slider_width.GetValue(),
             alpha = 0.50, edgecolors = 'k', facecolors = 'w', picker = 5)
     	
     	# Graphing curve-stripped (corrected) phase I and II data, isolated
     	# p2 data and line of best fit
     	self.plot_phase2.scatter(
-    	    run_object.x_p12_curvestrippedof_p3,
-    	    run_object.y_p12_curvestrippedof_p3,
+    	    analysis.x_p12_curvestrip_p3,
+    	    analysis.y_p12_curvestrip_p3,
     	    s = self.slider_width.GetValue(),
     	    alpha = 0.50, edgecolors = 'r', facecolors = 'w')
     	
     	self.plot_phase2.scatter(
-    	    run_object.x_p2_curvestrippedof_p3,
-    	    run_object.y_p2_curvestrippedof_p3,
+    	    analysis.phase2.x,
+    	    analysis.phase2.y,
     	    s = self.slider_width.GetValue(),
     	    alpha = 0.75, edgecolors = 'k', facecolors = 'k')	
     	
     	self.line_p2 = matplotlib.lines.Line2D (
-                [run_object.x1_p2, run_object.x2_p2],
-                [run_object.y1_p2, run_object.y2_p2],
+                [analysis.phase2.xy1[0], analysis.phase2.xy2[0]],
+                [analysis.phase2.xy1[1], analysis.phase2.xy2[1]],
                 color = 'r', ls = ':', label = 'Phase II')
     	self.plot_phase2.add_line (self.line_p2)	
-    		                
+            		                
     	# Graphing the p1 series and regression line	
     	# Graph raw uncorrected p1 data, p1 data corrected for p3, and p1 data
     	# Corrected for both p2 and p3
     	self.plot_phase1.scatter(
-            run_object.x_p1, run_object.y_p1,
+            analysis.x_p1, analysis.y_p1,
             s = self.slider_width.GetValue(),
             alpha = 0.25, edgecolors = 'k', facecolors = 'w', picker = 5)
     	
     	# Graph p1 data corrected for p3
     	self.plot_phase1.scatter(
-    	    run_object.x_p1_curvestrippedof_p3,
-    	    run_object.y_p1_curvestrippedof_p3,
+    	    analysis.x_p1_curvestrip_p3,
+    	    analysis.y_p1_curvestrip_p3,
     	    s = self.slider_width.GetValue(),
     	    alpha = 0.25, edgecolors = 'r', facecolors = 'w')	
     	
     	self.plot_phase1.scatter(
-    	    run_object.x_p1_curvestrippedof_p23,
-    	    run_object.y_p1_curvestrippedof_p23,
+    	    analysis.x_p1_curvestrip_p23,
+    	    analysis.y_p1_curvestrip_p23,
     	    s = self.slider_width.GetValue(),
     	    alpha = 0.75, edgecolors = 'k', facecolors = 'k')
     	
     	self.line_p1 = matplotlib.lines.Line2D (
-            [run_object.x1_p1, run_object.x2_p1],
-            [run_object.y1_p1, run_object.y2_p1],
+            [analysis.phase1.xy1[0], analysis.phase1.xy2[0]],
+            [analysis.phase1.xy1[1], analysis.phase1.xy2[1]],
             color = 'r', ls = '--', label = 'Phase I')
     	self.plot_phase1.add_line (self.line_p1)          
         
     	# Outputting the data from the linear regressions to widgets
         
-    	self.data_p1_slope.SetValue ('%0.3f'%(run_object.slope_p1))
-    	self.data_p1_int.SetValue ('%0.3f'%(run_object.intercept_p1))
-    	self.data_p1_r2.SetValue ('%0.3f'%(run_object.r2_p1))
-    	self.data_p1_k.SetValue ('%0.3f'%(run_object.k_p1))
-    	self.data_p1_t05.SetValue ('%0.3f'%(run_object.t05_p1))
-    	self.data_p1_efflux.SetValue ('%0.1f'%(run_object.efflux_p1))
+    	self.data_p1_slope.SetValue ('%0.3f'%(analysis.phase1.slope))
+    	self.data_p1_int.SetValue ('%0.3f'%(analysis.phase1.intercept))
+    	self.data_p1_r2.SetValue ('%0.3f'%(analysis.phase1.r2))
+    	self.data_p1_k.SetValue ('%0.3f'%(analysis.phase1.k))
+    	self.data_p1_t05.SetValue ('%0.3f'%(analysis.phase1.t05))
+    	self.data_p1_efflux.SetValue ('%0.1f'%(analysis.phase1.efflux))
     	
-    	self.data_p2_slope.SetValue ('%0.3f'%(run_object.slope_p2))
-    	self.data_p2_int.SetValue ('%0.3f'%(run_object.intercept_p2))
-    	self.data_p2_r2.SetValue ('%0.3f'%(run_object.r2_p2))        
-    	self.data_p2_k.SetValue ('%0.3f'%(run_object.k_p2))
-    	self.data_p2_t05.SetValue ('%0.3f'%(run_object.t05_p2))
-    	self.data_p2_efflux.SetValue ('%0.2f'%(run_object.efflux_p2))
+    	self.data_p2_slope.SetValue ('%0.3f'%(analysis.phase2.slope))
+    	self.data_p2_int.SetValue ('%0.3f'%(analysis.phase2.intercept))
+    	self.data_p2_r2.SetValue ('%0.3f'%(analysis.phase2.r2))     
+    	self.data_p2_k.SetValue ('%0.3f'%(analysis.phase2.k))
+    	self.data_p2_t05.SetValue ('%0.3f'%(analysis.phase2.t05))
+    	self.data_p2_efflux.SetValue ('%0.2f'%(analysis.phase2.efflux))
     	
-    	self.data_p3_slope.SetValue ('%0.4f'%(run_object.slope_p3))
-    	self.data_p3_int.SetValue ('%0.4f'%(run_object.intercept_p3))
-    	self.data_p3_r2.SetValue ('%0.4f'%(run_object.r2_p3))         
-    	self.data_p3_k.SetValue ('%0.4f'%(run_object.k_p3))
-    	self.data_p3_t05.SetValue ('%0.4f'%(run_object.t05_p3))
-    	self.data_p3_efflux.SetValue ('%0.4f'%(run_object.efflux_p3))
-    	
-    	self.data_SA.SetValue ('%0.0f'%(run_object.SA))
-    	self.data_shtcnts.SetValue ('%0.0f'%(run_object.sht_cnts))
-    	self.data_rtcnts.SetValue ('%0.0f'%(run_object.rt_cnts))
-    	self.data_rtwght.SetValue ('%0.3f'%(run_object.rt_wght))
-    	self.data_loadtime.SetValue ('%0.2f'%(run_object.load_time))
-    	self.data_influx.SetValue ('%0.3f'%(run_object.influx))
-    	self.data_netflux.SetValue ('%0.3f'%(run_object.netflux))
-    	self.data_ratio.SetValue ('%0.3f'%(run_object.ratio))
-    	self.data_poolsize.SetValue ('%0.3f'%(run_object.poolsize))
-        '''
-    	        
+    	self.data_p3_slope.SetValue ('%0.4f'%(analysis.phase3.slope))
+    	self.data_p3_int.SetValue ('%0.4f'%(analysis.phase3.intercept))
+    	self.data_p3_r2.SetValue ('%0.4f'%(analysis.phase3.r2))
+    	self.data_p3_k.SetValue ('%0.4f'%(analysis.phase3.k))
+    	self.data_p3_t05.SetValue ('%0.4f'%(analysis.phase3.t05))
+    	self.data_p3_efflux.SetValue ('%0.4f'%(analysis.phase3.efflux))
+    	'''
+    	self.data_SA.SetValue ('%0.0f'%(analysis.SA))
+    	self.data_shtcnts.SetValue ('%0.0f'%(analysis.sht_cnts))
+    	self.data_rtcnts.SetValue ('%0.0f'%(analysis.rt_cnts))
+    	self.data_rtwght.SetValue ('%0.3f'%(analysis.rt_wght))
+    	self.data_loadtime.SetValue ('%0.2f'%(analysis.load_time))
+        
+    	self.data_influx.SetValue ('%0.3f'%(analysis.influx))
+    	self.data_netflux.SetValue ('%0.3f'%(analysis.netflux))
+    	self.data_ratio.SetValue ('%0.3f'%(analysis.ratio))
+    	self.data_poolsize.SetValue ('%0.3f'%(analysis.poolsize))
+        '''        
         # Adding our legends
         self.plot_phase1.legend(loc='upper right')
     	self.plot_phase2.legend(loc='upper right')
     	self.plot_phase3.legend(loc='upper right')
         self.fig.subplots_adjust(bottom = 0.13, left = 0.10)
         self.canvas.draw()
+
+    
         
     def on_obj_draw (self, event):
         self.subj_p1_start_textbox.SetValue('')
@@ -622,36 +623,38 @@ class MainFrame(wx.Frame):
         self.subj_p3_start_textbox.SetValue('')
         self.subj_p3_end_textbox.SetValue('')
 	
-        old_run_object = self.data_object.run_objects [self.run_num]
+        old_run_object = self.experiment.analyses [self.run_num]
         new_analysis_type = ('obj', int (self.obj_textbox.GetValue ()))
 	
     	new_run_object = RunObject.RunObject(
-            old_run_object.run_name, old_run_object.SA, old_run_object.rt_cnts,
+            old_run_object.name, old_run_object.SA, old_run_object.rt_cnts,
             old_run_object.sht_cnts, old_run_object.rt_wght,
             old_run_object.gfact, old_run_object.load_time,
             old_run_object.elut_times, old_run_object.elut_cpms,
             new_analysis_type)
     	
-    	self.data_object.run_objects [self.run_num] = new_run_object
+    	self.experiment.analyses [self.run_num] = new_run_object
     		
         self.draw_figure()
+
+    
 	
     def on_obj_prop (self, event):	
     	new_analysis_type = ('obj', int(self.obj_textbox.GetValue ()))
-    	for run_num in range(0, len(self.data_object.run_objects)):
-    	    old_run_object = self.data_object.run_objects [run_num]
+    	for run_num in range(0, len(self.experiment.analyses)):
+    	    old_run_object = self.experiment.analyses [run_num]
     	    new_run_object = RunObject.RunObject(
-                old_run_object.run_name, old_run_object.SA,
+                old_run_object.name, old_run_object.SA,
                 old_run_object.rt_cnts, old_run_object.sht_cnts,
                 old_run_object.rt_wght, old_run_object.gfact,
                 old_run_object.load_time, old_run_object.elut_times,
                 old_run_object.elut_cpms, new_analysis_type)
-        self.data_object.run_objects[run_num] = new_run_object
+        self.experiment.analyses[run_num] = new_run_object
     
         
     def on_subj_draw(self, event):
         self.obj_textbox.SetValue('')
-        old_run_object = self.data_object.run_objects[self.run_num]
+        old_run_object = self.experiment.analyses[self.run_num]
         new_analysis_type = (
             'subj', (
                 (int(self.subj_p1_start_textbox.GetValue ())  - 1,
@@ -664,13 +667,13 @@ class MainFrame(wx.Frame):
             )
 	
     	new_run_object = RunObject.RunObject (
-            old_run_object.run_name, old_run_object.SA, old_run_object.rt_cnts,
+            old_run_object.name, old_run_object.SA, old_run_object.rt_cnts,
             old_run_object.sht_cnts, old_run_object.rt_wght,
             old_run_object.gfact, old_run_object.load_time,
             old_run_object.elut_times, old_run_object.elut_cpms,
             new_analysis_type)
     	
-    	self.data_object.run_objects [self.run_num] = new_run_object
+    	self.experiment.analyses [self.run_num] = new_run_object
     	self.draw_figure()
 	
     def on_subj_prop(self, event):
@@ -684,15 +687,15 @@ class MainFrame(wx.Frame):
                     int(self.subj_p3_end_textbox.GetValue ()) - 1)
                 )
             )
-    	for run_num in range (0, len(self.data_object.run_objects)):
-    	    old_run_object = self.data_object.run_objects [run_num]
+    	for run_num in range (0, len(self.experiment.analyses)):
+    	    old_run_object = self.experiment.analyses [run_num]
     	    new_run_object = RunObject.RunObject(
-                old_run_object.run_name, old_run_object.SA,
+                old_run_object.name, old_run_object.SA,
                 old_run_object.rt_cnts, old_run_object.sht_cnts,
                 old_run_object.rt_wght, old_run_object.gfact,
                 old_run_object.load_time, old_run_object.elut_times,
                 old_run_object.elut_cpms, new_analysis_type)
-	    self.data_object.run_objects[run_num] = new_run_object   
+	    self.experiment.analyses[run_num] = new_run_object
     
     def on_cb_grid(self, event):
         self.draw_figure()
@@ -712,10 +715,10 @@ class MainFrame(wx.Frame):
         # 
         ind = event.ind
         # print event.artist
-        run_object = self.data_object.run_objects [self.run_num]
-        x_clicked = np.take(run_object.x, ind)       
-        self.x_clicked_data.SetValue ('%0.2f'%(np.take(run_object.x, ind)[0]))
-        self.y_clicked_data.SetValue ('%0.3f'%(np.take(run_object.y, ind)[0]))
+        analysis = self.experiment.analyses [self.run_num]
+        x_clicked = np.take(analysis.x, ind)       
+        self.x_clicked_data.SetValue ('%0.2f'%(np.take(analysis.x, ind)[0]))
+        self.y_clicked_data.SetValue ('%0.3f'%(np.take(analysis.y, ind)[0]))
         self.num_clicked_data.SetValue ('%0.0f'%(ind[0]+1))
 	
     def on_exit(self, event):
@@ -723,17 +726,14 @@ class MainFrame(wx.Frame):
            
 if __name__ == '__main__':
     import Excel
-    '''
-    temp_data = Excel.grab_data(
-        r"C:\Users\Ruben\Projects\CATEAnalysis\Tests\1",
-        "CATE Template - (2016_04_09).xlsx")
-    '''
-    temp_data = Excel.grab_data(
-        r"C:\Users\Ruben\Projects\CATEAnalysis",
-        "CATE Template - Test Run.xlsx")
+    temp_experiment = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")
+    
+    temp_experiment.analyses[0].kind = 'obj'
+    temp_experiment.analyses[0].obj_num_pts = 3
+    temp_experiment.analyses[0].analyze()
         
     app = wx.PySimpleApp()
-    app.frame = MainFrame(temp_data)
+    app.frame = MainFrame(temp_experiment)
     app.frame.Show()
     app.frame.Center()
     app.MainLoop()

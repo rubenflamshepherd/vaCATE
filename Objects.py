@@ -56,6 +56,8 @@ class Analysis(object):
             self.indexs_p3, self.indexs_p2, self.indexs_p1 = \
                 Operations.set_obj_phases(
                     run=self.run, obj_num_pts=self.obj_num_pts)
+            self.obj_x_start = self.run.x[-self.obj_num_pts:]
+            self.obj_y_start = self.run.y[-self.obj_num_pts:]
     
         if self.indexs_p3 != (None, None):
             self.phase3 = Operations.extract_phase(
@@ -75,6 +77,8 @@ class Analysis(object):
                 self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3,
                 self.run.SA, self.run.load_time)
         if self.indexs_p1 != (None, None):
+            self.x_p1 = self.run.x[self.indexs_p1[0]:self.indexs_p1[1]]
+            self.y_p1 = self.run.y[self.indexs_p1[0]:self.indexs_p1[1]]
             # Set series' to be further curvestripped (already partially done)
             self.x_p1_curvestrip_p3 =\
                 self.x_p12_curvestrip_p3[self.indexs_p1[0]:self.indexs_p1[1]]
@@ -97,9 +101,9 @@ class Run(object):
     subjetive analyses (calculated within the class)
     '''        
     def __init__(
-    	   self, run_name, SA, rt_cnts, sht_cnts, rt_wght, gfact,
+    	   self, name, SA, rt_cnts, sht_cnts, rt_wght, gfact,
     	   load_time, elut_ends, elut_cpms):       
-        self.run_name = run_name
+        self.name = name # Text identifier extracted from col header in excel
         self.SA = SA
         self.rt_cnts = rt_cnts
         self.sht_cnts = sht_cnts
@@ -306,22 +310,3 @@ if __name__ == "__main__":
     temp_analysis.kind = 'obj'
     temp_analysis.obj_num_pts = 3
     temp_analysis.analyze()
-    print temp_analysis.x_p12
-    print temp_analysis.y_p12
-    print temp_analysis.x_p12_curvestrip_p3
-    print temp_analysis.y_p12_curvestrip_p3
-    print temp_analysis.phase2.x
-    print temp_analysis.phase2.y
-    print temp_analysis.phase1.x
-    print temp_analysis.phase1.y
-    print temp_analysis.phase2.efflux
-    print temp_analysis.phase1.efflux
-    '''
-    print temp_analysis.indexs_p3, temp_analysis.indexs_p2, temp_analysis.indexs_p1
-    print temp_analysis.phase3.efflux, temp_analysis.phase2.efflux, temp_analysis.phase1.efflux
-    print temp_analysis.phase2.t05
-    print temp_analysis.phase1.t05
-    '''
-    #print Operations.set_obj_phases(run=temp_analysis.run, obj_pts=3)
-    #print len(temp_object.elut_ends)
-    #print temp_object.elut_cpms_gRFW
