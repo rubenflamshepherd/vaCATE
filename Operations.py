@@ -31,6 +31,24 @@ def basic_run_calcs(rt_wght, gfact, elut_starts, elut_ends, elut_cpms):
                 
     return elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log
 
+def advanced_run_calcs(analysis):
+    '''
+    Do later CATE calculations that require some already extracted parameters.
+    Entire analysis object is imported because many parameters needed and allows
+    attributes to be manipulated directly (nothing returned)
+    '''
+    analysis.elut_period = analysis.run.elut_ends[-1]
+    analysis.tracer_retained = \
+        (analysis.run.sht_cnts + analysis.run.rt_cnts)/analysis.run.rt_wght
+    analysis.netflux =\
+        60 * (analysis.tracer_retained -\
+        (analysis.phase3.r0/analysis.phase3.k) *\
+        math.exp (-analysis.phase3.k * analysis.elut_period))/ \
+        analysis.run.SA/analysis.run.load_time
+    analysis.influx = analysis.phase3.efflux + analysis.netflux
+    analysis.ratio = analysis.phase3.efflux/analysis.influx
+    analysis.poolsize = analysis.influx * analysis.phase3.t05 / (3 * 0.693)
+
 def linear_regression(x, y):
     ''' Linear regression of x and y series (lists)
     Returns r^2 and m (slope), b (intercept) of y=mx+b
@@ -51,7 +69,7 @@ def linear_regression(x, y):
 
 def set_obj_phases(run, obj_num_pts):
     '''
-    Use objective regression to determine the limits of the 3 phases exchange
+    Use objective regression to determine the limits of the 3 phases of exchange
     Phase 3 is found by identifying where r2 decreases for 3 points in a row
     Phase 1 and 2 is found by identifying the paired series in the remaining 
         data that yields the highest combined r2s

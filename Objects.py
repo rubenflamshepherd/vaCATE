@@ -63,6 +63,7 @@ class Analysis(object):
             self.phase3 = Operations.extract_phase(
                 self.indexs_p3, self.run.x, self.run.y,\
                 self.run.SA, self.run.load_time)
+            Operations.advanced_run_calcs(self)
         if self.indexs_p2 != (None, None):
             # Set series' to be curvestripped
             self.x_p12 = self.run.x[self.indexs_p1[0]:self.indexs_p2[1]]

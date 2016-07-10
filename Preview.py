@@ -44,7 +44,7 @@ class MainFrame(wx.Frame):
     	self.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
     	
     	# Attribute of the frame object, not he data/run object(s)
-    	self.run_num = 0
+    	self.analysis_num = 0
     	
     	self.experiment = experiment
     	self.create_main_panel()
@@ -435,7 +435,7 @@ class MainFrame(wx.Frame):
         """ Redraws the figures
         """
     	
-    	analysis = self.experiment.analyses[self.run_num]        
+    	analysis = self.experiment.analyses[self.analysis_num]        
     	
     	if analysis.kind == 'obj':
     	    self.obj_textbox.SetValue(str (analysis.obj_num_pts))	    
@@ -456,23 +456,23 @@ class MainFrame(wx.Frame):
     	    self.subj_p2_end_textbox.SetValue (
                 str (analysis.indexs_p2[1] + 1))	    
     	    self.subj_p3_start_textbox.SetValue (
-                str (analysis.analysis_type[1][2][0] + 1))
+                str (analysis.indexs_p3[0] + 1))
     	    self.subj_p3_end_textbox.SetValue (
-                str (analysis.analysis_type[1][2][1] + 1))  
+                str (analysis.indexs_p3[1] + 1))  
     	    
     	title_string = 'Compartmental Analysis of Tracer Efflux Automator - '
-    	detail_string = "Run " + str (self.run_num + 1) + "/"\
+    	detail_string = "Run " + str (self.analysis_num + 1) + "/"\
     	    + str(len (self.experiment.analyses))
     	name_string = ' - "'+ analysis.run.name + '"'
     	self.SetTitle (title_string + detail_string + name_string)
     	
     	# Making sure toolbar buttons navigate to runs that exist
-    	if self.run_num == 0:
+    	if self.analysis_num == 0:
     	    self.toolbar.EnableTool (self.toolbar.ON_PREVIOUS, False)
     	else:
     	    self.toolbar.EnableTool (self.toolbar.ON_PREVIOUS, True)
     	
-    	if self.run_num == len(self.experiment.analyses) - 1:
+    	if self.analysis_num == len(self.experiment.analyses) - 1:
     	    self.toolbar.EnableTool (self.toolbar.ON_NEXT, False)
     	else:
     	    self.toolbar.EnableTool (self.toolbar.ON_NEXT, True)
@@ -542,7 +542,7 @@ class MainFrame(wx.Frame):
     	self.line_p2 = matplotlib.lines.Line2D (
                 [analysis.phase2.xy1[0], analysis.phase2.xy2[0]],
                 [analysis.phase2.xy1[1], analysis.phase2.xy2[1]],
-                color = 'r', ls = ':', label = 'Phase II')
+                color = 'r', ls = '--', label = 'Phase II')
     	self.plot_phase2.add_line (self.line_p2)	
             		                
     	# Graphing the p1 series and regression line	
@@ -569,11 +569,10 @@ class MainFrame(wx.Frame):
     	self.line_p1 = matplotlib.lines.Line2D (
             [analysis.phase1.xy1[0], analysis.phase1.xy2[0]],
             [analysis.phase1.xy1[1], analysis.phase1.xy2[1]],
-            color = 'r', ls = '--', label = 'Phase I')
+            color = 'r', ls = ':', label = 'Phase I')
     	self.plot_phase1.add_line (self.line_p1)          
         
-    	# Outputting the data from the linear regressions to widgets
-        
+    	# Outputting the data from the linear regressions to widgets        
     	self.data_p1_slope.SetValue ('%0.3f'%(analysis.phase1.slope))
     	self.data_p1_int.SetValue ('%0.3f'%(analysis.phase1.intercept))
     	self.data_p1_r2.SetValue ('%0.3f'%(analysis.phase1.r2))
@@ -594,26 +593,24 @@ class MainFrame(wx.Frame):
     	self.data_p3_k.SetValue ('%0.4f'%(analysis.phase3.k))
     	self.data_p3_t05.SetValue ('%0.4f'%(analysis.phase3.t05))
     	self.data_p3_efflux.SetValue ('%0.4f'%(analysis.phase3.efflux))
-    	'''
-    	self.data_SA.SetValue ('%0.0f'%(analysis.SA))
-    	self.data_shtcnts.SetValue ('%0.0f'%(analysis.sht_cnts))
-    	self.data_rtcnts.SetValue ('%0.0f'%(analysis.rt_cnts))
-    	self.data_rtwght.SetValue ('%0.3f'%(analysis.rt_wght))
-    	self.data_loadtime.SetValue ('%0.2f'%(analysis.load_time))
+    	
+    	self.data_SA.SetValue ('%0.0f'%(analysis.run.SA))
+    	self.data_shtcnts.SetValue ('%0.0f'%(analysis.run.sht_cnts))
+    	self.data_rtcnts.SetValue ('%0.0f'%(analysis.run.rt_cnts))
+    	self.data_rtwght.SetValue ('%0.3f'%(analysis.run.rt_wght))
+    	self.data_loadtime.SetValue ('%0.2f'%(analysis.run.load_time))
         
     	self.data_influx.SetValue ('%0.3f'%(analysis.influx))
     	self.data_netflux.SetValue ('%0.3f'%(analysis.netflux))
     	self.data_ratio.SetValue ('%0.3f'%(analysis.ratio))
     	self.data_poolsize.SetValue ('%0.3f'%(analysis.poolsize))
-        '''        
+                
         # Adding our legends
         self.plot_phase1.legend(loc='upper right')
     	self.plot_phase2.legend(loc='upper right')
     	self.plot_phase3.legend(loc='upper right')
         self.fig.subplots_adjust(bottom = 0.13, left = 0.10)
-        self.canvas.draw()
-
-    
+        self.canvas.draw()    
         
     def on_obj_draw (self, event):
         self.subj_p1_start_textbox.SetValue('')
@@ -623,79 +620,61 @@ class MainFrame(wx.Frame):
         self.subj_p3_start_textbox.SetValue('')
         self.subj_p3_end_textbox.SetValue('')
 	
-        old_run_object = self.experiment.analyses [self.run_num]
-        new_analysis_type = ('obj', int (self.obj_textbox.GetValue ()))
+        new_analysis = self.experiment.analyses[self.analysis_num]
+        new_analysis.kind = 'obj'
+        new_analysis.obj_num_pts = int (self.obj_textbox.GetValue ())
+        new_analysis.analyze()	
+    	self.experiment.analyses[self.analysis_num] = new_analysis
+        self.draw_figure()   
 	
-    	new_run_object = RunObject.RunObject(
-            old_run_object.name, old_run_object.SA, old_run_object.rt_cnts,
-            old_run_object.sht_cnts, old_run_object.rt_wght,
-            old_run_object.gfact, old_run_object.load_time,
-            old_run_object.elut_times, old_run_object.elut_cpms,
-            new_analysis_type)
-    	
-    	self.experiment.analyses [self.run_num] = new_run_object
-    		
+    def on_obj_prop (self, event):
+        obj_num_pts = int (self.obj_textbox.GetValue ())
+    	for analysis_num in range(0, len(self.experiment.analyses)):
+    	    new_analysis = self.experiment.analyses[analysis_num]
+            new_analysis.kind = 'obj'
+            new_analysis.obj_num_pts = obj_num_pts
+            new_analysis.analyze()
+            self.experiment.analyses[analysis_num] = new_analysis
         self.draw_figure()
-
-    
-	
-    def on_obj_prop (self, event):	
-    	new_analysis_type = ('obj', int(self.obj_textbox.GetValue ()))
-    	for run_num in range(0, len(self.experiment.analyses)):
-    	    old_run_object = self.experiment.analyses [run_num]
-    	    new_run_object = RunObject.RunObject(
-                old_run_object.name, old_run_object.SA,
-                old_run_object.rt_cnts, old_run_object.sht_cnts,
-                old_run_object.rt_wght, old_run_object.gfact,
-                old_run_object.load_time, old_run_object.elut_times,
-                old_run_object.elut_cpms, new_analysis_type)
-        self.experiment.analyses[run_num] = new_run_object
     
         
     def on_subj_draw(self, event):
         self.obj_textbox.SetValue('')
-        old_run_object = self.experiment.analyses[self.run_num]
-        new_analysis_type = (
-            'subj', (
-                (int(self.subj_p1_start_textbox.GetValue ())  - 1,
-                    int(self.subj_p1_end_textbox.GetValue ()) - 1),
-                (int(self.subj_p2_start_textbox.GetValue ()) - 1,
-                    int(self.subj_p2_end_textbox.GetValue ()) - 1),
-                (int(self.subj_p3_start_textbox.GetValue ()) - 1,
-                    int(self.subj_p3_end_textbox.GetValue ()) - 1)
-                )
-            )
-	
-    	new_run_object = RunObject.RunObject (
-            old_run_object.name, old_run_object.SA, old_run_object.rt_cnts,
-            old_run_object.sht_cnts, old_run_object.rt_wght,
-            old_run_object.gfact, old_run_object.load_time,
-            old_run_object.elut_times, old_run_object.elut_cpms,
-            new_analysis_type)
-    	
-    	self.experiment.analyses [self.run_num] = new_run_object
+        new_analysis = self.experiment.analyses[self.analysis_num]
+        new_analysis.kind = 'subj'
+        new_analysis.indexs_p3 = (
+            int(self.subj_p3_start_textbox.GetValue ()) - 1,
+            int(self.subj_p3_end_textbox.GetValue ()) - 1)
+        new_analysis.indexs_p2 = (
+            int(self.subj_p2_start_textbox.GetValue ()) - 1,
+            int(self.subj_p2_end_textbox.GetValue ()) - 1)
+        new_analysis.indexs_p1 = (
+            int(self.subj_p1_start_textbox.GetValue ()) - 1,
+            int(self.subj_p1_end_textbox.GetValue ()) - 1)
+        
+        new_analysis.analyze()    	
+    	self.experiment.analyses[self.analysis_num] = new_analysis
     	self.draw_figure()
 	
     def on_subj_prop(self, event):
-        new_analysis_type = (
-            'subj', (
-                (int(self.subj_p1_start_textbox.GetValue ())  - 1,
-                    int(self.subj_p1_end_textbox.GetValue ()) - 1),
-                (int(self.subj_p2_start_textbox.GetValue ()) - 1,
-                    int(self.subj_p2_end_textbox.GetValue ()) - 1),
-                (int(self.subj_p3_start_textbox.GetValue ()) - 1,
-                    int(self.subj_p3_end_textbox.GetValue ()) - 1)
-                )
-            )
-    	for run_num in range (0, len(self.experiment.analyses)):
-    	    old_run_object = self.experiment.analyses [run_num]
-    	    new_run_object = RunObject.RunObject(
-                old_run_object.name, old_run_object.SA,
-                old_run_object.rt_cnts, old_run_object.sht_cnts,
-                old_run_object.rt_wght, old_run_object.gfact,
-                old_run_object.load_time, old_run_object.elut_times,
-                old_run_object.elut_cpms, new_analysis_type)
-	    self.experiment.analyses[run_num] = new_run_object
+        indexs_p3 = (
+            int(self.subj_p3_start_textbox.GetValue ()) - 1,
+            int(self.subj_p3_end_textbox.GetValue ()) - 1)
+        indexs_p2 = (
+            int(self.subj_p2_start_textbox.GetValue ()) - 1,
+            int(self.subj_p2_end_textbox.GetValue ()) - 1)
+        indexs_p1 = (
+            int(self.subj_p1_start_textbox.GetValue ()) - 1,
+            int(self.subj_p1_end_textbox.GetValue ()) - 1)
+        for analysis_num in range(0, len(self.experiment.analyses)):
+            new_analysis = self.experiment.analyses[analysis_num]
+            new_analysis.kind = 'subj'
+            new_analysis.indexs_p3 = indexs_p3
+            new_analysis.indexs_p2 = indexs_p2
+            new_analysis.indexs_p1 = indexs_p1
+            new_analysis.analyze()
+    	    self.experiment.analyses[run_num] = new_analysis
+        self.draw_figure()
     
     def on_cb_grid(self, event):
         self.draw_figure()
@@ -715,10 +694,10 @@ class MainFrame(wx.Frame):
         # 
         ind = event.ind
         # print event.artist
-        analysis = self.experiment.analyses [self.run_num]
-        x_clicked = np.take(analysis.x, ind)       
-        self.x_clicked_data.SetValue ('%0.2f'%(np.take(analysis.x, ind)[0]))
-        self.y_clicked_data.SetValue ('%0.3f'%(np.take(analysis.y, ind)[0]))
+        analysis = self.experiment.analyses[self.analysis_num]
+        x_clicked = np.take(analysis.run.x, ind)       
+        self.x_clicked_data.SetValue ('%0.2f'%(np.take(analysis.run.x, ind)[0]))
+        self.y_clicked_data.SetValue ('%0.3f'%(np.take(analysis.run.y, ind)[0]))
         self.num_clicked_data.SetValue ('%0.0f'%(ind[0]+1))
 	
     def on_exit(self, event):
