@@ -103,7 +103,7 @@ def set_obj_phases(run, obj_num_pts):
         else:
             counter = 0
     start_p3 = index + 3
-    end_p3 = -1 # end indexs are going to be inclusive of last result in phase
+    end_p3 = len(elut_ends)
     r2_p3 = r2s[start_p3]
     m_p3 = ms[start_p3]
     b_p3 = bs[start_p3]

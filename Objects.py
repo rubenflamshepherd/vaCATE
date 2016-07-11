@@ -8,8 +8,8 @@ class Experiment(object):
         self.analyses = analyses # List of Analysis objects
 
 class Analysis(object):
-    def __init__(self, kind, obj_num_pts, run, indexs_p1=(None, None), 
-            indexs_p2=(None, None), indexs_p3=(None, None)):
+    def __init__(self, kind, obj_num_pts, run, indexs_p1=('', ''), 
+            indexs_p2=('', ''), indexs_p3=('', '')):
         self.kind = kind # None, 'obj', or 'subj'
         self.obj_num_pts = obj_num_pts # None if not obj regression
         self.run = run
@@ -59,15 +59,15 @@ class Analysis(object):
             self.obj_x_start = self.run.x[-self.obj_num_pts:]
             self.obj_y_start = self.run.y[-self.obj_num_pts:]
     
-        if self.indexs_p3 != (None, None):
+        if self.indexs_p3 != ('', ''):
             self.phase3 = Operations.extract_phase(
                 self.indexs_p3, self.run.x, self.run.y,\
                 self.run.SA, self.run.load_time)
             Operations.advanced_run_calcs(self)
-        if self.indexs_p2 != (None, None):
+        if self.indexs_p2 != ('', ''):
             # Set series' to be curvestripped
-            self.x_p12 = self.run.x[self.indexs_p1[0]:self.indexs_p2[1]]
-            self.y_p12 = self.run.y[self.indexs_p1[0]:self.indexs_p2[1]]
+            self.x_p12 = self.run.x[:self.indexs_p2[1]]
+            self.y_p12 = self.run.y[:self.indexs_p2[1]]
             # Curve strip phase 1 + 2 data of phase 3
             self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3 = \
                 Operations.curvestrip(
@@ -77,7 +77,7 @@ class Analysis(object):
                 self.indexs_p2, 
                 self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3,
                 self.run.SA, self.run.load_time)
-        if self.indexs_p1 != (None, None):
+        if self.indexs_p1 != ('', ''):
             self.x_p1 = self.run.x[self.indexs_p1[0]:self.indexs_p1[1]]
             self.y_p1 = self.run.y[self.indexs_p1[0]:self.indexs_p1[1]]
             # Set series' to be further curvestripped (already partially done)
@@ -133,176 +133,7 @@ class Phase(object):
         self.r2, self.slope, self.intercept = r2, slope, intercept
         self.x, self.y = x, y
         self.k, self.t05, self.r0, self.efflux = k, t05, r0, efflux
-        
-    '''
-	
-    def objective_analysis(self):
-	"""
-	Objective analysis of RunObject using basic RunObject data
-	"""
-        # Getting parameters from regression of p3
-        self.x1_p3, self.x2_p3, self.y1_p3, self.y2_p3, self.r2_p3, \
-            self.slope_p3, self.intercept_p3, self.reg_end_index, \
-            self.r2s_p3_list, self.slopes_p3_list, \
-            self.intercepts_p3_list = Operations.obj_regression_p3(
-                self.x, self.y, self.analysis_type[1])
-	
-	   # Setting the x- and y-series' involved in the p3/p12 linear regression
-        self.x_p3 = self.x[self.reg_end_index:] 
-        self.y_p3 = self.y[self.reg_end_index:]
-        self.x_p12 = self.x[:self.reg_end_index]
-        self.y_p12 = self.y[:self.reg_end_index]
-	
-        # Setting the x/y-series' used to start obj regression USED FOR PLOTTING
-        self.x_reg_start = self.x[len(self.x) - self.analysis_type[1]:] 
-        self.y_reg_start = self.y[len(self.x) - self.analysis_type[1]:]
-        # Getting p1 + p2 curve-stripped data (together)
-        self.x_p12_curvestrippedof_p3, \
-                self.y_p12_curvestrippedof_p3 = Operations.p12_curvestrippedof_p3(
-                    self.x_p12, self.y_p12, self.slope_p3, self.intercept_p3)
-	   # Isolating/Unpacking PARTIALLY curve-stripped p1 x/y series
-        self.x_p1_curvestrippedof_p3, \
-                self.y_p1_curvestrippedof_p3 = Operations.determine_p1_xy (
-                    self.x_p12_curvestrippedof_p3, self.y_p12_curvestrippedof_p3,)
-        # Defining uncurve-stripped p1 data
-        self.x_p1 = self.x[:len(self.x_p1_curvestrippedof_p3)]
-        self.y_p1 = self.y[:len(self.y_p1_curvestrippedof_p3)]
-        # Isolating COMPLETELY curve-stripped p2 data
-        self.x_p2_curvestrippedof_p3, self.y_p2_curvestrippedof_p3 =\
-            self.x_p12_curvestrippedof_p3[len(self.x_p1):],\
-               self.y_p12_curvestrippedof_p3[len(self.y_p1):]
-	
-        # Linear regression of isolated p2 data + getting line data
-        self.r2_p2, self.slope_p2, self.intercept_p2 = Operations.linear_regression(
-            self.x_p2_curvestrippedof_p3, self.y_p2_curvestrippedof_p3)
-        self.x1_p2, self.x2_p2, self.y1_p2, self.y2_p2 = Operations.grab_x_ys(
-            self.x_p2_curvestrippedof_p3, self.intercept_p2, self.slope_p2)
-	
-        # Getting and plotting p1 curve-stripped data (for p2 and p3)
-        self.x_p1_curvestrippedof_p23, self.y_p1_curvestrippedof_p23 = \
-	           Operations.p1_curvestrippedof_p23(
-	               self.x_p1_curvestrippedof_p3, self.y_p1_curvestrippedof_p3,
-	               self.slope_p2, self.intercept_p2)
-	
-        # Linear regression on curve-stripped p1 data and plotting line
-        self.r2_p1, self.slope_p1, self.intercept_p1 = Operations.linear_regression(
-	           self.x_p1_curvestrippedof_p23, self.y_p1_curvestrippedof_p23)
-        self.x1_p1, self.x2_p1, self.y1_p1, self.y2_p1 = Operations.grab_x_ys(
-	           self.x_p1_curvestrippedof_p23, self.intercept_p1, self.slope_p1)
-	
-        # Setting rate constant (k), half life values (t05),
-        # rate of release (R0), and efflux values of each phase
-        self.k_p1 = abs(self.slope_p1 * 2.303)
-        self.k_p2 = abs(self.slope_p2 * 2.303)
-        self.k_p3 = abs(self.slope_p3 * 2.303)
-        self.t05_p1 = 0.693/self.k_p1
-        self.t05_p2 = 0.693/self.k_p2
-        self.t05_p3 = 0.693/self.k_p3
-        self.R0_p1 = 10 ** self.intercept_p1
-        self.R0_p2 = 10 ** self.intercept_p2
-        self.R0_p3 = 10 ** self.intercept_p3
-	
-        self.efflux_p1 = 60 * (
-            self.R0_p1 / (self.SA * (1 - math.exp(-self.k_p1 * self.load_time))))
-        self.efflux_p2 = 60 * (
-            self.R0_p2 / (self.SA * (1 - math.exp(-self.k_p2 * self.load_time))))
-        self.efflux_p3 = 60 * (
-            self.R0_p3 / (self.SA * (1 - math.exp (-self.k_p3 * self.load_time))))
-	
-        self.elut_period = self.elut_ends[-1]
-        self.tracer_retained = (self.sht_cnts + self.rt_cnts)/self.rt_wght
-	
-        self.netflux = 60 * (self.tracer_retained - (self.R0_p3/self.k_p3) *\
-            math.exp (-self.k_p3 * self.elut_period))/self.SA/self.load_time
-        self.influx = self.efflux_p3 + self.netflux
-        self.ratio = self.efflux_p3 / self.influx
-        self.poolsize = self.influx * self.t05_p3 / (3 * 0.693)
-	
-    def subjective_analysis(self):
-	
-        self.p1_start = self.analysis_type[1][0][0]
-        self.end_p1 = self.analysis_type[1][0][1]
-        self.p2_start = self.analysis_type[1][1][0]
-        self.p2_end = self.analysis_type[1][1][1]	
-        self.p3_start = self.analysis_type[1][2][0]
-        self.p3_end = self.analysis_type[1][2][1]	
-	
-        # Getting parameters from regression of p3
-        self.x1_p3, self.x2_p3, self.y1_p3, self.y2_p3, self.r2_p3, \
-            self.slope_p3, self.intercept_p3 = Operations.subj_regression_p3(
-                self.x, self.y, self.p3_start, self.p3_end)
-	
-        # Setting the x- and y-series' involved in the p3/p12 linear regression
-        self.x_p3 = self.x[self.p3_start: self.p3_end + 1] 
-        self.y_p3 = self.y[self.p3_start: self.p3_end + 1]
-        self.x_p2 = self.x[self.p2_start: self.p2_end + 1] 
-        self.y_p2 = self.y[self.p2_start: self.p2_end + 1]
-        self.x_p1 = self.x[self.p1_start: self.end_p1 + 1]
-        self.y_p1 = self.y[self.p1_start: self.end_p1 + 1]	
-        self.x_p12 = np.concatenate([self.x_p1, self.x_p2])
-        self.y_p12 = np.concatenate([self.y_p1, self.y_p2])
-	
-        # Getting p1 + p2 curve-stripped data (together)
-        self.x_p12_curvestrippedof_p3, self.y_p12_curvestrippedof_p3 = \
-            Operations.p12_curvestrippedof_p3 (
-                self.x_p12, self.y_p12, self.slope_p3, self.intercept_p3)
-	
-        # Isolating/Unpacking PARTIALLY curve-stripped p1 x/y series
-        self.x_p1_curvestrippedof_p3 =  self.x_p12_curvestrippedof_p3[self.p1_start: self.end_p1 + 1] 
-        self.y_p1_curvestrippedof_p3 = self.y_p12_curvestrippedof_p3[self.p1_start: self.end_p1 + 1]
-	
-        # Isolating COMPLETELY curve-stripped p2 data
-        self.x_p2_curvestrippedof_p3, self.y_p2_curvestrippedof_p3 =\
-            self.x_p12_curvestrippedof_p3[len(self.x_p1):],\
-            self.y_p12_curvestrippedof_p3[len(self.y_p1):]
-	
-    	# Linear regression of isolated p2 data + getting line data
-    	self.r2_p2, self.slope_p2, self.intercept_p2 = Operations.linear_regression(
-    	    self.x_p2_curvestrippedof_p3, self.y_p2_curvestrippedof_p3)
-    	self.x1_p2, self.x2_p2, self.y1_p2, self.y2_p2 = Operations.grab_x_ys(
-            self.x_p2_curvestrippedof_p3, self.intercept_p2, self.slope_p2)
-	
-    	# Getting and plotting p1 curve-stripped data (for p2 and p3)
-    	self.x_p1_curvestrippedof_p23, self.y_p1_curvestrippedof_p23 = \
-    	    Operations.p1_curvestrippedof_p23(
-    	        self.x_p1_curvestrippedof_p3, self.y_p1_curvestrippedof_p3,
-    	        self.slope_p2, self.intercept_p2)
-	
-        # Linear regression on curve-stripped p3 data and plotting line
-        self.r2_p1, self.slope_p1, self.intercept_p1 = Operations.linear_regression(
-            self.x_p1_curvestrippedof_p23, self.y_p1_curvestrippedof_p23)
-        self.x1_p1, self.x2_p1, self.y1_p1, self.y2_p1 = Operations.grab_x_ys(
-	           self.x_p1_curvestrippedof_p23, self.intercept_p1, self.slope_p1)
-	
-        # Setting rate constant (k), half life values t05, rate of release (R0)
-        # and efflux values of each phase
-        self.k_p1 = abs(self.slope_p1 * 2.303)
-        self.k_p2 = abs(self.slope_p2 * 2.303)
-        self.k_p3 = abs(self.slope_p3 * 2.303)	
-        self.t05_p1 = 0.693/self.k_p1
-        self.t05_p2 = 0.693/self.k_p2
-        self.t05_p3 = 0.693/self.k_p3	
-        self.R0_p1 = 10 ** self.intercept_p1
-        self.R0_p2 = 10 ** self.intercept_p2
-        self.R0_p3 = 10 ** self.intercept_p3	
-        self.efflux_p1 = 60 * (self.R0_p1 / (
-	           self.SA * (1 - math.exp(-self.k_p1 * self.load_time))))
-        self.efflux_p2 = 60 * (self.R0_p2 / (
-	           self.SA * (1 - math.exp(-self.k_p2 * self.load_time))))
-        self.efflux_p3 = 60 * (self.R0_p3 / (
-	           self.SA * (1 - math.exp (-self.k_p3 * self.load_time))))
-	
-        self.elut_period = self.elut_ends[-1]
-        self.tracer_retained =\
-            (self.sht_cnts + self.rt_cnts)/self.rt_wght
-	
-        self.netflux = 60 * (self.tracer_retained - (self.R0_p3/self.k_p3) * \
-            math.exp (-self.k_p3 * self.elut_period))/self.SA/self.load_time
-        self.influx = self.efflux_p3 + self.netflux
-        self.ratio = self.efflux_p3 / self.influx
-        self.poolsize = self.influx * self.t05_p3 / (3 * 0.693)
-        '''
-		
+        		
 if __name__ == "__main__":
     import Excel
     temp_data = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")

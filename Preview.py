@@ -42,13 +42,9 @@ class MainFrame(wx.Frame):
         wx.Frame.__init__(self, None, -1, self.title)
 	
     	self.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
-    	
-    	# Attribute of the frame object, not he data/run object(s)
-    	self.analysis_num = 0
-    	
+    	self.analysis_num = 0 # Attribute of frame, not exp/analysis
     	self.experiment = experiment
-    	self.create_main_panel()
-            
+    	self.create_main_panel()            
         # Default analysis:objective regression using the last 3 data points
         self.draw_figure()
 	
@@ -62,7 +58,6 @@ class MainFrame(wx.Frame):
         
         # Create the mpl Figure and FigCanvas objects. 
         # 5x4 inches, 100 dots-per-inch
-        #
         self.dpi = 100
         self.fig = Figure((10, 4.0), dpi=self.dpi)
         self.canvas = FigCanvas(self.panel, -1, self.fig)
@@ -79,25 +74,20 @@ class MainFrame(wx.Frame):
         self.plot_phase1 = self.fig.add_subplot(gs[0, 1]) 
                 
         # Bind the 'pick' event for clicking on one of the bars
-        self.canvas.mpl_connect('pick_event', self.on_pick_p3)
-	   # self.canvas.mpl_connect('pick_event', self.on_pick_p2)
-        
+        self.canvas.mpl_connect('pick_event', self.on_pick_unstripped)
         # Bind the 'check' event for ticking 'Show Grid' option
         self.cb_grid = wx.CheckBox(self.panel, -1, 
             "Show Grid",
             style=wx.ALIGN_CENTER)
         self.Bind(wx.EVT_CHECKBOX, self.on_cb_grid, self.cb_grid)
-
         # Create the navigation toolbar, tied to the canvas
         self.toolbar = Custom.Toolbar(self)
         self.toolbar.Realize()
-	
         # Layout with box sizers                
         self.vbox = wx.BoxSizer(wx.VERTICAL)
         self.vbox.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         self.vbox.Add(self.toolbar, 0, wx.EXPAND)
         self.vbox.AddSpacer(10)
-                
         # Text labels describing regression inputs
         self.obj_title = wx.StaticText (self.panel,
 	       label="Objective Regression", style=wx.ALIGN_CENTER)
@@ -117,19 +107,15 @@ class MainFrame(wx.Frame):
         
         # Text boxs for collecting subj/obj regression parameter input
         self.obj_textbox = wx.TextCtrl(self.panel, size=(50,-1),
-	       style=wx.TE_PROCESS_ENTER)
-        
+	       style=wx.TE_PROCESS_ENTER)        
         self.subj_p1_start_textbox = wx.TextCtrl(self.panel, 
 	       size=(50,-1), style=wx.TE_PROCESS_ENTER)
-
         self.subj_p1_end_textbox = wx.TextCtrl(self.panel, size=(50,-1),
-	       style=wx.TE_PROCESS_ENTER)
-        
+	       style=wx.TE_PROCESS_ENTER)        
         self.subj_p2_start_textbox = wx.TextCtrl(self.panel, size=(50,-1),
 	       style=wx.TE_PROCESS_ENTER)        
         self.subj_p2_end_textbox = wx.TextCtrl(self.panel, size=(50,-1),
-	       style=wx.TE_PROCESS_ENTER)
-        
+	       style=wx.TE_PROCESS_ENTER)        
         self.subj_p3_start_textbox = wx.TextCtrl(self.panel, size=(50,-1),
 	       style=wx.TE_PROCESS_ENTER)        
         self.subj_p3_end_textbox = wx.TextCtrl(self.panel, size=(50,-1),
@@ -446,19 +432,22 @@ class MainFrame(wx.Frame):
     	    self.subj_p3_start_textbox.SetValue('')
     	    self.subj_p3_end_textbox.SetValue('')	    
     	elif analysis.kind == 'subj':
-    	    self.obj_textbox.SetValue ('')	    
-    	    self.subj_p1_start_textbox.SetValue (
-                str (analysis.indexs_p1[0] + 1))
-    	    self.subj_p1_end_textbox.SetValue (
-                str (analysis.indexs_p1[1] + 1))
-    	    self.subj_p2_start_textbox.SetValue (
-                str (analysis.indexs_p2[0] + 1))
-    	    self.subj_p2_end_textbox.SetValue (
-                str (analysis.indexs_p2[1] + 1))	    
-    	    self.subj_p3_start_textbox.SetValue (
-                str (analysis.indexs_p3[0] + 1))
-    	    self.subj_p3_end_textbox.SetValue (
-                str (analysis.indexs_p3[1] + 1))  
+    	    self.obj_textbox.SetValue ('')
+            if analysis.indexs_p1 != ('',''):
+                self.subj_p1_start_textbox.SetValue(
+                    str(analysis.indexs_p1[0]+ 1))
+                self.subj_p1_end_textbox.SetValue(
+                    str(analysis.indexs_p1[1]+1))
+            if analysis.indexs_p2 != ('',''):
+        	    self.subj_p2_start_textbox.SetValue(
+                    str(analysis.indexs_p2[0] + 1))
+        	    self.subj_p2_end_textbox.SetValue (
+                    str(analysis.indexs_p2[1] + 1))
+            if analysis.indexs_p1 != ('',''):    
+        	    self.subj_p3_start_textbox.SetValue(
+                    str(analysis.indexs_p3[0] + 1))
+        	    self.subj_p3_end_textbox.SetValue (
+                    str(analysis.indexs_p3[1] + 1))  
     	    
     	title_string = 'Compartmental Analysis of Tracer Efflux Automator - '
     	detail_string = "Run " + str (self.analysis_num + 1) + "/"\
@@ -501,76 +490,75 @@ class MainFrame(wx.Frame):
         self.plot_phase3.set_ylim(bottom = 0)
         
     	# Graphing the p3 series and regression line
-    	self.plot_phase3.scatter(
-            analysis.phase3.x, analysis.phase3.y, 
-            s = self.slider_width.GetValue(),
-            alpha = 0.75, edgecolors = 'k', facecolors = 'k')            
-    	line_p3 = matplotlib.lines.Line2D(
-            [analysis.phase3.xy1[0], analysis.phase3.xy2[0]],
-            [analysis.phase3.xy1[1], analysis.phase3.xy2[1]],
-            color = 'r', ls = '-', label = 'Phase III')
-    	self.plot_phase3.add_line(line_p3)
-        print analysis.phase3.xy1, analysis.phase3.xy2
-        print analysis.indexs_p3
-    	
-    	# Find+plot intial points used to start obj regression
-    	if analysis.kind == 'obj':
-    	    self.plot_phase3.scatter(
-                analysis.obj_x_start, analysis.obj_y_start,
+        if analysis.indexs_p3 != ('', ''):
+        	self.plot_phase3.scatter(
+                analysis.phase3.x, analysis.phase3.y, 
                 s = self.slider_width.GetValue(),
-                alpha = 0.5, edgecolors = 'r', facecolors = 'r')	
+                alpha = 0.75, edgecolors = 'k', facecolors = 'k')            
+        	line_p3 = matplotlib.lines.Line2D(
+                [analysis.phase3.xy1[0], analysis.phase3.xy2[0]],
+                [analysis.phase3.xy1[1], analysis.phase3.xy2[1]],
+                color = 'r', ls = '-', label = 'Phase III')
+        	self.plot_phase3.add_line(line_p3)
+        	print analysis.indexs_p1, analysis.indexs_p2, analysis.indexs_p3
+            # Find+plot intial points used to start obj regression
+        	if analysis.kind == 'obj':
+        	    self.plot_phase3.scatter(
+                    analysis.obj_x_start, analysis.obj_y_start,
+                    s = self.slider_width.GetValue(),
+                    alpha = 0.5, edgecolors = 'r', facecolors = 'r')	
     			    
     	# Graphing raw uncorrected data of p1 and p2
-    	self.plot_phase2.scatter(
-            analysis.x_p12, analysis.y_p12, s = self.slider_width.GetValue(),
-            alpha = 0.50, edgecolors = 'k', facecolors = 'w', picker = 5)
-    	
-    	# Graphing curve-stripped (corrected) phase I and II data, isolated
-    	# p2 data and line of best fit
-    	self.plot_phase2.scatter(
-    	    analysis.x_p12_curvestrip_p3,
-    	    analysis.y_p12_curvestrip_p3,
-    	    s = self.slider_width.GetValue(),
-    	    alpha = 0.50, edgecolors = 'r', facecolors = 'w')
-    	
-    	self.plot_phase2.scatter(
-    	    analysis.phase2.x,
-    	    analysis.phase2.y,
-    	    s = self.slider_width.GetValue(),
-    	    alpha = 0.75, edgecolors = 'k', facecolors = 'k')	
-    	
-    	self.line_p2 = matplotlib.lines.Line2D (
-                [analysis.phase2.xy1[0], analysis.phase2.xy2[0]],
-                [analysis.phase2.xy1[1], analysis.phase2.xy2[1]],
-                color = 'r', ls = '--', label = 'Phase II')
-    	self.plot_phase2.add_line (self.line_p2)	
+        if analysis.indexs_p2 != ('', ''):
+        	self.plot_phase2.scatter(
+                analysis.x_p12, analysis.y_p12, s = self.slider_width.GetValue(),
+                alpha = 0.50, edgecolors = 'k', facecolors = 'w', picker = 5)
+        	
+        	# Graphing curve-stripped (corrected) phase I and II data, isolated
+        	# p2 data and line of best fit
+        	self.plot_phase2.scatter(
+        	    analysis.x_p12_curvestrip_p3,
+        	    analysis.y_p12_curvestrip_p3,
+        	    s = self.slider_width.GetValue(),
+        	    alpha = 0.50, edgecolors = 'r', facecolors = 'w')
+        	
+        	self.plot_phase2.scatter(
+        	    analysis.phase2.x,
+        	    analysis.phase2.y,
+        	    s = self.slider_width.GetValue(),
+        	    alpha = 0.75, edgecolors = 'k', facecolors = 'k')	
+        	
+        	self.line_p2 = matplotlib.lines.Line2D (
+                    [analysis.phase2.xy1[0], analysis.phase2.xy2[0]],
+                    [analysis.phase2.xy1[1], analysis.phase2.xy2[1]],
+                    color = 'r', ls = '--', label = 'Phase II')
+        	self.plot_phase2.add_line (self.line_p2)	
             		                
     	# Graphing the p1 series and regression line	
-    	# Graph raw uncorrected p1 data, p1 data corrected for p3, and p1 data
-    	# Corrected for both p2 and p3
-    	self.plot_phase1.scatter(
-            analysis.x_p1, analysis.y_p1,
-            s = self.slider_width.GetValue(),
-            alpha = 0.25, edgecolors = 'k', facecolors = 'w', picker = 5)
-    	
-    	# Graph p1 data corrected for p3
-    	self.plot_phase1.scatter(
-    	    analysis.x_p1_curvestrip_p3,
-    	    analysis.y_p1_curvestrip_p3,
-    	    s = self.slider_width.GetValue(),
-    	    alpha = 0.25, edgecolors = 'r', facecolors = 'w')	
-    	
-    	self.plot_phase1.scatter(
-    	    analysis.x_p1_curvestrip_p23,
-    	    analysis.y_p1_curvestrip_p23,
-    	    s = self.slider_width.GetValue(),
-    	    alpha = 0.75, edgecolors = 'k', facecolors = 'k')
-    	
-    	self.line_p1 = matplotlib.lines.Line2D (
-            [analysis.phase1.xy1[0], analysis.phase1.xy2[0]],
-            [analysis.phase1.xy1[1], analysis.phase1.xy2[1]],
-            color = 'r', ls = ':', label = 'Phase I')
-    	self.plot_phase1.add_line (self.line_p1)          
+        if analysis.indexs_p1 != ('', ''):
+        	self.plot_phase1.scatter(
+                analysis.x_p1, analysis.y_p1,
+                s = self.slider_width.GetValue(),
+                alpha = 0.25, edgecolors = 'k', facecolors = 'w', picker = 5)
+        	
+        	# Graph p1 data corrected for p3
+        	self.plot_phase1.scatter(
+        	    analysis.x_p1_curvestrip_p3,
+        	    analysis.y_p1_curvestrip_p3,
+        	    s = self.slider_width.GetValue(),
+        	    alpha = 0.25, edgecolors = 'r', facecolors = 'w')	
+        	
+        	self.plot_phase1.scatter(
+        	    analysis.x_p1_curvestrip_p23,
+        	    analysis.y_p1_curvestrip_p23,
+        	    s = self.slider_width.GetValue(),
+        	    alpha = 0.75, edgecolors = 'k', facecolors = 'k')
+        	
+        	self.line_p1 = matplotlib.lines.Line2D (
+                [analysis.phase1.xy1[0], analysis.phase1.xy2[0]],
+                [analysis.phase1.xy1[1], analysis.phase1.xy2[1]],
+                color = 'r', ls = ':', label = 'Phase I')
+        	self.plot_phase1.add_line (self.line_p1)          
         
     	# Outputting the data from the linear regressions to widgets        
     	self.data_p1_slope.SetValue ('%0.3f'%(analysis.phase1.slope))
@@ -635,22 +623,28 @@ class MainFrame(wx.Frame):
             new_analysis.obj_num_pts = obj_num_pts
             new_analysis.analyze()
             self.experiment.analyses[analysis_num] = new_analysis
-        self.draw_figure()
-    
+        self.draw_figure()    
         
     def on_subj_draw(self, event):
         self.obj_textbox.SetValue('')
         new_analysis = self.experiment.analyses[self.analysis_num]
         new_analysis.kind = 'subj'
-        new_analysis.indexs_p3 = (
-            int(self.subj_p3_start_textbox.GetValue ()) - 1,
-            int(self.subj_p3_end_textbox.GetValue ()) - 1)
-        new_analysis.indexs_p2 = (
-            int(self.subj_p2_start_textbox.GetValue ()) - 1,
-            int(self.subj_p2_end_textbox.GetValue ()) - 1)
-        new_analysis.indexs_p1 = (
-            int(self.subj_p1_start_textbox.GetValue ()) - 1,
-            int(self.subj_p1_end_textbox.GetValue ()) - 1)
+        
+        p3_start = self.subj_p3_start_textbox.GetValue ()
+        p3_end = self.subj_p3_end_textbox.GetValue ()
+        p2_start = self.subj_p2_start_textbox.GetValue ()
+        p2_end = self.subj_p2_end_textbox.GetValue ()
+        p1_start = self.subj_p1_start_textbox.GetValue ()
+        p1_end = self.subj_p1_end_textbox.GetValue ()
+        if p3_start != '' or p3_end != '':
+            p3_start, p3_end = int(p3_start) - 1, int(p3_end)
+        new_analysis.indexs_p3 = (p3_start, p3_end)
+        if p2_start != '' or p2_end != '':
+            p2_start, p2_end = int(p2_start) - 1, int(p2_end)
+        new_analysis.indexs_p2 = (p2_start, p2_end)
+        if p1_start != '' or p1_end != '':
+            p1_start, p1_end = int(p1_start) - 1, int(p1_end)
+        new_analysis.indexs_p1 = (p1_start, p1_end)
         
         new_analysis.analyze()    	
     	self.experiment.analyses[self.analysis_num] = new_analysis
@@ -685,21 +679,18 @@ class MainFrame(wx.Frame):
     def on_draw_bttn(self, event):
         self.draw_figure()
     
-    def on_pick_p3(self, event):
+    def on_pick_unstripped(self, event):
         # The event received here is of the type
-        # matplotlib.backend_bases.PickEvent
-        #
+        #   matplotlib.backend_bases.PickEvent
         # It carries lots of information, of which we're using
-        # only a small amount here.
-        # 
+        #   only a small amount here.
         ind = event.ind
-        # print event.artist
         analysis = self.experiment.analyses[self.analysis_num]
         x_clicked = np.take(analysis.run.x, ind)       
         self.x_clicked_data.SetValue ('%0.2f'%(np.take(analysis.run.x, ind)[0]))
         self.y_clicked_data.SetValue ('%0.3f'%(np.take(analysis.run.y, ind)[0]))
         self.num_clicked_data.SetValue ('%0.0f'%(ind[0]+1))
-	
+
     def on_exit(self, event):
         self.Destroy()
            
@@ -707,8 +698,10 @@ if __name__ == '__main__':
     import Excel
     temp_experiment = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")
     
-    temp_experiment.analyses[0].kind = 'obj'
-    temp_experiment.analyses[0].obj_num_pts = 3
+    temp_experiment.analyses[0].kind = 'subj'
+    temp_experiment.analyses[0].indexs_p1 = ('','')
+    temp_experiment.analyses[0].indexs_p2 = (4,10)
+    temp_experiment.analyses[0].indexs_p3 = (11,29)
     temp_experiment.analyses[0].analyze()
         
     app = wx.PySimpleApp()
