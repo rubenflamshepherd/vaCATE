@@ -19,6 +19,7 @@ class Analysis(object):
 
         # Default values are None unless assigned
         self.phase3, self.phase2, self.phase1 = None, None, None
+        self.r2s = None
 
         self.x1_p3, self.y1_p3, self.x2_p3, self.y2_p3 = None, None, None, None
         self.x1_p2, self.y1_p2, self.x2_p2, self.y2_p2 = None, None, None, None
@@ -29,7 +30,8 @@ class Analysis(object):
         self.r2_p1, self.m_p1, self.b_p1 = None, None, None
 
         self.obj_x_start, self.obj_y_start = None, None
-        self.r2s, self.bs = None, None # Lists from obj analysis, y=mx+b
+        self.r2s = None # Lists from obj analysis, y=mx+b
+        self.highest_r2 = None
 
         self.x_p3, self.x_p2, self.x_p1, self.x_p12 = None, None, None, None
         self.y_p3, self.y_p2, self.y_p1, self.y_p12 = None, None, None, None
@@ -58,7 +60,10 @@ class Analysis(object):
                     run=self.run, obj_num_pts=self.obj_num_pts)
             self.obj_x_start = self.run.x[-self.obj_num_pts:]
             self.obj_y_start = self.run.y[-self.obj_num_pts:]
-    
+            start_p3, temp2, self.r2s = Operations.get_obj_phase3(
+                self.run.elut_ends, self.run.elut_cpms_log, self.obj_num_pts)
+            temp3, temp4, temp5, temp6, self.highest_r2 = Operations.get_obj_phase12(
+                self.run.elut_ends, self.run.elut_cpms_log, start_p3)
         if self.indexs_p3 != ('', ''):
             self.phase3 = Operations.extract_phase(
                 self.indexs_p3, self.run.x, self.run.y,\
@@ -133,6 +138,14 @@ class Phase(object):
         self.r2, self.slope, self.intercept = r2, slope, intercept
         self.x, self.y = x, y
         self.k, self.t05, self.r0, self.efflux = k, t05, r0, efflux
+
+
+    def initial_blank (self):
+        self.indexs = ('','')
+        self.xy1, self.xy2 = (None, None), (None, None) # Each is a paired tuple
+        self.r2, self.slope, self.intercept = None, None, None
+        self.x, self.y = None, None
+        self.k, self.t05, self.r0, self.efflux = None, None, None
         		
 if __name__ == "__main__":
     import Excel

@@ -43,10 +43,10 @@ def advanced_run_calcs(analysis):
     analysis.netflux =\
         60 * (analysis.tracer_retained -\
         (analysis.phase3.r0/analysis.phase3.k) *\
-        math.exp (-analysis.phase3.k * analysis.elut_period))/ \
+        math.exp(-analysis.phase3.k * analysis.elut_period))/ \
         analysis.run.SA/analysis.run.load_time
     analysis.influx = analysis.phase3.efflux + analysis.netflux
-    analysis.ratio = analysis.phase3.efflux/analysis.influx
+    analysis.ratio = analysis.phase3.efflux / analysis.influx
     analysis.poolsize = analysis.influx * analysis.phase3.t05 / (3 * 0.693)
 
 def linear_regression(x, y):
@@ -67,18 +67,12 @@ def linear_regression(x, y):
     
     return r2, slope, intercept
 
-def set_obj_phases(run, obj_num_pts):
+def get_obj_phase3(elut_ends, elut_cpms_log, obj_num_pts):
     '''
-    Use objective regression to determine the limits of the 3 phases of exchange
-    Phase 3 is found by identifying where r2 decreases for 3 points in a row
-    Phase 1 and 2 is found by identifying the paired series in the remaining 
-        data that yields the highest combined r2s
-    obj_num_pts allows the user to specificy how many points we will ignore at
-        the end of the data series before we start comparing r2s
-    Returns tuples outlining limits of each phase, (maybe m and b of phase 3,
-        and lists of initial intercepts(bs)/slopes(ms)/r2s)
+    Determine limits of phase 3 using objective regression (point in data series
+        from which r2 decreases 3 times in a row). Refactored out of
+        set_obj_phases so testing functions can access list of r2s (r2s)
     '''
-    elut_ends, elut_cpms_log = run.elut_ends, run.elut_cpms_log
     r2s = []
     ms = [] # y = mx+b
     bs = []
@@ -104,11 +98,15 @@ def set_obj_phases(run, obj_num_pts):
             counter = 0
     start_p3 = index + 3
     end_p3 = len(elut_ends)
-    r2_p3 = r2s[start_p3]
-    m_p3 = ms[start_p3]
-    b_p3 = bs[start_p3]
 
-    # Now we have to determine the p1/p2 combo that gives us the highest r2
+    return start_p3, end_p3, r2s # r2s is returned for testing purposes
+
+def get_obj_phase12(elut_ends, elut_cpms_log, start_p3):
+    '''
+    Determine limits of phase 1+2 using objective regression (x and y series 
+        for phase 1 and 2 that yield highest combined r2. Refactored out of
+        set_obj_phases so testing functions can access highest_r2
+    '''
     temp_x_p12 = elut_ends[:start_p3]
     temp_y_p12 = elut_cpms_log[:start_p3]
     highest_r2 = 0
@@ -125,11 +123,26 @@ def set_obj_phases(run, obj_num_pts):
             highest_r2 = temp_r2_p1 + temp_r2_p2
             start_p2, end_p2 = temp_start_p2, start_p3
             start_p1, end_p1 = 0, temp_start_p2
-             # these values are stored but I don't think I will need them 
-             # (are calcylated by more general algorithms)
-             # UPDATE: I'm fairly certain that I am correct
-            r2_p2, m_p2, b_p2 = temp_r2_p2, temp_m_p2, temp_b_p2
-            r2_p1, m_p1, b_p1 = temp_r2_p1, temp_m_p1, temp_b_p1
+
+    return start_p2, end_p2, start_p1, end_p1, highest_r2
+
+def set_obj_phases(run, obj_num_pts):
+    '''
+    Use objective regression to determine the limits of the 3 phases of exchange
+    Phase 3 is found by identifying where r2 decreases for 3 points in a row
+        (refactored to get_obj_phase3 for testing purposes)
+    Phase 1 and 2 is found by identifying the paired series in the remaining 
+        data that yields the highest combined r2s
+    obj_num_pts allows the user to specificy how many points we will ignore at
+        the end of the data series before we start comparing r2s
+    Returns tuples outlining limits of each phase
+    '''
+    elut_ends, elut_cpms_log = run.elut_ends, run.elut_cpms_log
+    start_p3, end_p3, r2s = get_obj_phase3(
+        elut_ends, elut_cpms_log, obj_num_pts)
+
+    start_p2, end_p2, start_p1, end_p1, highest_r2 = get_obj_phase12(
+        elut_ends, elut_cpms_log, start_p3)
 
     return (start_p3, end_p3), (start_p2, end_p2), (start_p1, end_p1)
 
