@@ -18,7 +18,8 @@ class TestRun(object):
 	def __init__(
 		   self, name, SA, rt_cnts, sht_cnts, rt_wght, gfact, load_time,
 		   elut_ends, elut_cpms, elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log,
-		   r2s, end_obj, p12_r2_max, p12_r2_max_row):       
+		   r2s, end_obj, influx, efflux, netflux, ratio, poolsize, t05, r2,
+		   p12_r2_max, p12_r2_max_row):       
 		self.name = name
 		self.SA = SA
 		self.rt_cnts = rt_cnts
@@ -35,6 +36,14 @@ class TestRun(object):
 		self.elut_cpms_log = elut_cpms_log
 		self.r2s = r2s
 		self.end_obj = end_obj
+		# More advanced CATE parameters (are extracted from base data)
+		self.influx = influx
+		self.efflux = efflux
+		self.netflux = netflux
+		self.ratio = ratio
+		self.poolsize = poolsize
+		self.t05 = t05
+		self.r2 = r2
 		self.p12_r2_max = p12_r2_max
 		self.p12_r2_max_row = p12_r2_max_row
 
@@ -61,8 +70,15 @@ def grab_answers(directory, filename, elut_ends):
 		root_weight = input_sheet.cell(4, col_index).value
 		g_factor = input_sheet.cell(5, col_index).value
 		load_time = input_sheet.cell(6, col_index).value
-		# Grabing elution cpms, correcting for header offset (8)
-		start_cpms = 8
+		influx = input_sheet.cell(7, col_index).value
+		efflux = input_sheet.cell(8, col_index).value
+		netflux = input_sheet.cell(9, col_index).value
+		ratio = input_sheet.cell(10, col_index).value
+		poolsize = input_sheet.cell(11, col_index).value
+		t05 = input_sheet.cell(12, col_index).value
+		r2 = input_sheet.cell(13, col_index).value
+		# Grabing elution cpms, correcting for header offset (15)
+		start_cpms = 15
 		end_cpms = start_cpms + len(elut_ends)
 		raw_cpms = input_sheet.col(col_index)[start_cpms : end_cpms]
 		elut_cpms = [float(x.value) for x in raw_cpms]
@@ -104,6 +120,7 @@ def grab_answers(directory, filename, elut_ends):
 				run_name, SA, root_cnts, shoot_cnts, root_weight, g_factor,
 				load_time, elut_ends, elut_cpms, elut_cpms_gfact, 
 				elut_cpms_gRFW, elut_cpms_log, r2s, end_obj,
+				influx, efflux, netflux, ratio, poolsize, t05, r2,
 				p12_r2_max, p12_r2_max_row))
 
 		return TestExperiment(directory, all_test_runs)
@@ -144,7 +161,7 @@ def test_advanced():
 	question_experiment = Excel.grab_data(directory, test_file)
 	question = question_experiment.analyses[0]
 	question.kind = 'obj'
-	question.obj_num_pts = 3
+	question.obj_num_pts = 4
 	question.analyze()
 	
 	answer_experiment = grab_answers(directory, test_file, question.run.elut_ends)
@@ -154,6 +171,31 @@ def test_advanced():
 		assert_equals (
 			"{0:.10f}".format(question.r2s[counter]),
 			"{0:.10f}".format(answer.r2s[counter]))
+	assert_equals(question.indexs_p1[1], answer.p12_r2_max_row)
+	assert_equals(
+		"{0:.10f}".format(question.p12_r2_max),
+		"{0:.10f}".format(answer.p12_r2_max))
+	assert_equals(
+		"{0:.1f}".format(question.influx),
+		"{0:.1f}".format(answer.influx))
+	assert_equals(
+		"{0:.1f}".format(question.phase3.efflux),
+		"{0:.1f}".format(answer.efflux))
+	assert_equals(
+		"{0:.1f}".format(question.netflux),
+		"{0:.1f}".format(answer.netflux))
+	assert_equals(
+		"{0:.2f}".format(question.ratio),
+		"{0:.2f}".format(answer.ratio))
+	assert_equals(
+		"{0:.2f}".format(question.poolsize),
+		"{0:.2f}".format(answer.poolsize))
+	assert_equals(
+		"{0:.1f}".format(question.phase3.t05),
+		"{0:.1f}".format(answer.t05))
+	assert_equals(
+		"{0:.3f}".format(question.phase3.r2),
+		"{0:.3f}".format(answer.r2))
 
 if __name__ == '__main__':
 	

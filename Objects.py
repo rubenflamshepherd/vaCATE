@@ -30,8 +30,9 @@ class Analysis(object):
         self.r2_p1, self.m_p1, self.b_p1 = None, None, None
 
         self.obj_x_start, self.obj_y_start = None, None
+        # Attributes for testing
         self.r2s = None # Lists from obj analysis, y=mx+b
-        self.highest_r2 = None
+        self.p12_r2_max = None
 
         self.x_p3, self.x_p2, self.x_p1, self.x_p12 = None, None, None, None
         self.y_p3, self.y_p2, self.y_p1, self.y_p12 = None, None, None, None
@@ -39,11 +40,6 @@ class Analysis(object):
         self.x_p2_curvestrip_p3, self.y_p2_curvestrip_p3 = None, None
         self.x_p1_curvestrip_p3, self.y_p1_curvestrip_p3 = None, None
         self.x_p1_curvestrip_p23, self.y_p1_curvestrip_p23 = None, None
-
-        self.k_p3, self.k_p2, self.k_p1 = None, None, None
-        self.t05_p3, self.t05_p2, self.t05_p1 = None, None, None
-        self.R0_p3, self.R0_p2, self.R0_p1 = None, None, None
-        self.efflux_p3, self.efflux_p2, self.efflux_p1 = None, None, None
 
         self.elut_period, self.tracer_retained, self.poolsize = None, None, None
         self.influx, self.netflux, self.ratio = None, None, None
@@ -62,7 +58,7 @@ class Analysis(object):
             self.obj_y_start = self.run.y[-self.obj_num_pts:]
             start_p3, temp2, self.r2s = Operations.get_obj_phase3(
                 self.run.elut_ends, self.run.elut_cpms_log, self.obj_num_pts)
-            temp3, temp4, temp5, temp6, self.highest_r2 = Operations.get_obj_phase12(
+            temp3, temp4, temp5, temp6, self.p12_r2_max = Operations.get_obj_phase12(
                 self.run.elut_ends, self.run.elut_cpms_log, start_p3)
         if self.indexs_p3 != ('', ''):
             self.phase3 = Operations.extract_phase(
@@ -153,5 +149,5 @@ if __name__ == "__main__":
     
     temp_analysis = temp_data.analyses[0]
     temp_analysis.kind = 'obj'
-    temp_analysis.obj_num_pts = 3
+    temp_analysis.obj_num_pts = 4
     temp_analysis.analyze()

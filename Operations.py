@@ -78,7 +78,7 @@ def get_obj_phase3(elut_ends, elut_cpms_log, obj_num_pts):
     bs = []
 
     # Storing all possible r2s/ms/bs
-    for index in range(len(elut_cpms_log)-2, -1, -1):
+    for index in range(len(elut_cpms_log) - 2, -1, -1):
         temp_x = elut_ends[index:]
         temp_y = elut_cpms_log[index:]
         temp_r2, temp_m, temp_b = linear_regression(temp_x, temp_y)
@@ -89,14 +89,15 @@ def get_obj_phase3(elut_ends, elut_cpms_log, obj_num_pts):
     # Determining the index at which r2 drops three times in a row 
     # from obj_num_pts from the end of the series
     counter = 0
-    for index in range(len(elut_ends) - 1 - obj_num_pts, -1, -1):    
-        if r2s[index-1] < r2s[index]:
+    for index in range(len(elut_ends) - obj_num_pts, -1, -1):
+        # print elut_ends[index], r2s[index], counter
+        if r2s[index - 1] < r2s[index]:
             counter += 1
             if counter == 3:
                 break
         else:
             counter = 0
-    start_p3 = index + 3
+    start_p3 = index + 2 # Last index compared is not entered!
     end_p3 = len(elut_ends)
 
     return start_p3, end_p3, r2s # r2s is returned for testing purposes
@@ -123,6 +124,7 @@ def get_obj_phase12(elut_ends, elut_cpms_log, start_p3):
             highest_r2 = temp_r2_p1 + temp_r2_p2
             start_p2, end_p2 = temp_start_p2, start_p3
             start_p1, end_p1 = 0, temp_start_p2
+        # print temp_x_p1, temp_x_p2, str(temp_r2_p1 + temp_r2_p2), highest_r2
 
     return start_p2, end_p2, start_p1, end_p1, highest_r2
 
