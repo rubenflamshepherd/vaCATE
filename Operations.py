@@ -23,13 +23,16 @@ def basic_run_calcs(rt_wght, gfact, elut_starts, elut_ends, elut_cpms):
     elut_cpms_gfact = [x * gfact for x in elut_cpms]
     elut_cpms_gRFW = []
     elut_cpms_log = []
+    elut_ends_log = [] # y-series for elut_cpms_log
 
     for index, item in enumerate(elut_cpms_gfact):
-        temp = item / rt_wght / (elut_ends[index] - elut_starts[index])
-        elut_cpms_gRFW.append(temp)
-        elut_cpms_log.append(math.log10(temp))
+        if item != 0 and item != '': # Our trigger to skip data point
+            temp = item / rt_wght / (elut_ends[index] - elut_starts[index])
+            elut_cpms_gRFW.append(temp)
+            elut_cpms_log.append(math.log10(temp))
+            elut_ends_log.append(elut_ends[index])
                 
-    return elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log
+    return elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log, elut_ends_log
 
 def advanced_run_calcs(analysis):
     '''

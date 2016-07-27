@@ -1,5 +1,6 @@
 import xlrd
 from nose.tools import assert_equals
+from nose_parameterized import parameterized
 
 import Excel
 import Objects
@@ -96,7 +97,11 @@ def grab_answers(directory, filename, elut_ends):
 		start_log = end_gRFW + 1
 		end_log = start_log + len(elut_ends)
 		raw_log = input_sheet.col(col_index)[start_log : end_log]
-		elut_cpms_log = [float(x.value) for x in raw_log]
+		
+		elut_cpms_log = []
+		for index, item in enumerate(raw_log):
+			if item != 0 or item != '':
+				elut_cpms_log.append(item.value)
 
 		start_r2s = end_log + 1
 		end_r2s = start_r2s + len(elut_ends)
@@ -125,9 +130,38 @@ def grab_answers(directory, filename, elut_ends):
 
 		return TestExperiment(directory, all_test_runs)
 
-def test_basic():
+directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
+test1_name = "Test - Single Run.xlsx"
+test2_name = "Test - Single Run w_hole.xlsx"
+
+question1_experiment = Excel.grab_data(directory, test1_name)
+question1 = question1_experiment.analyses[0]
+question1 = question1_experiment.analyses[0]
+question1.kind = 'obj'
+question1.obj_num_pts = 4
+question1.analyze()
+answer1_experiment = grab_answers(
+	directory, test1_name, question1.run.elut_ends)
+answer1 = answer1_experiment.analyses[0]
+
+question2_experiment = Excel.grab_data(directory, test2_name)
+question2 = question2_experiment.analyses[0]
+question2 = question2_experiment.analyses[0]
+question2.kind = 'obj'
+question2.obj_num_pts = 4
+question2.analyze()
+answer2_experiment = grab_answers(
+	directory, test2_name, question2.run.elut_ends)
+answer2 = answer2_experiment.analyses[0]
+
+@parameterized([
+	(question1, answer1),
+	(question2, answer2),
+	])
+def test_basic(question, answer):
 	'''
 	Tests regarding basic info stored in Run object
+	'''
 	'''
 	directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
 	test_file = "Test - Single Run.xlsx"
@@ -136,24 +170,29 @@ def test_basic():
 	question = question_experiment.analyses[0]
 	answer_experiment = grab_answers(directory, test_file, question.run.elut_ends)
 	answer = answer_experiment.analyses[0]
+	'''
 
-	assert_equals (question.run.SA, answer.SA)
-	assert_equals (question.run.name, answer.name)
-	assert_equals (question.run.rt_cnts, answer.rt_cnts)
-	assert_equals (question.run.sht_cnts, answer.sht_cnts)
-	assert_equals (question.run.rt_wght, answer.rt_wght)
-	assert_equals (question.run.gfact, answer.gfact)
-	assert_equals (question.run.load_time, answer.load_time)
-	assert_equals (question.run.elut_ends, answer.elut_ends)
-	assert_equals (question.run.elut_cpms, answer.elut_cpms)
-	assert_equals (question.run.elut_starts, answer.elut_starts)
-	assert_equals (question.run.elut_cpms_gfact, answer.elut_cpms_gfact)
-	assert_equals (question.run.elut_cpms_gRFW, answer.elut_cpms_gRFW)
-	assert_equals (question.run.elut_cpms_log, answer.elut_cpms_log)
+	assert_equals(question.run.SA, answer.SA)
+	assert_equals(question.run.name, answer.name)
+	assert_equals(question.run.rt_cnts, answer.rt_cnts)
+	assert_equals(question.run.sht_cnts, answer.sht_cnts)
+	assert_equals(question.run.rt_wght, answer.rt_wght)
+	assert_equals(question.run.gfact, answer.gfact)
+	assert_equals(question.run.load_time, answer.load_time)
+	assert_equals(question.run.elut_ends, answer.elut_ends)
+	assert_equals(question.run.elut_cpms, answer.elut_cpms)
+	assert_equals(question.run.elut_starts, answer.elut_starts)
+	assert_equals(question.run.elut_cpms_gfact, answer.elut_cpms_gfact)
+	assert_equals(question.run.elut_cpms_gRFW, answer.elut_cpms_gRFW)
+	assert_equals(question.run.elut_cpms_log, answer.elut_cpms_log)
 
-def test_advanced():
+@parameterized([
+	(question1, answer1),
+	])
+def test_advanced(question, answer):
 	'''
 	Tests regarding data calculated and stored in Analysis object
+	'''
 	'''
 	directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
 	test_file = "Test - Single Run.xlsx"
@@ -163,12 +202,14 @@ def test_advanced():
 	question.kind = 'obj'
 	question.obj_num_pts = 4
 	question.analyze()
+
 	
 	answer_experiment = grab_answers(directory, test_file, question.run.elut_ends)
 	answer = answer_experiment.analyses[0]
+	'''
 
 	for counter in range(0, len(question.r2s)):
-		assert_equals (
+		assert_equals(
 			"{0:.10f}".format(question.r2s[counter]),
 			"{0:.10f}".format(answer.r2s[counter]))
 	assert_equals(question.indexs_p1[1], answer.p12_r2_max_row)
@@ -200,10 +241,10 @@ def test_advanced():
 if __name__ == '__main__':
 	
 	import Excel
-	temp_data = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")
+	temp_data = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test - Single Run w_hole.xlsx")
 	temp_analysis = temp_data.analyses[0]
 	
 	temp_exp = grab_answers(
-		r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx", temp_analysis.run.elut_ends)
+		r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test - Single Run w_hole.xlsx", temp_analysis.run.elut_ends)
 	temp_testanalysis = temp_exp.analyses[0]
 	

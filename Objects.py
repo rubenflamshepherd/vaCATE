@@ -115,7 +115,7 @@ class Run(object):
         self.elut_ends = elut_ends
         self.elut_cpms = elut_cpms        
         self.elut_starts = [0.0] + elut_ends[:-1]
-        self.elut_cpms_gfact, self.elut_cpms_gRFW, self.elut_cpms_log = \
+        self.elut_cpms_gfact, self.elut_cpms_gRFW, self.elut_cpms_log, self.elut_ends_log = \
             Operations.basic_run_calcs(
                 rt_wght, gfact, self.elut_starts, elut_ends, elut_cpms)       
 		# x and y data for graphing ('numpy-fied')
