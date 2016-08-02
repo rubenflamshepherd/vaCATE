@@ -89,11 +89,11 @@ def grab_data(directory, filename):
 
     # Parsing elution times, correcting for header offset (8)
     raw_elution_times = input_sheet.col(1) # Col w/elution times given in file
-    elution_ends = [float(x.value) for x in raw_elution_times[8:]]
+    elut_ends = [float(x.value) for x in raw_elution_times[8:]]
         
     for col_index in range(2, input_sheet.row_len(0)):        
         # Grab individual CATE values of interest
-        run_name = input_sheet.cell(0, col_index).value
+        run_name = str(input_sheet.cell(0, col_index).value) # in case name is #
         SA = input_sheet.cell(1, col_index).value
         root_cnts = input_sheet.cell(2, col_index).value
         shoot_cnts = input_sheet.cell(3, col_index).value
@@ -102,11 +102,16 @@ def grab_data(directory, filename):
         load_time = input_sheet.cell(6, col_index).value
         # Grabing elution cpms, correcting for header offset (8)
         raw_cpm_column = input_sheet.col(col_index) # Raw counts given by file
-        elution_cpms = [float(x.value) for x in raw_cpm_column[8:]]
+        elution_cpms = []
+        for item in raw_cpm_column[8:]:
+            if item.value != '':
+                elution_cpms.append(float(item.value))
+            else:
+                elution_cpms.append(0.0)
 
         temp_run = Objects.Run(
             run_name, SA, root_cnts, shoot_cnts, root_weight, g_factor, 
-            load_time, elution_ends, elution_cpms)
+            load_time, elut_ends, elution_cpms)
         
         all_analysis_objects.append(Objects.Analysis(
             kind=None, obj_num_pts=None, run=temp_run))

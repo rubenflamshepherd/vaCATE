@@ -57,7 +57,7 @@ class Analysis(object):
             self.obj_x_start = self.run.x[-self.obj_num_pts:]
             self.obj_y_start = self.run.y[-self.obj_num_pts:]
             start_p3, temp2, self.r2s = Operations.get_obj_phase3(
-                self.run.elut_ends, self.run.elut_cpms_log, self.obj_num_pts)
+                self.run.elut_ends_log, self.run.elut_cpms_log, self.obj_num_pts)
             temp3, temp4, temp5, temp6, self.p12_r2_max = Operations.get_obj_phase12(
                 self.run.elut_ends, self.run.elut_cpms_log, start_p3)
         if self.indexs_p3 != ('', ''):
@@ -115,11 +115,12 @@ class Run(object):
         self.elut_ends = elut_ends
         self.elut_cpms = elut_cpms        
         self.elut_starts = [0.0] + elut_ends[:-1]
-        self.elut_cpms_gfact, self.elut_cpms_gRFW, self.elut_cpms_log, self.elut_ends_log = \
+        self.elut_cpms_gfact, self.elut_cpms_gRFW, \
+            self.elut_cpms_log, self.elut_ends_log = \
             Operations.basic_run_calcs(
                 rt_wght, gfact, self.elut_starts, elut_ends, elut_cpms)       
 		# x and y data for graphing ('numpy-fied')
-        self.x = numpy.array(self.elut_ends)
+        self.x = numpy.array(self.elut_ends_log)
         self.y = numpy.array(self.elut_cpms_log)
 
 class Phase(object):
