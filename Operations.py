@@ -150,7 +150,7 @@ def set_obj_phases(run, obj_num_pts):
 
     return (start_p3, end_p3), (start_p2, end_p2), (start_p1, end_p1)
 
-def extract_phase(indexs, x, y, SA, load_time):
+def extract_phase(indexs, x_input, y_input, x, y, SA, load_time):
     '''
     Extract and return parameters from regression analysis of a phase from 
     CATE run efflux trace.
@@ -159,8 +159,8 @@ def extract_phase(indexs, x, y, SA, load_time):
     '''
     start_phase = indexs[0]
     end_phase = indexs[1]
-    x_phase = x[start_phase:end_phase]
-    y_phase = y[start_phase:end_phase]
+    x_phase = x_input[start_phase:end_phase]
+    y_phase = y_input[start_phase:end_phase]
 
     r2, slope, intercept = linear_regression(x_phase, y_phase) # y=(M)x+(B)
     xy1, xy2 = grab_x_ys(x_phase, slope, intercept)
@@ -184,11 +184,6 @@ def curvestrip(x, y, slope, intercept):
     for item in x:
         extrapolated_x = (slope*item) + intercept
         extrapolated_raw.append(extrapolated_x)
-    '''
-    for counter in range (0, len(x)):
-        extrapolated_x = (slope*x[counter]) + intercept
-        extrapolated_raw.append(extrapolated_x)
-    '''
         
     # Antilog extrapolated p3 data and p1/2 data, subtract them, and relog them
     # Containers for curve-stripped p1/2 data
@@ -204,17 +199,11 @@ def curvestrip(x, y, slope, intercept):
             x_curvestrip.append(x[index])
         else: # No log operation possible. Data omitted from series
             pass
-    '''
-    for value in range (0, len(y)):
-        antilog_orig = 10 ** y[value]
-        antilog_reg = 10 ** extrapolated_raw[value]
-        curvestrip_x_raw = antilog_orig - antilog_reg
-        if curvestrip_x_raw > 0: # We can perform a log operation
-            y_curvestrip.append(math.log10 (curvestrip_x_raw))
-            x_curvestrip.append(x[value])
-        else: # No log operation possible. Data omitted from series
-            pass
-    '''                        
+    print x
+    print y
+    print x_curvestrip
+    print y_curvestrip
+                     
     return x_curvestrip, y_curvestrip
 
 if __name__ == '__main__':

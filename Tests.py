@@ -19,7 +19,7 @@ class TestAnalysis(object):
 	def __init__(
 		   self, name, SA, rt_cnts, sht_cnts, rt_wght, gfact, load_time, elut_period,
 		   elut_ends, elut_cpms, elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log,
-		   r2s, influx, efflux, netflux, ratio, poolsize, tracer_retained,
+		   r2s, influx, netflux, ratio, poolsize, tracer_retained,
 		   p12_r2_max, p12_r2_max_row, phase3, phase2, phase1):       
 		self.name = name
 		self.SA = SA
@@ -39,7 +39,6 @@ class TestAnalysis(object):
 		self.r2s = r2s
 		# More advanced CATE parameters (are extracted from base data)
 		self.influx = influx
-		self.efflux = efflux
 		self.netflux = netflux
 		self.ratio = ratio
 		self.poolsize = poolsize
@@ -76,10 +75,10 @@ def grab_answers(directory, filename, elut_ends):
 		# Grab individual CATE values of interest
 		run_name = input_sheet.cell(0, col_index).value
 		SA = input_sheet.cell(1, col_index).value
-		root_cnts = input_sheet.cell(2, col_index).value
-		shoot_cnts = input_sheet.cell(3, col_index).value
-		root_weight = input_sheet.cell(4, col_index).value
-		g_factor = input_sheet.cell(5, col_index).value
+		rt_cnts = input_sheet.cell(2, col_index).value
+		sht_cnts = input_sheet.cell(3, col_index).value
+		rt_wght = input_sheet.cell(4, col_index).value
+		gfact = input_sheet.cell(5, col_index).value
 		load_time = input_sheet.cell(6, col_index).value
 		elut_period = input_sheet.cell(7, col_index).value
 		influx = input_sheet.cell(8, col_index).value
@@ -99,7 +98,7 @@ def grab_answers(directory, filename, elut_ends):
 		p3_r0 = input_sheet.cell(21, col_index).value
 		phase3 = Phase(
 			(p3_start, p3_end), p3_r2, p3_slope, p3_intercept, p3_k, \
-			p3_t05, p3_r0, p3_efflux))
+			p3_t05, p3_r0, p3_efflux)
 
 		p2_start = input_sheet.cell(22, col_index).value
 		p2_end = input_sheet.cell(23, col_index).value
@@ -112,7 +111,7 @@ def grab_answers(directory, filename, elut_ends):
 		p2_r0 = input_sheet.cell(30, col_index).value
 		phase2 = Phase(
 			(p2_start, p2_end), p2_r2, p2_slope, p2_intercept, p2_k, \
-			p2_t05, p2_r0, p2_efflux))
+			p2_t05, p2_r0, p2_efflux)
 
 		p1_start = input_sheet.cell(31, col_index).value
 		p1_end = input_sheet.cell(32, col_index).value
@@ -125,7 +124,7 @@ def grab_answers(directory, filename, elut_ends):
 		p1_r0 = input_sheet.cell(39, col_index).value
 		phase1 = Phase(
 			(p1_start, p1_end), p1_r2, p1_slope, p1_intercept, p1_k, \
-			p1_t05, p1_r0, p1_efflux))
+			p1_t05, p1_r0, p1_efflux)
 		
 		# Grabing elution cpms, correcting for header offset (15)
 		start_cpms = 41
@@ -176,31 +175,29 @@ def grab_answers(directory, filename, elut_ends):
 		p12_r2_max_row = input_sheet.col(col_index)[end_p12_r2_sum + 1].value
 		all_test_analyses.append(
 			TestAnalysis(
-				run_name, SA, root_cnts, shoot_cnts, root_weight, g_factor,
-				load_time, elut_period, elut_ends, elut_cpms, elut_cpms_gfact, 
-				elut_cpms_gRFW, elut_cpms_log, r2s, end_obj,
-				influx, efflux, netflux, ratio, poolsize, t05, r2, slope, intercept, k, r0, tracer_retained,
-				p12_r2_max, p12_r2_max_row))
+				run_name, SA, rt_cnts, sht_cnts, rt_wght, gfact, load_time,
+				elut_period, elut_ends, elut_cpms, elut_cpms_gfact,
+				elut_cpms_gRFW, elut_cpms_log, r2s, influx, netflux, ratio,
+				poolsize, tracer_retained, p12_r2_max, p12_r2_max_row,
+				phase3,	phase2, phase1))
 		
 	return TestExperiment(directory, all_test_analyses)
 
 directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
-test_sr1_name = "Test_SingleRun1.xlsx" # sr = single run
-test_sr2_name = "Test_SingleRun2.xlsx" # sr = single run
 
 @parameterized([
 	("Test_SingleRun1.xlsx"),
 	("Test_SingleRun2.xlsx"),
 	("Test_SingleRun3.xlsx"),
-	("Test_SingleRun4.xlsx"),
-	("Test_SingleRun5.xlsx"),
-	("Test_SingleRun6.xlsx"),
-	("Test_SingleRun7.xlsx"),
-	("Test_SingleRun8.xlsx"),
-	("Test_SingleRun9.xlsx"),
-	("Test_SingleRun10.xlsx"),
-	("Test_SingleRun(hole)1.xlsx"),
-	("Test_MultiRun1.xlsx"),
+	#("Test_SingleRun4.xlsx"),
+	#("Test_SingleRun5.xlsx"),
+	#("Test_SingleRun6.xlsx"),
+	#("Test_SingleRun7.xlsx"),
+	#("Test_SingleRun8.xlsx"),
+	#("Test_SingleRun9.xlsx"),
+	#("Test_SingleRun10.xlsx"),
+	#("Test_SingleRun(hole)1.xlsx"),
+	#("Test_MultiRun1.xlsx"),
 	])
 def test_basic(file_name):
 	directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
@@ -226,22 +223,22 @@ def test_basic(file_name):
 		assert_equals(question.run.elut_cpms_gfact, answer.elut_cpms_gfact)
 		assert_equals(question.run.elut_cpms_gRFW, answer.elut_cpms_gRFW)
 		assert_equals(question.run.elut_cpms_log, answer.elut_cpms_log)
-'''
+
 @parameterized([
 	("Test_SingleRun1.xlsx"),
 	("Test_SingleRun2.xlsx"),
 	("Test_SingleRun3.xlsx"),
-	("Test_SingleRun4.xlsx"),
-	("Test_SingleRun5.xlsx"),
-	("Test_SingleRun6.xlsx"),
-	("Test_SingleRun7.xlsx"),
-	("Test_SingleRun8.xlsx"),
-	("Test_SingleRun9.xlsx"),
-	("Test_SingleRun10.xlsx"),
-	("Test_SingleRun(hole)1.xlsx"),
-	("Test_MultiRun1.xlsx"),
+	#("Test_SingleRun4.xlsx"),
+	#("Test_SingleRun5.xlsx"),
+	#("Test_SingleRun6.xlsx"),
+	#("Test_SingleRun7.xlsx"),
+	#("Test_SingleRun8.xlsx"),
+	#("Test_SingleRun9.xlsx"),
+	#("Test_SingleRun10.xlsx"),
+	#("Test_SingleRun(hole)1.xlsx"),
+	#("Test_MultiRun1.xlsx"),
 	])
-def test_advanced(file_name):
+def test_phases(file_name):
 	directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
 	question_exp = Excel.grab_data(directory, file_name)
 	answer_exp = grab_answers(directory, file_name, question_exp.analyses[0].run.elut_ends)
@@ -251,24 +248,36 @@ def test_advanced(file_name):
 		question.analyze()
 		answer = answer_exp.analyses[index]
 
-		for counter in range(0, len(question.r2s)):
-			assert_equals(
-				"{0:.10f}".format(question.r2s[counter]),
-				"{0:.10f}".format(answer.r2s[counter]))
-		assert_equals(question.indexs_p2[1], answer.end_obj)
-		assert_equals(question.indexs_p1[1], answer.p12_r2_max_row)
+		assert_equals(question.phase3.indexs[0], answer.phase3.indexs[0])
+		assert_equals(question.phase3.indexs[1], answer.phase3.indexs[1])
 		assert_equals(
-			"{0:.10f}".format(question.p12_r2_max),
-			"{0:.10f}".format(answer.p12_r2_max))
+			"{0:.3f}".format(question.phase3.slope),
+			"{0:.3f}".format(answer.phase3.slope))	
+		assert_equals(
+			"{0:.1f}".format(question.phase3.intercept),
+			"{0:.1f}".format(answer.phase3.intercept))			
+		assert_equals(
+			"{0:.1f}".format(question.phase3.k),
+			"{0:.1f}".format(answer.phase3.k))
+		assert_equals(
+			"{0:.1f}".format(question.phase3.r0),
+			"{0:.1f}".format(answer.phase3.r0))				
 		assert_equals(
 			"{0:.1f}".format(question.phase3.efflux),
-			"{0:.1f}".format(answer.efflux))
+			"{0:.1f}".format(answer.phase3.efflux))
 		assert_equals(
-			"{0:.1f}".format(question.netflux),
-			"{0:.1f}".format(answer.netflux))
+			"{0:.1f}".format(question.phase3.t05),
+			"{0:.1f}".format(answer.phase3.t05))
+		assert_equals(
+			"{0:.3f}".format(question.phase3.r2),
+			"{0:.3f}".format(answer.phase3.r2))		
+		
 		assert_equals(
 			"{0:.2f}".format(question.influx),
 			"{0:.2f}".format(answer.influx))
+		assert_equals(
+			"{0:.1f}".format(question.netflux),
+			"{0:.1f}".format(answer.netflux))
 		assert_equals(
 			"{0:.2f}".format(question.ratio),
 			"{0:.2f}".format(answer.ratio))
@@ -276,21 +285,82 @@ def test_advanced(file_name):
 			"{0:.2f}".format(question.poolsize),
 			"{0:.2f}".format(answer.poolsize))
 		assert_equals(
-			"{0:.1f}".format(question.phase3.t05),
-			"{0:.1f}".format(answer.t05))
+			"{0:.2f}".format(question.tracer_retained),
+			"{0:.2f}".format(answer.tracer_retained))
+
+		assert_equals(question.phase2.indexs[0], answer.phase2.indexs[0])
+		assert_equals(question.phase2.indexs[1], answer.phase2.indexs[1])
 		assert_equals(
-			"{0:.3f}".format(question.phase3.r2),
-			"{0:.3f}".format(answer.r2))
-'''
+			"{0:.3f}".format(question.phase2.slope),
+			"{0:.3f}".format(answer.phase2.slope))	
+		assert_equals(
+			"{0:.1f}".format(question.phase2.intercept),
+			"{0:.1f}".format(answer.phase2.intercept))			
+		assert_equals(
+			"{0:.1f}".format(question.phase2.k),
+			"{0:.1f}".format(answer.phase2.k))
+		assert_equals(
+			"{0:.1f}".format(question.phase2.r0),
+			"{0:.1f}".format(answer.phase2.r0))				
+		assert_equals(
+			"{0:.1f}".format(question.phase2.efflux),
+			"{0:.1f}".format(answer.phase2.efflux))
+		assert_equals(
+			"{0:.1f}".format(question.phase2.t05),
+			"{0:.1f}".format(answer.phase2.t05))
+		assert_equals(
+			"{0:.3f}".format(question.phase2.r2),
+			"{0:.3f}".format(answer.phase2.r2))
+
+		assert_equals(question.phase1.indexs[0], answer.phase1.indexs[0])
+		assert_equals(question.phase1.indexs[1], answer.phase1.indexs[1])
+		assert_equals(
+			"{0:.3f}".format(question.phase1.slope),
+			"{0:.3f}".format(answer.phase1.slope))	
+		assert_equals(
+			"{0:.1f}".format(question.phase1.intercept),
+			"{0:.1f}".format(answer.phase1.intercept))			
+		assert_equals(
+			"{0:.1f}".format(question.phase1.k),
+			"{0:.1f}".format(answer.phase1.k))
+		assert_equals(
+			"{0:.1f}".format(question.phase1.r0),
+			"{0:.1f}".format(answer.phase1.r0))				
+		assert_equals(
+			"{0:.1f}".format(question.phase1.efflux),
+			"{0:.1f}".format(answer.phase1.efflux))
+		assert_equals(
+			"{0:.1f}".format(question.phase1.t05),
+			"{0:.1f}".format(answer.phase1.t05))
+		assert_equals(
+			"{0:.3f}".format(question.phase1.r2),
+			"{0:.3f}".format(answer.phase1.r2))		
+
+
+		for counter in range(0, len(question.r2s)):
+			assert_equals(
+				"{0:.10f}".format(question.r2s[counter]),
+				"{0:.10f}".format(answer.r2s[counter]))
+
 if __name__ == '__main__':
 	
 	import Excel
-	temp_data = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_MultiRun1.xlsx")
-	temp_analysis = temp_data.analyses[0]
-	#print len(temp_data.analyses)
-	
+	temp_data = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun3.xlsx")
+	temp_question = temp_data.analyses[0]
+	temp_question.kind = 'obj'
+	temp_question.obj_num_pts = 8
+	temp_question.analyze()
+
 	temp_exp = grab_answers(
-		r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_MultiRun1.xlsx", temp_analysis.run.elut_ends)
-	temp_testanalysis = temp_exp.analyses[0]
-	#print len(temp_exp.analyses)
+		r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun3.xlsx", temp_question.run.elut_ends)
+	temp_answer = temp_exp.analyses[0]
+	'''
+	print temp_answer.phase1.indexs
+	print temp_question.phase1.y
 	
+	print temp_answer.phase2.indexs
+	print temp_question.phase2.y
+	print temp_question.phase2.x
+	print temp_question.y_p12_curvestrip_p3
+	print temp_question.x_p12_curvestrip_p3
+	'''
