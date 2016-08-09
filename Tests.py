@@ -189,7 +189,7 @@ directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
 	("Test_SingleRun1.xlsx"),
 	("Test_SingleRun2.xlsx"),
 	("Test_SingleRun3.xlsx"),
-	#("Test_SingleRun4.xlsx"),
+	("Test_SingleRun4.xlsx"),
 	#("Test_SingleRun5.xlsx"),
 	#("Test_SingleRun6.xlsx"),
 	#("Test_SingleRun7.xlsx"),
@@ -228,7 +228,7 @@ def test_basic(file_name):
 	("Test_SingleRun1.xlsx"),
 	("Test_SingleRun2.xlsx"),
 	("Test_SingleRun3.xlsx"),
-	#("Test_SingleRun4.xlsx"),
+	("Test_SingleRun4.xlsx"),
 	#("Test_SingleRun5.xlsx"),
 	#("Test_SingleRun6.xlsx"),
 	#("Test_SingleRun7.xlsx"),
@@ -345,22 +345,20 @@ def test_phases(file_name):
 if __name__ == '__main__':
 	
 	import Excel
-	temp_data = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun3.xlsx")
+	temp_data = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun4.xlsx")
 	temp_question = temp_data.analyses[0]
 	temp_question.kind = 'obj'
 	temp_question.obj_num_pts = 8
 	temp_question.analyze()
 
 	temp_exp = grab_answers(
-		r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun3.xlsx", temp_question.run.elut_ends)
+		r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun4.xlsx", temp_question.run.elut_ends)
 	temp_answer = temp_exp.analyses[0]
-	'''
+
+	print "ANSWERS"	
 	print temp_answer.phase1.indexs
+	print temp_answer.phase1.slope
+	print "QUESTIONS"
 	print temp_question.phase1.y
-	
-	print temp_answer.phase2.indexs
-	print temp_question.phase2.y
-	print temp_question.phase2.x
-	print temp_question.y_p12_curvestrip_p3
-	print temp_question.x_p12_curvestrip_p3
-	'''
+	print temp_question.phase1.x
+	print temp_question.phase1.slope

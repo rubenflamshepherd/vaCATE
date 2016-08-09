@@ -62,7 +62,7 @@ class Analysis(object):
                 self.run.elut_ends, self.run.elut_cpms_log, start_p3)
         if self.indexs_p3 != ('', ''):
             self.phase3 = Operations.extract_phase(
-                self.indexs_p3, self.run.x, self.run.y,\
+                self.indexs_p3, self.run.elut_ends, self.run.elut_cpms_log, self.run.elut_ends,
                 self.run.SA, self.run.load_time)
             Operations.advanced_run_calcs(self)
         if self.indexs_p2 != ('', ''):
@@ -70,6 +70,8 @@ class Analysis(object):
             self.x_p12 = self.run.x[:self.indexs_p2[1]]
             self.y_p12 = self.run.y[:self.indexs_p2[1]]
             # Curve strip phase 1 + 2 data of phase 3
+            # From here on data series potentially have 'holes' from ommitting
+            # negative log operations during curvestripping
             self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3 = \
                 Operations.curvestrip(
                     self.x_p12, self.y_p12, 
@@ -77,6 +79,7 @@ class Analysis(object):
             self.phase2 = Operations.extract_phase(
                 self.indexs_p2, 
                 self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3,
+                self.run.elut_ends,
                 self.run.SA, self.run.load_time)
         if self.indexs_p1 != ('', ''):
             self.x_p1 = self.run.x[self.indexs_p1[0]:self.indexs_p1[1]]
@@ -94,6 +97,7 @@ class Analysis(object):
             self.phase1 = Operations.extract_phase(
                 self.indexs_p1, 
                 self.x_p1_curvestrip_p23, self.y_p1_curvestrip_p23,
+                self.run.elut_ends,
                 self.run.SA, self.run.load_time)
         
 class Run(object):

@@ -150,17 +150,27 @@ def set_obj_phases(run, obj_num_pts):
 
     return (start_p3, end_p3), (start_p2, end_p2), (start_p1, end_p1)
 
-def extract_phase(indexs, x_input, y_input, x, y, SA, load_time):
+def extract_phase(indexs, x, y, elut_ends, SA, load_time):
     '''
     Extract and return parameters from regression analysis of a phase from 
     CATE run efflux trace.
+    Just using indexs doesn't work because of potential holes from
+    curvestripping. must match index values to master x, y data series. 
     indexs is a 2 item tuple, x and y are numpy arrays of elut_ends and
     elut_cpms_log 
     '''
+    temp_start, temp_end = indexs[0], indexs[1]
+
     start_phase = indexs[0]
     end_phase = indexs[1]
-    x_phase = x_input[start_phase:end_phase]
-    y_phase = y_input[start_phase:end_phase]
+
+    # Checking for holes that would misalign indexs
+    if x[temp_start] != elut_ends[temp_start]:
+        for temp_index, item in enumerate(x):
+            if item == elut_ends[temp_start]:
+                start_phase = temp_index
+    x_phase = x[start_phase:end_phase]
+    y_phase = y[start_phase:end_phase]
 
     r2, slope, intercept = linear_regression(x_phase, y_phase) # y=(M)x+(B)
     xy1, xy2 = grab_x_ys(x_phase, slope, intercept)
@@ -199,10 +209,10 @@ def curvestrip(x, y, slope, intercept):
             x_curvestrip.append(x[index])
         else: # No log operation possible. Data omitted from series
             pass
-    print x
-    print y
-    print x_curvestrip
-    print y_curvestrip
+    # print x
+    # print y
+    # print x_curvestrip
+    # print y_curvestrip
                      
     return x_curvestrip, y_curvestrip
 
