@@ -127,7 +127,9 @@ def extract_phase(indexs, x, y, elut_ends_log, SA, load_time):
         - this is the fuctional index for our purposes.
     '''
     temp_start = indexs[0]
-    temp_end = indexs[1] - 1 # -1 bec indexs are norm for list splicing
+    # -1 below because indexs are normally for list splicing, so end index is
+    #   not inclusive, and doesn't point to last index in list
+    temp_end = indexs[1] - 1 
 
     # Default list splicing indexs
     start_phase = indexs[0]
@@ -144,6 +146,7 @@ def extract_phase(indexs, x, y, elut_ends_log, SA, load_time):
         for temp_index, item in enumerate(x):
             if item == elut_ends_log[temp_end]:
                 end_phase = temp_index + 1 # +1 bec. end index for list splicing
+
     x_phase = x[start_phase:end_phase]
     y_phase = y[start_phase:end_phase]
 
