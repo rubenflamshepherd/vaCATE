@@ -149,11 +149,11 @@ def grab_answers(directory, filename, elut_ends):
 
 		start_log = end_gRFW + 1
 		end_log = start_log + len(elut_ends)
-		raw_log = input_sheet.col(col_index)[start_log : end_log]
+		raw_log = input_sheet.col(col_index)[start_log:end_log]
 		
 		elut_cpms_log = []
 		for index, item in enumerate(raw_log):
-			if item != 0 or item != '':
+			if item.value:
 				elut_cpms_log.append(item.value)
 
 		start_r2s = end_log + 1
@@ -190,8 +190,8 @@ directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
 	("Test_SingleRun2.xlsx"),
 	("Test_SingleRun3.xlsx"),
 	("Test_SingleRun4.xlsx"),
-	#("Test_SingleRun5.xlsx"),
-	#("Test_SingleRun6.xlsx"),
+	("Test_SingleRun5.xlsx"),
+	("Test_SingleRun6.xlsx"),
 	#("Test_SingleRun7.xlsx"),
 	#("Test_SingleRun8.xlsx"),
 	#("Test_SingleRun9.xlsx"),
@@ -229,8 +229,8 @@ def test_basic(file_name):
 	("Test_SingleRun2.xlsx"),
 	("Test_SingleRun3.xlsx"),
 	("Test_SingleRun4.xlsx"),
-	#("Test_SingleRun5.xlsx"),
-	#("Test_SingleRun6.xlsx"),
+	("Test_SingleRun5.xlsx"),
+	("Test_SingleRun6.xlsx"),
 	#("Test_SingleRun7.xlsx"),
 	#("Test_SingleRun8.xlsx"),
 	#("Test_SingleRun9.xlsx"),
@@ -251,90 +251,90 @@ def test_phases(file_name):
 		assert_equals(question.phase3.indexs[0], answer.phase3.indexs[0])
 		assert_equals(question.phase3.indexs[1], answer.phase3.indexs[1])
 		assert_equals(
-			"{0:.3f}".format(question.phase3.slope),
-			"{0:.3f}".format(answer.phase3.slope))	
+			"{0:.7f}".format(question.phase3.slope),
+			"{0:.7f}".format(answer.phase3.slope))	
 		assert_equals(
-			"{0:.1f}".format(question.phase3.intercept),
-			"{0:.1f}".format(answer.phase3.intercept))			
+			"{0:.7f}".format(question.phase3.intercept),
+			"{0:.7f}".format(answer.phase3.intercept))			
 		assert_equals(
-			"{0:.1f}".format(question.phase3.k),
-			"{0:.1f}".format(answer.phase3.k))
+			"{0:.7f}".format(question.phase3.k),
+			"{0:.7f}".format(answer.phase3.k))
 		assert_equals(
-			"{0:.1f}".format(question.phase3.r0),
-			"{0:.1f}".format(answer.phase3.r0))				
+			"{0:.7f}".format(question.phase3.r0),
+			"{0:.7f}".format(answer.phase3.r0))				
 		assert_equals(
-			"{0:.1f}".format(question.phase3.efflux),
-			"{0:.1f}".format(answer.phase3.efflux))
+			"{0:.7f}".format(question.phase3.efflux),
+			"{0:.7f}".format(answer.phase3.efflux))
 		assert_equals(
-			"{0:.1f}".format(question.phase3.t05),
-			"{0:.1f}".format(answer.phase3.t05))
+			"{0:.7f}".format(question.phase3.t05),
+			"{0:.7f}".format(answer.phase3.t05))
 		assert_equals(
-			"{0:.3f}".format(question.phase3.r2),
-			"{0:.3f}".format(answer.phase3.r2))		
+			"{0:.7f}".format(question.phase3.r2),
+			"{0:.7f}".format(answer.phase3.r2))		
 		
 		assert_equals(
-			"{0:.2f}".format(question.influx),
-			"{0:.2f}".format(answer.influx))
+			"{0:.7f}".format(question.influx),
+			"{0:.7f}".format(answer.influx))
 		assert_equals(
-			"{0:.1f}".format(question.netflux),
-			"{0:.1f}".format(answer.netflux))
+			"{0:.7f}".format(question.netflux),
+			"{0:.7f}".format(answer.netflux))
 		assert_equals(
-			"{0:.2f}".format(question.ratio),
-			"{0:.2f}".format(answer.ratio))
+			"{0:.7f}".format(question.ratio),
+			"{0:.7f}".format(answer.ratio))
 		assert_equals(
-			"{0:.2f}".format(question.poolsize),
-			"{0:.2f}".format(answer.poolsize))
+			"{0:.7f}".format(question.poolsize),
+			"{0:.7f}".format(answer.poolsize))
 		assert_equals(
-			"{0:.2f}".format(question.tracer_retained),
-			"{0:.2f}".format(answer.tracer_retained))
+			"{0:.7f}".format(question.tracer_retained),
+			"{0:.7f}".format(answer.tracer_retained))
 
 		assert_equals(question.phase2.indexs[0], answer.phase2.indexs[0])
 		assert_equals(question.phase2.indexs[1], answer.phase2.indexs[1])
 		assert_equals(
-			"{0:.3f}".format(question.phase2.slope),
-			"{0:.3f}".format(answer.phase2.slope))	
+			"{0:.7f}".format(question.phase2.slope),
+			"{0:.7f}".format(answer.phase2.slope))	
 		assert_equals(
-			"{0:.1f}".format(question.phase2.intercept),
-			"{0:.1f}".format(answer.phase2.intercept))			
+			"{0:.7f}".format(question.phase2.intercept),
+			"{0:.7f}".format(answer.phase2.intercept))			
 		assert_equals(
-			"{0:.1f}".format(question.phase2.k),
-			"{0:.1f}".format(answer.phase2.k))
+			"{0:.7f}".format(question.phase2.k),
+			"{0:.7f}".format(answer.phase2.k))
 		assert_equals(
-			"{0:.1f}".format(question.phase2.r0),
-			"{0:.1f}".format(answer.phase2.r0))				
+			"{0:.7f}".format(question.phase2.r0),
+			"{0:.7f}".format(answer.phase2.r0))				
 		assert_equals(
-			"{0:.1f}".format(question.phase2.efflux),
-			"{0:.1f}".format(answer.phase2.efflux))
+			"{0:.7f}".format(question.phase2.efflux),
+			"{0:.7f}".format(answer.phase2.efflux))
 		assert_equals(
-			"{0:.1f}".format(question.phase2.t05),
-			"{0:.1f}".format(answer.phase2.t05))
+			"{0:.7f}".format(question.phase2.t05),
+			"{0:.7f}".format(answer.phase2.t05))
 		assert_equals(
-			"{0:.3f}".format(question.phase2.r2),
-			"{0:.3f}".format(answer.phase2.r2))
+			"{0:.7f}".format(question.phase2.r2),
+			"{0:.7f}".format(answer.phase2.r2))
 
 		assert_equals(question.phase1.indexs[0], answer.phase1.indexs[0])
 		assert_equals(question.phase1.indexs[1], answer.phase1.indexs[1])
 		assert_equals(
-			"{0:.3f}".format(question.phase1.slope),
-			"{0:.3f}".format(answer.phase1.slope))	
+			"{0:.7f}".format(question.phase1.slope),
+			"{0:.7f}".format(answer.phase1.slope))	
 		assert_equals(
-			"{0:.1f}".format(question.phase1.intercept),
-			"{0:.1f}".format(answer.phase1.intercept))			
+			"{0:.7f}".format(question.phase1.intercept),
+			"{0:.7f}".format(answer.phase1.intercept))			
 		assert_equals(
-			"{0:.1f}".format(question.phase1.k),
-			"{0:.1f}".format(answer.phase1.k))
+			"{0:.7f}".format(question.phase1.k),
+			"{0:.7f}".format(answer.phase1.k))
 		assert_equals(
-			"{0:.1f}".format(question.phase1.r0),
-			"{0:.1f}".format(answer.phase1.r0))				
+			"{0:.7f}".format(question.phase1.r0),
+			"{0:.7f}".format(answer.phase1.r0))				
 		assert_equals(
-			"{0:.1f}".format(question.phase1.efflux),
-			"{0:.1f}".format(answer.phase1.efflux))
+			"{0:.7f}".format(question.phase1.efflux),
+			"{0:.7f}".format(answer.phase1.efflux))
 		assert_equals(
-			"{0:.1f}".format(question.phase1.t05),
-			"{0:.1f}".format(answer.phase1.t05))
+			"{0:.7f}".format(question.phase1.t05),
+			"{0:.7f}".format(answer.phase1.t05))
 		assert_equals(
-			"{0:.3f}".format(question.phase1.r2),
-			"{0:.3f}".format(answer.phase1.r2))		
+			"{0:.7f}".format(question.phase1.r2),
+			"{0:.7f}".format(answer.phase1.r2))		
 
 
 		for counter in range(0, len(question.r2s)):
@@ -345,20 +345,20 @@ def test_phases(file_name):
 if __name__ == '__main__':
 	
 	import Excel
-	temp_data = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun4.xlsx")
+	temp_data = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun6.xlsx")
 	temp_question = temp_data.analyses[0]
 	temp_question.kind = 'obj'
 	temp_question.obj_num_pts = 8
 	temp_question.analyze()
 
 	temp_exp = grab_answers(
-		r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun4.xlsx", temp_question.run.elut_ends)
+		r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun6.xlsx", temp_question.run.elut_ends)
 	temp_answer = temp_exp.analyses[0]
 
 	print "ANSWERS"	
-	print temp_answer.phase1.indexs
-	print temp_answer.phase1.slope
+	#print temp_answer.phase3.x
+	#print temp_answer.phase1.slope
 	print "QUESTIONS"
-	print temp_question.phase1.y
-	print temp_question.phase1.x
-	print temp_question.phase1.slope
+	print temp_question.phase3.x
+	#print temp_question.phase1.x
+	#print temp_question.phase1.slope

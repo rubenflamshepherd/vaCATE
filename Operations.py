@@ -34,41 +34,25 @@ def basic_run_calcs(rt_wght, gfact, elut_starts, elut_ends, elut_cpms):
                 
     return elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log, elut_ends_log
 
-def advanced_run_calcs(analysis):
+def set_obj_phases(run, obj_num_pts):
     '''
-    Do later CATE calculations that require some already extracted parameters.
-    Entire analysis object is imported because many parameters needed and allows
-    attributes to be manipulated directly (nothing returned)
+    Use objective regression to determine the limits of the 3 phases of exchange
+    Phase 3 is found by identifying where r2 decreases for 3 points in a row
+        (refactored to get_obj_phase3 for testing purposes)
+    Phase 1 and 2 is found by identifying the paired series in the remaining 
+        data that yields the highest combined r2s
+    obj_num_pts allows the user to specificy how many points we will ignore at
+        the end of the data series before we start comparing r2s
+    Returns tuples outlining limits of each phase
     '''
-    analysis.elut_period = analysis.run.elut_ends[-1]
-    analysis.tracer_retained = \
-        (analysis.run.sht_cnts + analysis.run.rt_cnts)/analysis.run.rt_wght
-    analysis.netflux =\
-        60 * (analysis.tracer_retained - (analysis.phase3.r0/analysis.phase3.k) *
-        math.exp(-1 * analysis.phase3.k * analysis.elut_period))/ \
-        analysis.run.SA/analysis.run.load_time
-    analysis.influx = analysis.phase3.efflux + analysis.netflux
-    analysis.ratio = analysis.phase3.efflux / analysis.influx
-    analysis.poolsize = analysis.influx * analysis.phase3.t05 / (3 * 0.693)
+    elut_ends_log, elut_cpms_log = run.elut_ends_log, run.elut_cpms_log
+    start_p3, end_p3, r2s = get_obj_phase3(
+        elut_ends_log, elut_cpms_log, obj_num_pts)
 
-def linear_regression(x, y):
-    ''' Linear regression of x and y series (lists)
-    Returns r^2 and m (slope), b (intercept) of y=mx+b
-    '''
-    
-    coeffs = numpy.polyfit(x, y, 1)        
-    # Conversion to "convenience class" in numpy for working with polynomials        
-    p = numpy.poly1d(coeffs)         
-    # Determining R^2 on the current data set, fit values, and mean
-    yhat = p(x)                      #or [p(z) for z in x]
-    ybar = numpy.sum(y)/len(y)       #or sum(y)/len(y)
-    ssreg = numpy.sum((yhat-ybar)**2)#or sum([(yihat-ybar)**2 for yihat in yhat])
-    sstot = numpy.sum((y - ybar)**2) #or sum([ (yi - ybar)**2 for yi in y])
-    r2 = ssreg/sstot
-    slope = coeffs[0]
-    intercept = coeffs[1]
-    
-    return r2, slope, intercept
+    start_p2, end_p2, start_p1, end_p1, highest_r2 = get_obj_phase12(
+        elut_ends_log, elut_cpms_log, start_p3)
+
+    return (start_p3, end_p3), (start_p2, end_p2), (start_p1, end_p1)
 
 def get_obj_phase3(elut_ends_log, elut_cpms_log, obj_num_pts):
     '''
@@ -130,45 +114,36 @@ def get_obj_phase12(elut_ends_log, elut_cpms_log, start_p3):
 
     return start_p2, end_p2, start_p1, end_p1, highest_r2
 
-def set_obj_phases(run, obj_num_pts):
-    '''
-    Use objective regression to determine the limits of the 3 phases of exchange
-    Phase 3 is found by identifying where r2 decreases for 3 points in a row
-        (refactored to get_obj_phase3 for testing purposes)
-    Phase 1 and 2 is found by identifying the paired series in the remaining 
-        data that yields the highest combined r2s
-    obj_num_pts allows the user to specificy how many points we will ignore at
-        the end of the data series before we start comparing r2s
-    Returns tuples outlining limits of each phase
-    '''
-    elut_ends_log, elut_cpms_log = run.elut_ends_log, run.elut_cpms_log
-    start_p3, end_p3, r2s = get_obj_phase3(
-        elut_ends_log, elut_cpms_log, obj_num_pts)
-
-    start_p2, end_p2, start_p1, end_p1, highest_r2 = get_obj_phase12(
-        elut_ends_log, elut_cpms_log, start_p3)
-
-    return (start_p3, end_p3), (start_p2, end_p2), (start_p1, end_p1)
-
-def extract_phase(indexs, x, y, elut_ends, SA, load_time):
+def extract_phase(indexs, x, y, elut_ends_log, SA, load_time):
     '''
     Extract and return parameters from regression analysis of a phase from 
-    CATE run efflux trace.
-    Just using indexs doesn't work because of potential holes from
-    curvestripping. must match index values to master x, y data series. 
-    indexs is a 2 item tuple, x and y are numpy arrays of elut_ends and
-    elut_cpms_log 
+        CATE run efflux trace.
+    Reminder: indexs correspond tp elut_ends_log.
+    x and y are data from which we are extracting phase parameters.
+    These may have holes from avoiding negative log operations during
+        curvestripping of phase II + I
+        - as a result of this, indexs may not line up nicely
+        - must check which x-value elut_ends_log(index[0]/index1) lines up with
+        - this is the fuctional index for our purposes.
     '''
-    temp_start, temp_end = indexs[0], indexs[1]
+    temp_start = indexs[0]
+    temp_end = indexs[1] - 1 # -1 bec indexs are norm for list splicing
 
+    # Default list splicing indexs
     start_phase = indexs[0]
     end_phase = indexs[1]
-
+    
     # Checking for holes that would misalign indexs
-    if x[temp_start] != elut_ends[temp_start]:
+    # FUTURE: may have to deal with index (x,y) pair that is curvestripped
+    if x[temp_start] != elut_ends_log[temp_start]:
         for temp_index, item in enumerate(x):
-            if item == elut_ends[temp_start]:
+            if item == elut_ends_log[temp_start]:
                 start_phase = temp_index
+    if len(x) < len(elut_ends_log) or \
+        x[temp_end] != elut_ends_log[temp_end]:
+        for temp_index, item in enumerate(x):
+            if item == elut_ends_log[temp_end]:
+                end_phase = temp_index + 1 # +1 bec. end index for list splicing
     x_phase = x[start_phase:end_phase]
     y_phase = y[start_phase:end_phase]
 
@@ -182,6 +157,42 @@ def extract_phase(indexs, x, y, elut_ends, SA, load_time):
     return Objects.Phase(
         indexs, xy1, xy2, r2, slope, intercept,
         x_phase, y_phase, k, t05, r0, efflux)
+
+def advanced_run_calcs(analysis):
+    '''
+    Do later CATE calculations that require some already extracted parameters.
+    Entire analysis object is imported because many parameters needed and allows
+    attributes to be manipulated directly (nothing returned)
+    '''
+    analysis.elut_period = analysis.run.elut_ends[-1]
+    analysis.tracer_retained = \
+        (analysis.run.sht_cnts + analysis.run.rt_cnts)/analysis.run.rt_wght
+    analysis.netflux =\
+        60 * (analysis.tracer_retained - (analysis.phase3.r0/analysis.phase3.k) *
+        math.exp(-1 * analysis.phase3.k * analysis.elut_period))/ \
+        analysis.run.SA/analysis.run.load_time
+    analysis.influx = analysis.phase3.efflux + analysis.netflux
+    analysis.ratio = analysis.phase3.efflux / analysis.influx
+    analysis.poolsize = analysis.influx * analysis.phase3.t05 / (3 * 0.693)
+
+def linear_regression(x, y):
+    ''' Linear regression of x and y series (lists)
+    Returns r^2 and m (slope), b (intercept) of y=mx+b
+    '''
+    
+    coeffs = numpy.polyfit(x, y, 1)        
+    # Conversion to "convenience class" in numpy for working with polynomials        
+    p = numpy.poly1d(coeffs)         
+    # Determining R^2 on the current data set, fit values, and mean
+    yhat = p(x)                      #or [p(z) for z in x]
+    ybar = numpy.sum(y)/len(y)       #or sum(y)/len(y)
+    ssreg = numpy.sum((yhat-ybar)**2)#or sum([(yihat-ybar)**2 for yihat in yhat])
+    sstot = numpy.sum((y - ybar)**2) #or sum([ (yi - ybar)**2 for yi in y])
+    r2 = ssreg/sstot
+    slope = coeffs[0]
+    intercept = coeffs[1]
+    
+    return r2, slope, intercept
 
 def curvestrip(x, y, slope, intercept):
     '''

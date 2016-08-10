@@ -62,7 +62,8 @@ class Analysis(object):
                 self.run.elut_ends, self.run.elut_cpms_log, start_p3)
         if self.indexs_p3 != ('', ''):
             self.phase3 = Operations.extract_phase(
-                self.indexs_p3, self.run.elut_ends, self.run.elut_cpms_log, self.run.elut_ends,
+                self.indexs_p3, self.run.elut_ends_log, self.run.elut_cpms_log,
+                self.run.elut_ends_log,
                 self.run.SA, self.run.load_time)
             Operations.advanced_run_calcs(self)
         if self.indexs_p2 != ('', ''):
