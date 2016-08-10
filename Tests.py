@@ -186,18 +186,19 @@ def grab_answers(directory, filename, elut_ends):
 directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
 
 @parameterized([
-	("Test_SingleRun1.xlsx"),
-	("Test_SingleRun2.xlsx"),
-	("Test_SingleRun3.xlsx"),
-	("Test_SingleRun4.xlsx"),
-	("Test_SingleRun5.xlsx"),
-	("Test_SingleRun6.xlsx"),
+	#("Test_SingleRun1.xlsx"),
+	#("Test_SingleRun2.xlsx"),
+	#("Test_SingleRun3.xlsx"),
+	#("Test_SingleRun4.xlsx"),
+	#("Test_SingleRun5.xlsx"),
+	#("Test_SingleRun6.xlsx"),
 	#("Test_SingleRun7.xlsx"),
 	#("Test_SingleRun8.xlsx"),
 	#("Test_SingleRun9.xlsx"),
 	#("Test_SingleRun10.xlsx"),
-	#("Test_SingleRun(hole)1.xlsx"),
-	#("Test_MultiRun1.xlsx"),
+	#("Test_SingleRun11.xlsx"),
+	#("Test_SingleRun12.xlsx"),
+	("Test_MultiRun1.xlsx"),
 	])
 def test_basic(file_name):
 	directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
@@ -225,18 +226,19 @@ def test_basic(file_name):
 		assert_equals(question.run.elut_cpms_log, answer.elut_cpms_log)
 
 @parameterized([
-	("Test_SingleRun1.xlsx"),
-	("Test_SingleRun2.xlsx"),
-	("Test_SingleRun3.xlsx"),
-	("Test_SingleRun4.xlsx"),
-	("Test_SingleRun5.xlsx"),
-	("Test_SingleRun6.xlsx"),
-	#("Test_SingleRun7.xlsx"),
-	#("Test_SingleRun8.xlsx"),
-	#("Test_SingleRun9.xlsx"),
-	#("Test_SingleRun10.xlsx"),
-	#("Test_SingleRun(hole)1.xlsx"),
-	#("Test_MultiRun1.xlsx"),
+	# ("Test_SingleRun1.xlsx"),
+	# ("Test_SingleRun2.xlsx"),
+	# ("Test_SingleRun3.xlsx"),
+	# ("Test_SingleRun4.xlsx"),
+	# ("Test_SingleRun5.xlsx"),
+	# ("Test_SingleRun6.xlsx"),
+	# ("Test_SingleRun7.xlsx"),
+	# ("Test_SingleRun8.xlsx"),
+	# ("Test_SingleRun9.xlsx"),
+	# ("Test_SingleRun10.xlsx"),
+	# ("Test_SingleRun11.xlsx"),
+	# ("Test_SingleRun12.xlsx"),
+	("Test_MultiRun1.xlsx"),
 	])
 def test_phases(file_name):
 	directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
@@ -335,7 +337,6 @@ def test_phases(file_name):
 		assert_equals(
 			"{0:.7f}".format(question.phase1.r2),
 			"{0:.7f}".format(answer.phase1.r2))		
-
 
 		for counter in range(0, len(question.r2s)):
 			assert_equals(
