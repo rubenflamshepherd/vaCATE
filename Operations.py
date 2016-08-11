@@ -134,6 +134,7 @@ def extract_phase(indexs, x, y, elut_ends_log, SA, load_time):
     # Default list splicing indexs
     start_phase = indexs[0]
     end_phase = indexs[1]
+    print start_phase, end_phase
     
     # Checking for holes that would misalign indexs
     # FUTURE: may have to deal with index (x,y) pair that is curvestripped
@@ -141,11 +142,14 @@ def extract_phase(indexs, x, y, elut_ends_log, SA, load_time):
         for temp_index, item in enumerate(x):
             if item == elut_ends_log[temp_start]:
                 start_phase = temp_index
-    if len(x) < len(elut_ends_log) or \
-        x[temp_end] != elut_ends_log[temp_end]:
-        for temp_index, item in enumerate(x):
-            if item == elut_ends_log[temp_end]:
-                end_phase = temp_index + 1 # +1 bec. end index for list splicing
+    try:        
+        if len(x) < len(elut_ends_log) or \
+            x[temp_end] != elut_ends_log[temp_end]:
+            for temp_index, item in enumerate(x):
+                if item == elut_ends_log[temp_end]:
+                    end_phase = temp_index + 1 # +1 bec. end index for list splicing
+    except IndexError: # We've dropped a value, end phase doesn't line up
+        pass
 
     x_phase = x[start_phase:end_phase]
     y_phase = y[start_phase:end_phase]

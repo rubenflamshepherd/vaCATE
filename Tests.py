@@ -186,19 +186,26 @@ def grab_answers(directory, filename, elut_ends):
 directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
 
 @parameterized([
-	#("Test_SingleRun1.xlsx"),
-	#("Test_SingleRun2.xlsx"),
-	#("Test_SingleRun3.xlsx"),
-	#("Test_SingleRun4.xlsx"),
-	#("Test_SingleRun5.xlsx"),
-	#("Test_SingleRun6.xlsx"),
-	#("Test_SingleRun7.xlsx"),
-	#("Test_SingleRun8.xlsx"),
-	#("Test_SingleRun9.xlsx"),
-	#("Test_SingleRun10.xlsx"),
-	#("Test_SingleRun11.xlsx"),
-	#("Test_SingleRun12.xlsx"),
+	("Test_SingleRun1.xlsx"),
+	("Test_SingleRun2.xlsx"),
+	("Test_SingleRun3.xlsx"),
+	("Test_SingleRun4.xlsx"),
+	("Test_SingleRun5.xlsx"),
+	("Test_SingleRun6.xlsx"),
+	("Test_SingleRun7.xlsx"),
+	("Test_SingleRun8.xlsx"),
+	("Test_SingleRun9.xlsx"),
+	("Test_SingleRun10.xlsx"),
+	("Test_SingleRun11.xlsx"),
+	("Test_SingleRun12.xlsx"),
 	("Test_MultiRun1.xlsx"),
+	("Test_SubjSingleRun1.xlsx"),
+	("Test_SubjSingleRun2.xlsx"),
+	("Test_SubjSingleRun3.xlsx"),
+	("Test_SubjSingleRun4.xlsx"),
+	("Test_SubjSingleRun5.xlsx"),
+	("Test_SubjSingleRun6.xlsx"),
+	("Test_SubjMultiRun1.xlsx"),
 	])
 def test_basic(file_name):
 	directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
@@ -206,10 +213,18 @@ def test_basic(file_name):
 	answer_exp = grab_answers(directory, file_name,\
 		question_exp.analyses[0].run.elut_ends)
 	for index, question in enumerate(question_exp.analyses):
-		question.kind = 'obj'
-		question.obj_num_pts = 8
-		question.analyze()
-		answer = answer_exp.analyses[index]
+		if 'Subj' in file_name:
+			question.kind = 'subj'
+			question.indexs_p3 = (10,30)
+			question.indexs_p2 = (3,10)
+			question.indexs_p1 = (0,3)
+			question.analyze()
+			answer = answer_exp.analyses[index]
+		else:
+			question.kind = 'obj'
+			question.obj_num_pts = 8
+			question.analyze()
+			answer = answer_exp.analyses[index]
 
 		assert_equals(question.run.SA, answer.SA)
 		assert_equals(question.run.name, answer.name)
@@ -226,29 +241,48 @@ def test_basic(file_name):
 		assert_equals(question.run.elut_cpms_log, answer.elut_cpms_log)
 
 @parameterized([
-	# ("Test_SingleRun1.xlsx"),
-	# ("Test_SingleRun2.xlsx"),
-	# ("Test_SingleRun3.xlsx"),
-	# ("Test_SingleRun4.xlsx"),
-	# ("Test_SingleRun5.xlsx"),
-	# ("Test_SingleRun6.xlsx"),
-	# ("Test_SingleRun7.xlsx"),
-	# ("Test_SingleRun8.xlsx"),
-	# ("Test_SingleRun9.xlsx"),
-	# ("Test_SingleRun10.xlsx"),
-	# ("Test_SingleRun11.xlsx"),
-	# ("Test_SingleRun12.xlsx"),
+	("Test_SingleRun1.xlsx"),
+	("Test_SingleRun2.xlsx"),
+	("Test_SingleRun3.xlsx"),
+	("Test_SingleRun4.xlsx"),
+	("Test_SingleRun5.xlsx"),
+	("Test_SingleRun6.xlsx"),
+	("Test_SingleRun7.xlsx"),
+	("Test_SingleRun8.xlsx"),
+	("Test_SingleRun9.xlsx"),
+	("Test_SingleRun10.xlsx"),
+	("Test_SingleRun11.xlsx"),
+	("Test_SingleRun12.xlsx"),
 	("Test_MultiRun1.xlsx"),
+	("Test_SubjSingleRun1.xlsx"),
+	("Test_SubjSingleRun2.xlsx"),
+	("Test_SubjSingleRun3.xlsx"),
+	("Test_SubjSingleRun4.xlsx"),
+	("Test_SubjSingleRun5.xlsx"),
+	("Test_SubjSingleRun6.xlsx"),
+	("Test_SubjMultiRun1.xlsx"),
 	])
 def test_phases(file_name):
 	directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
 	question_exp = Excel.grab_data(directory, file_name)
 	answer_exp = grab_answers(directory, file_name, question_exp.analyses[0].run.elut_ends)
 	for index, question in enumerate(question_exp.analyses):
-		question.kind = 'obj'
-		question.obj_num_pts = 8
-		question.analyze()
-		answer = answer_exp.analyses[index]
+		if 'Subj' in file_name:
+			question.kind = 'subj'
+			question.indexs_p3 = (10,30)
+			question.indexs_p2 = (3,10)
+			question.indexs_p1 = (0,3)
+			question.analyze()
+			answer = answer_exp.analyses[index]
+		else:
+			question.kind = 'obj'
+			question.obj_num_pts = 8
+			question.analyze()
+			answer = answer_exp.analyses[index]
+			for counter in range(0, len(question.r2s)):
+				assert_equals(
+					"{0:.10f}".format(question.r2s[counter]),
+					"{0:.10f}".format(answer.r2s[counter]))
 
 		assert_equals(question.phase3.indexs[0], answer.phase3.indexs[0])
 		assert_equals(question.phase3.indexs[1], answer.phase3.indexs[1])
@@ -337,11 +371,6 @@ def test_phases(file_name):
 		assert_equals(
 			"{0:.7f}".format(question.phase1.r2),
 			"{0:.7f}".format(answer.phase1.r2))		
-
-		for counter in range(0, len(question.r2s)):
-			assert_equals(
-				"{0:.10f}".format(question.r2s[counter]),
-				"{0:.10f}".format(answer.r2s[counter]))
 
 if __name__ == '__main__':
 	
