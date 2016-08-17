@@ -500,7 +500,6 @@ class MainFrame(wx.Frame):
 				[analysis.phase3.xy1[1], analysis.phase3.xy2[1]],
 				color = 'r', ls = '-', label = 'Phase III')
 			self.plot_phase3.add_line(line_p3)
-			print analysis.indexs_p1, analysis.indexs_p2, analysis.indexs_p3
 			# Find+plot intial points used to start obj regression
 			if analysis.kind == 'obj':
 				self.plot_phase3.scatter(
@@ -695,18 +694,18 @@ class MainFrame(wx.Frame):
 		   
 if __name__ == '__main__':
 	import Excel
-	temp_experiment = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun(hole)1.xlsx")
-	'''
+	temp_experiment = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun1.xlsx")
+	
 	temp_experiment.analyses[0].kind = 'subj'
 	temp_experiment.analyses[0].indexs_p1 = ('','')
-	temp_experiment.analyses[0].indexs_p2 = (4,11)
+	temp_experiment.analyses[0].indexs_p2 = ('','')
 	temp_experiment.analyses[0].indexs_p3 = (11,30)
 	temp_experiment.analyses[0].analyze()
 	'''
 	temp_experiment.analyses[0].kind = 'obj'
 	temp_experiment.analyses[0].obj_num_pts = 8
 	temp_experiment.analyses[0].analyze()
-		
+	'''
 	app = wx.PySimpleApp()
 	app.frame = MainFrame(temp_experiment)
 	app.frame.Show()

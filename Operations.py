@@ -23,13 +23,16 @@ def basic_run_calcs(rt_wght, gfact, elut_starts, elut_ends, elut_cpms):
     elut_cpms_gfact = [x * gfact for x in elut_cpms]
     elut_cpms_gRFW = []
     elut_cpms_log = []
-    elut_ends_log = [] # y-series for elut_cpms_log
+    elut_ends_log = [] # y-series for parsec data (no '' or 0)
 
-    for index, item in enumerate(elut_cpms_gfact):
-        temp = item / rt_wght / (elut_ends[index] - elut_starts[index])
-        elut_cpms_gRFW.append(temp)
-        if item != 0 and item != '': # Our trigger to skip data point
-            elut_cpms_log.append(math.log10(temp))
+    for index, item in enumerate(elut_cpms):
+        if item: # Our trigger to skip data point ('' or 0)
+            temp_gfact = item * gfact
+            temp_gRFW = item * gfact / rt_wght\
+                / (elut_ends[index] - elut_starts[index])
+            elut_cpms_gfact.append(temp_gfact)
+            elut_cpms_gRFW.append(temp_gRFW)
+            elut_cpms_log.append(math.log10(temp_gRFW))
             elut_ends_log.append(elut_ends[index])
                 
     return elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log, elut_ends_log
@@ -134,8 +137,7 @@ def extract_phase(indexs, x, y, elut_ends_log, SA, load_time):
     # Default list splicing indexs
     start_phase = indexs[0]
     end_phase = indexs[1]
-    print start_phase, end_phase
-    
+        
     # Checking for holes that would misalign indexs
     # FUTURE: may have to deal with index (x,y) pair that is curvestripped
     if x[temp_start] != elut_ends_log[temp_start]:
