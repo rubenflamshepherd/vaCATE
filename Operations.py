@@ -35,27 +35,7 @@ def basic_run_calcs(rt_wght, gfact, elut_starts, elut_ends, elut_cpms):
                 
     return elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log, elut_ends_parsed
 
-def set_obj_phases(run, obj_num_pts):
-    '''
-    Use objective regression to determine the limits of the 3 phases of exchange
-    Phase 3 is found by identifying where r2 decreases for 3 points in a row
-        (refactored to get_obj_phase3 for testing purposes)
-    Phase 1 and 2 is found by identifying the paired series in the remaining 
-        data that yields the highest combined r2s
-    obj_num_pts allows the user to specificy how many points we will ignore at
-        the end of the data series before we start comparing r2s
-    Returns tuples outlining limits of each phase
-    '''
-    elut_ends_log, elut_cpms_log = run.elut_ends_log, run.elut_cpms_log
-    start_p3, end_p3, r2s = get_obj_phase3(
-        elut_ends_log, elut_cpms_log, obj_num_pts)
-
-    start_p2, end_p2, start_p1, end_p1, highest_r2 = get_obj_phase12(
-        elut_ends_log, elut_cpms_log, start_p3)
-
-    return (start_p3, end_p3), (start_p2, end_p2), (start_p1, end_p1)
-
-def get_obj_phase3(elut_ends_log, elut_cpms_log, obj_num_pts):
+def get_obj_phase3(elut_ends_parsed, elut_cpms_log, obj_num_pts):
     '''
     Determine limits of phase 3 using objective regression (point in data series
         from which r2 decreases 3 times in a row). Refactored out of
@@ -66,9 +46,10 @@ def get_obj_phase3(elut_ends_log, elut_cpms_log, obj_num_pts):
     bs = []
     # Storing all possible r2s/ms/bs
     for index in range(len(elut_cpms_log) - 2, -1, -1):
-        temp_x = elut_ends_log[index:]
+        temp_x = elut_ends_parsed[index:]
         temp_y = elut_cpms_log[index:]
-        temp_r2, temp_m, temp_b = linear_regression(temp_x, temp_y)
+        temp_r2, temp_m, temp_b = linear_regression(
+            x_series=temp_x, y_series=temp_y)
         r2s =[temp_r2] + r2s
         ms = [temp_m] + ms
         bs = [temp_b] + bs
@@ -76,26 +57,28 @@ def get_obj_phase3(elut_ends_log, elut_cpms_log, obj_num_pts):
     # Determining the index at which r2 drops three times in a row 
     # from obj_num_pts from the end of the series
     counter = 0
-    for index in range(len(elut_ends_log) - obj_num_pts, -1, -1):
-        # print elut_ends_log[index], r2s[index], counter
+    for index in range(len(elut_ends_parsed) - obj_num_pts, -1, -1):
+        # print elut_ends_parsed[index], r2s[index], counter
         if r2s[index - 1] < r2s[index]:
             counter += 1
             if counter == 3:
                 break
         else:
             counter = 0
-    start_p3 = index + 2 # Last index compared is not entered!
-    end_p3 = len(elut_ends_log)
+    start_index = index + 2 # Last index compared is not entered!
+    end_index = len(elut_ends_parsed)
+    xs_p3 = (elut_ends_parsed[start_index], elut_ends_parsed[-1])
 
-    return start_p3, end_p3, r2s # r2s is returned for testing purposes
+    return xs_p3, r2s # r2s is returned for testing
 
-def get_obj_phase12(elut_ends_log, elut_cpms_log, start_p3):
+def get_obj_phase12(elut_ends_parsed, elut_cpms_log, xs_p3):
     '''
     Determine limits of phase 1+2 using objective regression (x and y series 
         for phase 1 and 2 that yield highest combined r2. Refactored out of
         set_obj_phases so testing functions can access highest_r2
     '''
-    temp_x_p12 = elut_ends_log[:start_p3]
+    start_p3 = x_to_index(x_value=xs_p3[0], x_series=elut_ends_parsed)
+    temp_x_p12 = elut_ends_parsed[:start_p3]
     temp_y_p12 = elut_cpms_log[:start_p3]
     highest_r2 = 0
 
@@ -109,11 +92,10 @@ def get_obj_phase12(elut_ends_log, elut_cpms_log, start_p3):
         temp_r2_p1, temp_m_p1, temp_b_p1 = linear_regression(temp_x_p1, temp_y_p1)
         if temp_r2_p1 + temp_r2_p2 > highest_r2:
             highest_r2 = temp_r2_p1 + temp_r2_p2
-            start_p2, end_p2 = temp_start_p2, start_p3
-            start_p1, end_p1 = 0, temp_start_p2
-        # print temp_x_p1, temp_x_p2, str(temp_r2_p1 + temp_r2_p2), highest_r2
-
-    return start_p2, end_p2, start_p1, end_p1, highest_r2
+            xs_p2 = (temp_x_p12[temp_start_p2], temp_x_p12[-1])
+            xs_p1 = (temp_x_p12[0], temp_x_p12[temp_start_p2 - 1])
+        
+    return xs_p2, xs_p1, highest_r2 # highest_r2 is returned for testing
 
 def extract_phase(xs, x_series, y_series, SA, load_time):
     '''
@@ -124,7 +106,7 @@ def extract_phase(xs, x_series, y_series, SA, load_time):
     These may have holes from avoiding negative log operations during
         curvestripping of phase II + I
         - as a result of this, indexs may not line up nicely
-        - must check which x-value elut_ends_log(index[0]/index1) lines up with
+        - must check which x-value elut_ends_parsed(index[0]/index1) lines up with
         - this is the fuctional index for our purposes.
     '''
     x_start, x_end = xs
@@ -133,8 +115,8 @@ def extract_phase(xs, x_series, y_series, SA, load_time):
     end_index = x_to_index(
         x_value=x_end, x_series=x_series)
 
-    x_phase = x_series[start_index:end_index + 1]
-    y_phase = y_series[start_index:end_index + 1]
+    x_phase = x_series[start_index : end_index+1]
+    y_phase = y_series[start_index : end_index+1]
 
     r2, slope, intercept = linear_regression(x_phase, y_phase) # y=(M)x+(B)
     xy1, xy2 = grab_x_ys(x_phase, slope, intercept)

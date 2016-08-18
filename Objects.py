@@ -51,15 +51,12 @@ class Analysis(object):
         Return Analysis object
         '''
         if self.kind == 'obj':
-            self.indexs_p3, self.indexs_p2, self.indexs_p1 = \
-                Operations.set_obj_phases(
-                    run=self.run, obj_num_pts=self.obj_num_pts)
             self.obj_x_start = self.run.x[-self.obj_num_pts:]
             self.obj_y_start = self.run.y[-self.obj_num_pts:]
-            start_p3, temp2, self.r2s = Operations.get_obj_phase3(
+            self.xs_p3, self.r2s = Operations.get_obj_phase3(
                 self.run.elut_ends_parsed, self.run.elut_cpms_log, self.obj_num_pts)
-            temp3, temp4, temp5, temp6, self.p12_r2_max = Operations.get_obj_phase12(
-                self.run.elut_ends, self.run.elut_cpms_log, start_p3)
+            self.xs_p2, self.xs_p1, self.p12_r2_max = Operations.get_obj_phase12(
+                self.run.elut_ends, self.run.elut_cpms_log, self.xs_p3)
         if self.xs_p3 != ('', ''):
             self.phase3 = Operations.extract_phase(
                 xs=self.xs_p3, 

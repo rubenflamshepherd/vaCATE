@@ -695,7 +695,7 @@ class MainFrame(wx.Frame):
 if __name__ == '__main__':
 	import Excel
 	temp_experiment = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun1.xlsx")
-	
+	'''
 	temp_experiment.analyses[0].kind = 'subj'
 	temp_experiment.analyses[0].xs_p1 = (1,5)
 	temp_experiment.analyses[0].xs_p2 = (6,10)
@@ -705,7 +705,7 @@ if __name__ == '__main__':
 	temp_experiment.analyses[0].kind = 'obj'
 	temp_experiment.analyses[0].obj_num_pts = 8
 	temp_experiment.analyses[0].analyze()
-	'''
+	
 	app = wx.PySimpleApp()
 	app.frame = MainFrame(temp_experiment)
 	app.frame.Show()
