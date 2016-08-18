@@ -636,34 +636,34 @@ class MainFrame(wx.Frame):
 		p1_start = self.subj_p1_start_textbox.GetValue ()
 		p1_end = self.subj_p1_end_textbox.GetValue ()
 		if p3_start != '' or p3_end != '':
-			p3_start, p3_end = int(p3_start) - 1, int(p3_end)
-		new_analysis.indexs_p3 = (p3_start, p3_end)
+			p3_start, p3_end = float(p3_start), float(p3_end)
+		new_analysis.xs_p3 = (p3_start, p3_end)
 		if p2_start != '' or p2_end != '':
-			p2_start, p2_end = int(p2_start) - 1, int(p2_end)
-		new_analysis.indexs_p2 = (p2_start, p2_end)
+			p2_start, p2_end = float(p2_start), float(p2_end)
+		new_analysis.xs_p2 = (p2_start, p2_end)
 		if p1_start != '' or p1_end != '':
-			p1_start, p1_end = int(p1_start) - 1, int(p1_end)
-		new_analysis.indexs_p1 = (p1_start, p1_end)
+			p1_start, p1_end = float(p1_start), float(p1_end)
+		new_analysis.xs_p1 = (p1_start, p1_end)
 		new_analysis.analyze()    	
 		self.experiment.analyses[self.analysis_num] = new_analysis
 		self.draw_figure()
 	
 	def on_subj_prop(self, event):
-		indexs_p3 = (
-			int(self.subj_p3_start_textbox.GetValue ()) - 1,
-			int(self.subj_p3_end_textbox.GetValue ()) - 1)
-		indexs_p2 = (
-			int(self.subj_p2_start_textbox.GetValue ()) - 1,
-			int(self.subj_p2_end_textbox.GetValue ()) - 1)
-		indexs_p1 = (
-			int(self.subj_p1_start_textbox.GetValue ()) - 1,
-			int(self.subj_p1_end_textbox.GetValue ()) - 1)
+		xs_p3 = (
+			float(self.subj_p3_start_textbox.GetValue ()),
+			float(self.subj_p3_end_textbox.GetValue ()))
+		xs_p2 = (
+			float(self.subj_p2_start_textbox.GetValue ()),
+			float(self.subj_p2_end_textbox.GetValue ()))
+		xs_p1 = (
+			float(self.subj_p1_start_textbox.GetValue ()),
+			float(self.subj_p1_end_textbox.GetValue ()))
 		for analysis_num in range(0, len(self.experiment.analyses)):
 			new_analysis = self.experiment.analyses[analysis_num]
 			new_analysis.kind = 'subj'
-			new_analysis.indexs_p3 = indexs_p3
-			new_analysis.indexs_p2 = indexs_p2
-			new_analysis.indexs_p1 = indexs_p1
+			new_analysis.xs_p3 = xs_p3
+			new_analysis.xs_p2 = xs_p2
+			new_analysis.xs_p1 = xs_p1
 			new_analysis.analyze()
 			self.experiment.analyses[run_num] = new_analysis
 		self.draw_figure()

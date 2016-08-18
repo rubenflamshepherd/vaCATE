@@ -169,49 +169,49 @@ def advanced_run_calcs(analysis):
     analysis.ratio = analysis.phase3.efflux / analysis.influx
     analysis.poolsize = analysis.influx * analysis.phase3.t05 / (3 * 0.693)
 
-def linear_regression(x, y):
-    ''' Linear regression of x and y series (lists)
+def linear_regression(x_series, y_series):
+    ''' Linear regression of x_series and y_series (lists)
     Returns r^2 and m (slope), b (intercept) of y=mx+b
     '''
     
-    coeffs = numpy.polyfit(x, y, 1)        
+    coeffs = numpy.polyfit(x_series, y_series, 1)        
     # Conversion to "convenience class" in numpy for working with polynomials        
     p = numpy.poly1d(coeffs)         
     # Determining R^2 on the current data set, fit values, and mean
-    yhat = p(x)                      #or [p(z) for z in x]
-    ybar = numpy.sum(y)/len(y)       #or sum(y)/len(y)
+    yhat = p(x_series) # or [p(z) for z in x_series]
+    ybar = numpy.sum(y_series)/len(y_series) # or sum(y_series)/len(y_series)
     ssreg = numpy.sum((yhat-ybar)**2)#or sum([(yihat-ybar)**2 for yihat in yhat])
-    sstot = numpy.sum((y - ybar)**2) #or sum([ (yi - ybar)**2 for yi in y])
+    sstot = numpy.sum((y_series - ybar)**2) #or sum([ (yi - ybar)**2 for yi in y_series])
     r2 = ssreg/sstot
     slope = coeffs[0]
     intercept = coeffs[1]
     
     return r2, slope, intercept
 
-def curvestrip(x, y, slope, intercept):
+def curvestrip(x_series, y_series, slope, intercept):
     '''
-    Curve-strip a series of data (x and y) according to data from a later
-    phase (slope, intercept)
-    Returns the curve-stripped y series
+    Curve-strip a series of data (x_series and y_series) according to data
+    from a later phase (slope, intercept)
+    Returns the curve-stripped x and y series
     '''
     # Calculating later phase data extrapolated into earlier phase
     extrapolated_raw = []
-    for item in x:
+    for item in x_series:
         extrapolated_x = (slope*item) + intercept
         extrapolated_raw.append(extrapolated_x)
         
     # Antilog extrapolated p3 data and p1/2 data, subtract them, and relog them
     # Containers for curve-stripped p1/2 data
     y_curvestrip = []
-    x_curvestrip = [] # need x series because x_curvestrip maybe != x
+    x_curvestrip = [] # need x series because x_curvestrip maybe != x_series
 
-    for index, item in enumerate(y):
+    for index, item in enumerate(y_series):
         antilog_orig = 10 ** item
         antilog_reg = 10 ** extrapolated_raw[index]
         curvestrip_x_raw = antilog_orig - antilog_reg
         if curvestrip_x_raw > 0: # We can perform a log operation
             y_curvestrip.append(math.log10 (curvestrip_x_raw))
-            x_curvestrip.append(x[index])
+            x_curvestrip.append(x_series[index])
         else: # No log operation possible. Data omitted from series
             pass
     return x_curvestrip, y_curvestrip
