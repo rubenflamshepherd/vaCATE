@@ -67,8 +67,10 @@ class Analysis(object):
             Operations.advanced_run_calcs(self)
         if self.xs_p2 != ('', ''):
             # Set series' to be curvestripped
-            self.x_p12 = self.run.x[:self.indexs_p2[1]]
-            self.y_p12 = self.run.y[:self.indexs_p2[1]]
+            end_p12_index = Operations.x_to_index(
+                self.xs_p2[1], self.run.elut_ends)
+            self.x_p12 = self.run.x[:end_p12_index + 1]
+            self.y_p12 = self.run.y[:end_p12_index + 1]
             # Curve strip phase 1 + 2 data of phase 3
             # From here on data series potentially have 'holes' from ommitting
             # negative log operations during curvestripping
@@ -77,27 +79,29 @@ class Analysis(object):
                     self.x_p12, self.y_p12, 
                     self.phase3.slope, self.phase3.intercept)
             self.phase2 = Operations.extract_phase(
-                self.indexs_p2, 
+                self.xs_p2, 
                 self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3,
-                self.run.elut_ends,
                 self.run.SA, self.run.load_time)
         if self.xs_p1 != ('', ''):
-            self.x_p1 = self.run.x[self.indexs_p1[0]:self.indexs_p1[1]]
-            self.y_p1 = self.run.y[self.indexs_p1[0]:self.indexs_p1[1]]
+            start_p1_index = Operations.x_to_index(
+                self.xs_p1[0], self.run.elut_ends)
+            end_p1_index = Operations.x_to_index(
+                self.xs_p1[1], self.run.elut_ends)
+            self.x_p1 = self.run.x[start_p1_index:end_p1_index + 1]
+            self.y_p1 = self.run.y[start_p1_index:end_p1_index + 1]
             # Set series' to be further curvestripped (already partially done)
             self.x_p1_curvestrip_p3 =\
-                self.x_p12_curvestrip_p3[self.indexs_p1[0]:self.indexs_p1[1]]
+                self.x_p12_curvestrip_p3[start_p1_index:end_p1_index + 1]
             self.y_p1_curvestrip_p3 =\
-                self.y_p12_curvestrip_p3[self.indexs_p1[0]:self.indexs_p1[1]]
+                self.y_p12_curvestrip_p3[start_p1_index:end_p1_index + 1]
             # Curve strip phase 1 data of phase 3 (already stripped phase 3)
             self.x_p1_curvestrip_p23, self.y_p1_curvestrip_p23 = \
                 Operations.curvestrip(
                     self.x_p1_curvestrip_p3, self.y_p1_curvestrip_p3, 
                     self.phase2.slope, self.phase2.intercept)
             self.phase1 = Operations.extract_phase(
-                self.indexs_p1, 
+                self.xs_p1, 
                 self.x_p1_curvestrip_p23, self.y_p1_curvestrip_p23,
-                self.run.elut_ends,
                 self.run.SA, self.run.load_time)
         
 class Run(object):

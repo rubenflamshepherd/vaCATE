@@ -697,9 +697,9 @@ if __name__ == '__main__':
 	temp_experiment = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun1.xlsx")
 	
 	temp_experiment.analyses[0].kind = 'subj'
-	temp_experiment.analyses[0].xs_p1 = ('','')
-	temp_experiment.analyses[0].xs_p2 = ('','')
-	temp_experiment.analyses[0].xs_p3 = (10,45)
+	temp_experiment.analyses[0].xs_p1 = (1,5)
+	temp_experiment.analyses[0].xs_p2 = (6,10)
+	temp_experiment.analyses[0].xs_p3 = (11.5,45)
 	temp_experiment.analyses[0].analyze()
 	'''
 	temp_experiment.analyses[0].kind = 'obj'

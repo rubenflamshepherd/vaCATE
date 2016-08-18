@@ -127,33 +127,14 @@ def extract_phase(xs, x_series, y_series, SA, load_time):
         - must check which x-value elut_ends_log(index[0]/index1) lines up with
         - this is the fuctional index for our purposes.
     '''
-    # Default list splicing indexs
     x_start, x_end = xs
     start_index = x_to_index(
-        x_value=x_start, index_type='start', x_series=x_series)
+        x_value=x_start, x_series=x_series)
     end_index = x_to_index(
-        x_value=x_end, index_type='end', x_series=x_series)
+        x_value=x_end, x_series=x_series)
 
-    '''
-        
-    # Checking for holes that would misalign indexs
-    # FUTURE: may have to deal with index (x,y) pair that is curvestripped
-    if x[temp_start] != elut_ends_log[temp_start]:
-        for temp_index, item in enumerate(x):
-            if item == elut_ends_log[temp_start]:
-                start_phase = temp_index
-    try:        
-        if len(x) < len(elut_ends_log) or \
-            x[temp_end] != elut_ends_log[temp_end]:
-            for temp_index, item in enumerate(x):
-                if item == elut_ends_log[temp_end]:
-                    end_phase = temp_index + 1 # +1 bec. end index for list splicing
-    except IndexError: # We've dropped a value, end phase doesn't line up
-        pass
-    '''
-
-    x_phase = x_series[start_index:end_index]
-    y_phase = y_series[start_index:end_index]
+    x_phase = x_series[start_index:end_index + 1]
+    y_phase = y_series[start_index:end_index + 1]
 
     r2, slope, intercept = linear_regression(x_phase, y_phase) # y=(M)x+(B)
     xy1, xy2 = grab_x_ys(x_phase, slope, intercept)
@@ -166,13 +147,10 @@ def extract_phase(xs, x_series, y_series, SA, load_time):
         xs, xy1, xy2, r2, slope, intercept,
         x_phase, y_phase, k, t05, r0, efflux)
 
-def x_to_index(x_value, index_type, x_series):
+def x_to_index(x_value, x_series):
     for index, item in enumerate(x_series):
         if item == x_value:
-            if index_type == 'start':
-                return index
-            elif index_type == 'end':
-                return index + 1
+            return index
 
 def advanced_run_calcs(analysis):
     '''
@@ -236,11 +214,6 @@ def curvestrip(x, y, slope, intercept):
             x_curvestrip.append(x[index])
         else: # No log operation possible. Data omitted from series
             pass
-    # print x
-    # print y
-    # print x_curvestrip
-    # print y_curvestrip
-                     
     return x_curvestrip, y_curvestrip
 
 if __name__ == '__main__':
