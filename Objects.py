@@ -54,20 +54,23 @@ class Analysis(object):
             self.obj_x_start = self.run.x[-self.obj_num_pts:]
             self.obj_y_start = self.run.y[-self.obj_num_pts:]
             self.xs_p3, self.r2s = Operations.get_obj_phase3(
-                self.run.elut_ends_parsed, self.run.elut_cpms_log, self.obj_num_pts)
+                self.obj_num_pts, self.run.elut_ends_parsed, self.run.elut_cpms_log)
             self.xs_p2, self.xs_p1, self.p12_r2_max = Operations.get_obj_phase12(
-                self.run.elut_ends, self.run.elut_cpms_log, self.xs_p3)
+                self.xs_p3, self.run.elut_ends_parsed,
+                self.run.elut_cpms_log, self.run.elut_ends)
         if self.xs_p3 != ('', ''):
             self.phase3 = Operations.extract_phase(
                 xs=self.xs_p3, 
                 x_series=self.run.elut_ends_parsed, 
                 y_series=self.run.elut_cpms_log,
+                elut_ends=self.run.elut_ends,
                 SA=self.run.SA, load_time=self.run.load_time)
             Operations.advanced_run_calcs(analysis=self)
         if self.xs_p2 != ('', ''):
             # Set series' to be curvestripped
             end_p12_index = Operations.x_to_index(
-                x_value=self.xs_p2[1], x_series=self.run.elut_ends)
+                x_value=self.xs_p2[1], index_type='end',
+                x_series=self.run.elut_ends, larger_x=self.run.elut_ends)
             self.x_p12 = self.run.x[: end_p12_index+1]
             self.y_p12 = self.run.y[: end_p12_index+1]
             # Curve strip phase 1 + 2 data of phase 3
@@ -81,12 +84,15 @@ class Analysis(object):
                 xs=self.xs_p2, 
                 x_series=self.x_p12_curvestrip_p3,
                 y_series=self.y_p12_curvestrip_p3,
+                elut_ends=self.run.elut_ends,
                 SA=self.run.SA, load_time=self.run.load_time)
         if self.xs_p1 != ('', ''):
             start_p1_index = Operations.x_to_index(
-                x_value=self.xs_p1[0], x_series=self.run.elut_ends)
+                x_value=self.xs_p1[0], index_type='start',
+                x_series=self.run.elut_ends, larger_x=self.run.elut_ends)
             end_p1_index = Operations.x_to_index(
-                x_value=self.xs_p1[1], x_series=self.run.elut_ends)
+                x_value=self.xs_p1[1], index_type='end',
+                x_series=self.run.elut_ends, larger_x=self.run.elut_ends)
             self.x_p1 = self.run.x[start_p1_index : end_p1_index+1]
             self.y_p1 = self.run.y[start_p1_index : end_p1_index+1]
             # Set series' to be further curvestripped (already partially done)
@@ -104,6 +110,7 @@ class Analysis(object):
                 xs=self.xs_p1, 
                 x_series=self.x_p1_curvestrip_p23,
                 y_series=self.y_p1_curvestrip_p23,
+                elut_ends=self.run.elut_ends,
                 SA=self.run.SA, load_time=self.run.load_time)
         
 class Run(object):
@@ -138,9 +145,9 @@ class Phase(object):
     Class that stores all data of a particular phase
     '''
     def __init__(
-        self, indexs, xy1, xy2, r2, slope, intercept, x, y,
+        self, xs, xy1, xy2, r2, slope, intercept, x, y,
         k, t05, r0, efflux):
-        self.indexs = indexs # paired tuple (x, y)
+        self.xs = xs # paired tuple (x, y)
         self.xy1, self.xy2 = xy1, xy2 # Each is a paired tuple
         self.r2, self.slope, self.intercept = r2, slope, intercept
         self.x, self.y = x, y

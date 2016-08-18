@@ -35,7 +35,7 @@ def basic_run_calcs(rt_wght, gfact, elut_starts, elut_ends, elut_cpms):
                 
     return elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log, elut_ends_parsed
 
-def get_obj_phase3(elut_ends_parsed, elut_cpms_log, obj_num_pts):
+def get_obj_phase3(obj_num_pts, elut_ends_parsed, elut_cpms_log):
     '''
     Determine limits of phase 3 using objective regression (point in data series
         from which r2 decreases 3 times in a row). Refactored out of
@@ -71,13 +71,15 @@ def get_obj_phase3(elut_ends_parsed, elut_cpms_log, obj_num_pts):
 
     return xs_p3, r2s # r2s is returned for testing
 
-def get_obj_phase12(elut_ends_parsed, elut_cpms_log, xs_p3):
+def get_obj_phase12(xs_p3, elut_ends_parsed, elut_cpms_log, elut_ends):
     '''
     Determine limits of phase 1+2 using objective regression (x and y series 
         for phase 1 and 2 that yield highest combined r2. Refactored out of
         set_obj_phases so testing functions can access highest_r2
     '''
-    start_p3 = x_to_index(x_value=xs_p3[0], x_series=elut_ends_parsed)
+    start_p3 = x_to_index(
+        x_value=xs_p3[0], index_type='start',
+        x_series=elut_ends_parsed, larger_x=elut_ends)
     temp_x_p12 = elut_ends_parsed[:start_p3]
     temp_y_p12 = elut_cpms_log[:start_p3]
     highest_r2 = 0
@@ -97,7 +99,7 @@ def get_obj_phase12(elut_ends_parsed, elut_cpms_log, xs_p3):
         
     return xs_p2, xs_p1, highest_r2 # highest_r2 is returned for testing
 
-def extract_phase(xs, x_series, y_series, SA, load_time):
+def extract_phase(xs, x_series, y_series, elut_ends, SA, load_time):
     '''
     Extract and return parameters from regression analysis of a phase from 
         CATE run efflux trace.
@@ -111,9 +113,9 @@ def extract_phase(xs, x_series, y_series, SA, load_time):
     '''
     x_start, x_end = xs
     start_index = x_to_index(
-        x_value=x_start, x_series=x_series)
+        x_value=x_start, index_type='start', x_series=x_series, larger_x=elut_ends)
     end_index = x_to_index(
-        x_value=x_end, x_series=x_series)
+        x_value=x_end, index_type='end', x_series=x_series, larger_x=elut_ends)
 
     x_phase = x_series[start_index : end_index+1]
     y_phase = y_series[start_index : end_index+1]
@@ -129,10 +131,18 @@ def extract_phase(xs, x_series, y_series, SA, load_time):
         xs, xy1, xy2, r2, slope, intercept,
         x_phase, y_phase, k, t05, r0, efflux)
 
-def x_to_index(x_value, x_series):
+def x_to_index(x_value, index_type, x_series, larger_x):
+    assert x_value in larger_x, 'ERROR: x_to_index x_value not in larger x'
+    while x_value not in x_series:
+        new_index = x_to_index(x_value, index_type, larger_x, larger_x)
+        if index_type == 'start':
+            x_value = larger_x[new_index + 1]
+        else:
+            x_value = larger_x[new_index - 1]
     for index, item in enumerate(x_series):
         if item == x_value:
             return index
+
 
 def advanced_run_calcs(analysis):
     '''

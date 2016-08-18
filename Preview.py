@@ -694,7 +694,7 @@ class MainFrame(wx.Frame):
 		   
 if __name__ == '__main__':
 	import Excel
-	temp_experiment = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun1.xlsx")
+	temp_experiment = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun3.xlsx")
 	'''
 	temp_experiment.analyses[0].kind = 'subj'
 	temp_experiment.analyses[0].xs_p1 = (1,5)
