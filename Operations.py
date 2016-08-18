@@ -20,10 +20,8 @@ def basic_run_calcs(rt_wght, gfact, elut_starts, elut_ends, elut_cpms):
     '''Given initial CATE data, return elution data as corrected for
     G Factor, normalized for root weight, and logged
     '''    
-    elut_cpms_gfact = [x * gfact for x in elut_cpms]
-    elut_cpms_gRFW = []
-    elut_cpms_log = []
-    elut_ends_log = [] # y-series for parsec data (no '' or 0)
+    elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log = [], [], []
+    elut_ends_parsed = [] # y-series for parsec data (no '' or 0)
 
     for index, item in enumerate(elut_cpms):
         if item: # Our trigger to skip data point ('' or 0)
@@ -33,9 +31,9 @@ def basic_run_calcs(rt_wght, gfact, elut_starts, elut_ends, elut_cpms):
             elut_cpms_gfact.append(temp_gfact)
             elut_cpms_gRFW.append(temp_gRFW)
             elut_cpms_log.append(math.log10(temp_gRFW))
-            elut_ends_log.append(elut_ends[index])
+            elut_ends_parsed.append(elut_ends[index])
                 
-    return elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log, elut_ends_log
+    return elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log, elut_ends_parsed
 
 def set_obj_phases(run, obj_num_pts):
     '''
@@ -117,11 +115,11 @@ def get_obj_phase12(elut_ends_log, elut_cpms_log, start_p3):
 
     return start_p2, end_p2, start_p1, end_p1, highest_r2
 
-def extract_phase(indexs, x, y, elut_ends_log, SA, load_time):
+def extract_phase(xs, x_series, y_series, SA, load_time):
     '''
     Extract and return parameters from regression analysis of a phase from 
         CATE run efflux trace.
-    Reminder: indexs correspond tp elut_ends_log.
+    start/end are (x, y) 
     x and y are data from which we are extracting phase parameters.
     These may have holes from avoiding negative log operations during
         curvestripping of phase II + I
@@ -129,14 +127,14 @@ def extract_phase(indexs, x, y, elut_ends_log, SA, load_time):
         - must check which x-value elut_ends_log(index[0]/index1) lines up with
         - this is the fuctional index for our purposes.
     '''
-    temp_start = indexs[0]
-    # -1 below because indexs are normally for list splicing, so end index is
-    #   not inclusive, and doesn't point to last index in list
-    temp_end = indexs[1] - 1 
-
     # Default list splicing indexs
-    start_phase = indexs[0]
-    end_phase = indexs[1]
+    x_start, x_end = xs
+    start_index = x_to_index(
+        x_value=x_start, index_type='start', x_series=x_series)
+    end_index = x_to_index(
+        x_value=x_end, index_type='end', x_series=x_series)
+
+    '''
         
     # Checking for holes that would misalign indexs
     # FUTURE: may have to deal with index (x,y) pair that is curvestripped
@@ -152,9 +150,10 @@ def extract_phase(indexs, x, y, elut_ends_log, SA, load_time):
                     end_phase = temp_index + 1 # +1 bec. end index for list splicing
     except IndexError: # We've dropped a value, end phase doesn't line up
         pass
+    '''
 
-    x_phase = x[start_phase:end_phase]
-    y_phase = y[start_phase:end_phase]
+    x_phase = x_series[start_index:end_index]
+    y_phase = y_series[start_index:end_index]
 
     r2, slope, intercept = linear_regression(x_phase, y_phase) # y=(M)x+(B)
     xy1, xy2 = grab_x_ys(x_phase, slope, intercept)
@@ -164,8 +163,16 @@ def extract_phase(indexs, x, y, elut_ends_log, SA, load_time):
     efflux = 60 * r0 / (SA * (1 - math.exp(-1 * k * load_time)))
 
     return Objects.Phase(
-        indexs, xy1, xy2, r2, slope, intercept,
+        xs, xy1, xy2, r2, slope, intercept,
         x_phase, y_phase, k, t05, r0, efflux)
+
+def x_to_index(x_value, index_type, x_series):
+    for index, item in enumerate(x_series):
+        if item == x_value:
+            if index_type == 'start':
+                return index
+            elif index_type == 'end':
+                return index + 1
 
 def advanced_run_calcs(analysis):
     '''

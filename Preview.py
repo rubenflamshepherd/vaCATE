@@ -433,21 +433,21 @@ class MainFrame(wx.Frame):
 			self.subj_p3_end_textbox.SetValue('')	    
 		elif analysis.kind == 'subj':
 			self.obj_textbox.SetValue ('')
-			if analysis.indexs_p3 != ('',''):
+			if analysis.xs_p3 != ('',''):
 				self.subj_p3_start_textbox.SetValue(
-					str(analysis.indexs_p3[0]+ 1))
+					str(analysis.xs_p3[0]))
 				self.subj_p3_end_textbox.SetValue(
-					str(analysis.indexs_p3[1]))
-			if analysis.indexs_p2 != ('',''):
+					str(analysis.xs_p3[1]))
+			if analysis.xs_p2 != ('',''):
 				self.subj_p2_start_textbox.SetValue(
-					str(analysis.indexs_p2[0] + 1))
+					str(analysis.xs_p2[0]))
 				self.subj_p2_end_textbox.SetValue (
-					str(analysis.indexs_p2[1]))
-			if analysis.indexs_p1 != ('',''):    
+					str(analysis.xs_p2[1]))
+			if analysis.xs_p1 != ('',''):    
 				self.subj_p1_start_textbox.SetValue(
-					str(analysis.indexs_p1[0] + 1))
+					str(analysis.xs_p1[0]))
 				self.subj_p1_end_textbox.SetValue (
-					str(analysis.indexs_p1[1]))  
+					str(analysis.xs_p1[1]))  
 			
 		title_string = 'Compartmental Analysis of Tracer Efflux Automator - '
 		detail_string = "Run " + str (self.analysis_num + 1) + "/"\
@@ -490,7 +490,7 @@ class MainFrame(wx.Frame):
 		self.plot_phase3.set_ylim(bottom = 0)
 		
 		# Graphing the p3 series and regression line
-		if analysis.indexs_p3 != ('', ''):
+		if analysis.xs_p3 != ('', ''):
 			self.plot_phase3.scatter(
 				analysis.phase3.x, analysis.phase3.y, 
 				s = self.slider_width.GetValue(),
@@ -525,7 +525,7 @@ class MainFrame(wx.Frame):
     		self.data_poolsize.SetValue ('%0.3f'%(analysis.poolsize))
 						
 		# Graphing raw uncorrected data of p1 and p2
-		if analysis.indexs_p2 != ('', ''):
+		if analysis.xs_p2 != ('', ''):
 			self.plot_phase2.scatter(
 				analysis.x_p12, analysis.y_p12, s = self.slider_width.GetValue(),
 				alpha = 0.50, edgecolors = 'k', facecolors = 'w', picker = 5)
@@ -559,7 +559,7 @@ class MainFrame(wx.Frame):
 			self.data_p2_efflux.SetValue ('%0.2f'%(analysis.phase2.efflux))	
 									
 		# Graphing the p1 series and regression line	
-		if analysis.indexs_p1 != ('', ''):
+		if analysis.xs_p1 != ('', ''):
 			self.plot_phase1.scatter(
 				analysis.x_p1, analysis.y_p1,
 				s = self.slider_width.GetValue(),
@@ -697,9 +697,9 @@ if __name__ == '__main__':
 	temp_experiment = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun1.xlsx")
 	
 	temp_experiment.analyses[0].kind = 'subj'
-	temp_experiment.analyses[0].indexs_p1 = ('','')
-	temp_experiment.analyses[0].indexs_p2 = ('','')
-	temp_experiment.analyses[0].indexs_p3 = (11,30)
+	temp_experiment.analyses[0].xs_p1 = ('','')
+	temp_experiment.analyses[0].xs_p2 = ('','')
+	temp_experiment.analyses[0].xs_p3 = (10,45)
 	temp_experiment.analyses[0].analyze()
 	'''
 	temp_experiment.analyses[0].kind = 'obj'

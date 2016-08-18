@@ -8,14 +8,14 @@ class Experiment(object):
         self.analyses = analyses # List of Analysis objects
 
 class Analysis(object):
-    def __init__(self, kind, obj_num_pts, run, indexs_p1=('', ''), 
-            indexs_p2=('', ''), indexs_p3=('', '')):
+    def __init__(self, kind, obj_num_pts, run, xs_p1=('', ''), 
+            xs_p2=('', ''), xs_p3=('', '')):
         self.kind = kind # None, 'obj', or 'subj'
         self.obj_num_pts = obj_num_pts # None if not obj regression
         self.run = run
-        self.indexs_p3 = indexs_p3
-        self.indexs_p2 = indexs_p2
-        self.indexs_p1 = indexs_p1
+        self.xs_p3 = xs_p3
+        self.xs_p2 = xs_p2
+        self.xs_p1 = xs_p1
 
         # Default values are None unless assigned
         self.phase3, self.phase2, self.phase1 = None, None, None
@@ -57,16 +57,15 @@ class Analysis(object):
             self.obj_x_start = self.run.x[-self.obj_num_pts:]
             self.obj_y_start = self.run.y[-self.obj_num_pts:]
             start_p3, temp2, self.r2s = Operations.get_obj_phase3(
-                self.run.elut_ends_log, self.run.elut_cpms_log, self.obj_num_pts)
+                self.run.elut_ends_parsed, self.run.elut_cpms_log, self.obj_num_pts)
             temp3, temp4, temp5, temp6, self.p12_r2_max = Operations.get_obj_phase12(
                 self.run.elut_ends, self.run.elut_cpms_log, start_p3)
-        if self.indexs_p3 != ('', ''):
+        if self.xs_p3 != ('', ''):
             self.phase3 = Operations.extract_phase(
-                self.indexs_p3, self.run.elut_ends_log, self.run.elut_cpms_log,
-                self.run.elut_ends_log,
+                self.xs_p3, self.run.elut_ends_parsed, self.run.elut_cpms_log,
                 self.run.SA, self.run.load_time)
             Operations.advanced_run_calcs(self)
-        if self.indexs_p2 != ('', ''):
+        if self.xs_p2 != ('', ''):
             # Set series' to be curvestripped
             self.x_p12 = self.run.x[:self.indexs_p2[1]]
             self.y_p12 = self.run.y[:self.indexs_p2[1]]
@@ -82,7 +81,7 @@ class Analysis(object):
                 self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3,
                 self.run.elut_ends,
                 self.run.SA, self.run.load_time)
-        if self.indexs_p1 != ('', ''):
+        if self.xs_p1 != ('', ''):
             self.x_p1 = self.run.x[self.indexs_p1[0]:self.indexs_p1[1]]
             self.y_p1 = self.run.y[self.indexs_p1[0]:self.indexs_p1[1]]
             # Set series' to be further curvestripped (already partially done)
@@ -121,11 +120,11 @@ class Run(object):
         self.elut_cpms = elut_cpms        
         self.elut_starts = [0.0] + elut_ends[:-1]
         self.elut_cpms_gfact, self.elut_cpms_gRFW, \
-            self.elut_cpms_log, self.elut_ends_log = \
+            self.elut_cpms_log, self.elut_ends_parsed = \
             Operations.basic_run_calcs(
                 rt_wght, gfact, self.elut_starts, elut_ends, elut_cpms)       
 		# x and y data for graphing ('numpy-fied')
-        self.x = numpy.array(self.elut_ends_log)
+        self.x = numpy.array(self.elut_ends_parsed)
         self.y = numpy.array(self.elut_cpms_log)
 
 class Phase(object):
