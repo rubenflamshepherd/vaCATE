@@ -1,6 +1,7 @@
 import xlrd
 from nose.tools import assert_equals
 from nose_parameterized import parameterized
+import os
 
 import Excel
 import Objects
@@ -64,6 +65,8 @@ def grab_answers(directory, filename, elut_ends):
 	Data are what analysis SHOULD be arriving at.
 	'''
 	# Accessing the file from which data is to be grabbed
+	print filename
+	print directory
 	input_file = '/'.join((directory, filename))
 	input_book = xlrd.open_workbook(input_file)
 	input_sheet = input_book.sheet_by_index(1)
@@ -140,12 +143,20 @@ def grab_answers(directory, filename, elut_ends):
 		start_gfact = end_cpms + 1 # row underneath cpms_gfact label
 		end_gfact = start_gfact + len(elut_ends)
 		raw_gfact = input_sheet.col(col_index)[start_gfact : end_gfact]
+		
 		elut_cpms_gfact = [float(x.value) for x in raw_gfact]
+		elut_cpms_gfact = []
+		for item in raw_gfact:
+			if item.value:
+				elut_cpms_gfact.append(float(item.value))
 
 		start_gRFW = end_gfact + 1
 		end_gRFW = start_gRFW + len(elut_ends)
 		raw_gRFW = input_sheet.col(col_index)[start_gRFW : end_gRFW]
-		elut_cpms_gRFW = [float(x.value) for x in raw_gRFW]
+		elut_cpms_gRFW = []
+		for item in raw_gRFW:
+			if item.value:
+				elut_cpms_gRFW.append(float(item.value))
 
 		start_log = end_gRFW + 1
 		end_log = start_log + len(elut_ends)
@@ -183,41 +194,39 @@ def grab_answers(directory, filename, elut_ends):
 		
 	return TestExperiment(directory, all_test_analyses)
 
-directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
-
 @parameterized([
-	("Test_SingleRun1.xlsx"),
-	("Test_SingleRun2.xlsx"),
-	("Test_SingleRun3.xlsx"),
-	#("Test_SingleRun4.xlsx"),
-	#("Test_SingleRun5.xlsx"),
-	#("Test_SingleRun6.xlsx"),
-	#("Test_SingleRun7.xlsx"),
-	#("Test_SingleRun8.xlsx"),
-	#("Test_SingleRun9.xlsx"),
-	#("Test_SingleRun10.xlsx"),
-	#("Test_SingleRun11.xlsx"),
-	#("Test_SingleRun12.xlsx"),
-	#("Test_MultiRun1.xlsx"),
-	#("Test_SubjSingleRun1.xlsx"),
-	#("Test_SubjSingleRun2.xlsx"),
-	#("Test_SubjSingleRun3.xlsx"),
-	#("Test_SubjSingleRun4.xlsx"),
-	#("Test_SubjSingleRun5.xlsx"),
-	#("Test_SubjSingleRun6.xlsx"),
-	#("Test_SubjMultiRun1.xlsx"),
+	("/Tests/1/Test_SingleRun1.xlsx"),
+	("/Tests/1/Test_SingleRun2.xlsx"),
+	("/Tests/1/Test_SingleRun3.xlsx"),
+	("/Tests/1/Test_SingleRun4.xlsx"),
+	("/Tests/1/Test_SingleRun5.xlsx"),
+	("/Tests/1/Test_SingleRun6.xlsx"),
+	("/Tests/1/Test_SingleRun7.xlsx"),
+	("/Tests/1/Test_SingleRun8.xlsx"),
+	("/Tests/1/Test_SingleRun9.xlsx"),
+	("/Tests/1/Test_SingleRun10.xlsx"),
+	("/Tests/1/Test_SingleRun11.xlsx"),
+	("/Tests/1/Test_SingleRun12.xlsx"),
+	("/Tests/1/Test_MultiRun1.xlsx"),
+	("/Tests/1/Test_SubjSingleRun1.xlsx"),
+	("/Tests/1/Test_SubjSingleRun2.xlsx"),
+	("/Tests/1/Test_SubjSingleRun3.xlsx"),
+	("/Tests/1/Test_SubjSingleRun4.xlsx"),
+	("/Tests/1/Test_SubjSingleRun5.xlsx"),
+	("/Tests/1/Test_SubjSingleRun6.xlsx"),
+	("/Tests/1/Test_SubjMultiRun1.xlsx"),
 	])
 def test_basic(file_name):
-	directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
+	directory = os.path.dirname(os.path.abspath(__file__))
 	question_exp = Excel.grab_data(directory, file_name)
 	answer_exp = grab_answers(directory, file_name,\
 		question_exp.analyses[0].run.elut_ends)
 	for index, question in enumerate(question_exp.analyses):
 		if 'Subj' in file_name:
 			question.kind = 'subj'
-			question.xs_p3 = (10,30)
-			question.xs_p2 = (3,10)
-			question.xs_p1 = (0,3)
+			question.xs_p3 = (11.5,45)
+			question.xs_p2 = (4,10)
+			question.xs_p1 = (1,3)
 			question.analyze()
 			answer = answer_exp.analyses[index]
 		else:
@@ -241,29 +250,29 @@ def test_basic(file_name):
 		assert_equals(question.run.elut_cpms_log, answer.elut_cpms_log)
 
 @parameterized([
-	("Test_SingleRun1.xlsx"),
-	("Test_SingleRun2.xlsx"),
-	("Test_SingleRun3.xlsx"),
-	#("Test_SingleRun4.xlsx"),
-	#("Test_SingleRun5.xlsx"),
-	#("Test_SingleRun6.xlsx"),
-	#("Test_SingleRun7.xlsx"),
-	#("Test_SingleRun8.xlsx"),
-	#("Test_SingleRun9.xlsx"),
-	#("Test_SingleRun10.xlsx"),
-	#("Test_SingleRun11.xlsx"),
-	#("Test_SingleRun12.xlsx"),
-	#("Test_MultiRun1.xlsx"),
-	#("Test_SubjSingleRun1.xlsx"),
-	#("Test_SubjSingleRun2.xlsx"),
-	#("Test_SubjSingleRun3.xlsx"),
-	#("Test_SubjSingleRun4.xlsx"),
-	#("Test_SubjSingleRun5.xlsx"),
-	#("Test_SubjSingleRun6.xlsx"),
-	#("Test_SubjMultiRun1.xlsx"),
+	("/Tests/1/Test_SingleRun1.xlsx"),
+	("/Tests/1/Test_SingleRun2.xlsx"),
+	("/Tests/1/Test_SingleRun3.xlsx"),
+	("/Tests/1/Test_SingleRun4.xlsx"),
+	("/Tests/1/Test_SingleRun5.xlsx"),
+	("/Tests/1/Test_SingleRun6.xlsx"),
+	("/Tests/1/Test_SingleRun7.xlsx"),
+	("/Tests/1/Test_SingleRun8.xlsx"),
+	("/Tests/1/Test_SingleRun9.xlsx"),
+	("/Tests/1/Test_SingleRun10.xlsx"),
+	("/Tests/1/Test_SingleRun11.xlsx"),
+	("/Tests/1/Test_SingleRun12.xlsx"),
+	("/Tests/1/Test_MultiRun1.xlsx"),
+	("/Tests/1/Test_SubjSingleRun1.xlsx"),
+	("/Tests/1/Test_SubjSingleRun2.xlsx"),
+	("/Tests/1/Test_SubjSingleRun3.xlsx"),
+	("/Tests/1/Test_SubjSingleRun4.xlsx"),
+	("/Tests/1/Test_SubjSingleRun5.xlsx"),
+	("/Tests/1/Test_SubjSingleRun6.xlsx"),
+	("/Tests/1/Test_SubjMultiRun1.xlsx"),
 	])
 def test_phases(file_name):
-	directory = r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1"
+	directory = os.path.dirname(os.path.abspath(__file__))
 	question_exp = Excel.grab_data(directory, file_name)
 	answer_exp = grab_answers(directory, file_name, question_exp.analyses[0].run.elut_ends)
 	for index, question in enumerate(question_exp.analyses):
