@@ -282,7 +282,7 @@ def test_phases(file_name):
 			question.xs_p2 = (4,10)
 			question.xs_p1 = (1,3)
 			question.analyze()
-			answer = answer_exp.analyses[index]
+			answer = answer_exp.analyses[index]S
 		else:
 			question.kind = 'obj'
 			question.obj_num_pts = 8
