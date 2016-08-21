@@ -193,7 +193,7 @@ def grab_answers(directory, filename, elut_ends):
 				phase3,	phase2, phase1))
 		
 	return TestExperiment(directory, all_test_analyses)
-
+'''
 @parameterized([
 	("/Tests/1/Test_SingleRun1.xlsx"),
 	("/Tests/1/Test_SingleRun2.xlsx"),
@@ -216,6 +216,20 @@ def grab_answers(directory, filename, elut_ends):
 	("/Tests/1/Test_SubjSingleRun6.xlsx"),
 	("/Tests/1/Test_SubjMultiRun1.xlsx"),
 	])
+'''
+@parameterized([
+	("/Tests/Edge Cases/Test_MissLastPtPh3.xlsx"),
+	("/Tests/Edge Cases/Test_MissLastPtPh2.xlsx"),
+	("/Tests/Edge Cases/Test_MissLastPtPh1.xlsx"),
+	("/Tests/Edge Cases/Test_Miss1stPtPh3.xlsx"),
+	("/Tests/Edge Cases/Test_Miss1stPtPh2.xlsx"),
+	("/Tests/Edge Cases/Test_Miss1stPtPh1.xlsx"),
+	("/Tests/Edge Cases/Test_MissMidPtPh3.xlsx"),
+	("/Tests/Edge Cases/Test_MissMidPtPh2.xlsx"),
+	("/Tests/Edge Cases/Test_MissMidPtPh1.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissLastPt.xlsx"),
+	])
+
 def test_basic(file_name):
 	directory = os.path.dirname(os.path.abspath(__file__))
 	question_exp = Excel.grab_data(directory, file_name)
@@ -248,7 +262,7 @@ def test_basic(file_name):
 		assert_equals(question.run.elut_cpms_gfact, answer.elut_cpms_gfact)
 		assert_equals(question.run.elut_cpms_gRFW, answer.elut_cpms_gRFW)
 		assert_equals(question.run.elut_cpms_log, answer.elut_cpms_log)
-
+'''
 @parameterized([
 	("/Tests/1/Test_SingleRun1.xlsx"),
 	("/Tests/1/Test_SingleRun2.xlsx"),
@@ -271,6 +285,19 @@ def test_basic(file_name):
 	("/Tests/1/Test_SubjSingleRun6.xlsx"),
 	("/Tests/1/Test_SubjMultiRun1.xlsx"),
 	])
+'''
+@parameterized([
+	("/Tests/Edge Cases/Test_MissLastPtPh3.xlsx"),
+	("/Tests/Edge Cases/Test_MissLastPtPh2.xlsx"),
+	("/Tests/Edge Cases/Test_MissLastPtPh1.xlsx"),
+	("/Tests/Edge Cases/Test_Miss1stPtPh3.xlsx"),
+	("/Tests/Edge Cases/Test_Miss1stPtPh2.xlsx"),
+	("/Tests/Edge Cases/Test_Miss1stPtPh1.xlsx"),
+	("/Tests/Edge Cases/Test_MissMidPtPh3.xlsx"),
+	("/Tests/Edge Cases/Test_MissMidPtPh2.xlsx"),
+	("/Tests/Edge Cases/Test_MissMidPtPh1.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissLastPt.xlsx"),
+	])
 def test_phases(file_name):
 	directory = os.path.dirname(os.path.abspath(__file__))
 	question_exp = Excel.grab_data(directory, file_name)
@@ -282,7 +309,7 @@ def test_phases(file_name):
 			question.xs_p2 = (4,10)
 			question.xs_p1 = (1,3)
 			question.analyze()
-			answer = answer_exp.analyses[index]S
+			answer = answer_exp.analyses[index]
 		else:
 			question.kind = 'obj'
 			question.obj_num_pts = 8
@@ -382,22 +409,21 @@ def test_phases(file_name):
 			"{0:.7f}".format(answer.phase1.r2))		
 
 if __name__ == '__main__':
-	
 	import Excel
-	temp_data = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun6.xlsx")
+	directory = os.path.dirname(os.path.abspath(__file__))
+	temp_data = Excel.grab_data(directory, "/Tests/Edge Cases/Test_MissLastPtPh1.xlsx")
 	temp_question = temp_data.analyses[0]
 	temp_question.kind = 'obj'
 	temp_question.obj_num_pts = 8
 	temp_question.analyze()
 
-	temp_exp = grab_answers(
-		r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun6.xlsx", temp_question.run.elut_ends)
+	temp_exp = grab_answers(directory, "/Tests/Edge Cases/Test_MissLastPtPh1.xlsx", temp_question.run.elut_ends)
 	temp_answer = temp_exp.analyses[0]
 
 	print "ANSWERS"	
-	#print temp_answer.phase3.x
+	print temp_answer.r2s
 	#print temp_answer.phase1.slope
 	print "QUESTIONS"
-	print temp_question.phase3.x
+	print temp_question.r2s
 	#print temp_question.phase1.x
 	#print temp_question.phase1.slope

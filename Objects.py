@@ -70,7 +70,7 @@ class Analysis(object):
             # Set series' to be curvestripped
             end_p12_index = Operations.x_to_index(
                 x_value=self.xs_p2[1], index_type='end',
-                x_series=self.run.elut_ends, larger_x=self.run.elut_ends)
+                x_series=self.run.elut_ends_parsed, larger_x=self.run.elut_ends)
             self.x_p12 = self.run.x[: end_p12_index+1]
             self.y_p12 = self.run.y[: end_p12_index+1]
             # Curve strip phase 1 + 2 data of phase 3
@@ -89,7 +89,7 @@ class Analysis(object):
         if self.xs_p1 != ('', ''):
             start_p1_index = Operations.x_to_index(
                 x_value=self.xs_p1[0], index_type='start',
-                x_series=self.run.elut_ends, larger_x=self.run.elut_ends)
+                x_series=self.run.elut_ends_parsed, larger_x=self.run.elut_ends)
             end_p1_index = Operations.x_to_index(
                 x_value=self.xs_p1[1], index_type='end',
                 x_series=self.run.elut_ends, larger_x=self.run.elut_ends)
@@ -112,7 +112,8 @@ class Analysis(object):
                 y_series=self.y_p1_curvestrip_p23,
                 elut_ends=self.run.elut_ends,
                 SA=self.run.SA, load_time=self.run.load_time)
-        
+            print start_p1_index, end_p1_index, self.xs_p1
+
 class Run(object):
     '''
     Class that stores ALL data of a single CATE run.
@@ -153,17 +154,11 @@ class Phase(object):
         self.x, self.y = x, y
         self.k, self.t05, self.r0, self.efflux = k, t05, r0, efflux
 
-
-    def initial_blank (self):
-        self.indexs = ('','')
-        self.xy1, self.xy2 = (None, None), (None, None) # Each is a paired tuple
-        self.r2, self.slope, self.intercept = None, None, None
-        self.x, self.y = None, None
-        self.k, self.t05, self.r0, self.efflux = None, None, None
-        		
 if __name__ == "__main__":
     import Excel
-    temp_data = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test - Single Run.xlsx")
+    import os
+    directory = os.path.dirname(os.path.abspath(__file__))
+    temp_data = Excel.grab_data(directory, "/Tests/1/Test_SingleRun1.xlsx")
     
     temp_analysis = temp_data.analyses[0]
     temp_analysis.kind = 'obj'

@@ -116,7 +116,12 @@ def extract_phase(xs, x_series, y_series, elut_ends, SA, load_time):
         x_value=x_start, index_type='start', x_series=x_series, larger_x=elut_ends)
     end_index = x_to_index(
         x_value=x_end, index_type='end', x_series=x_series, larger_x=elut_ends)
-
+    '''
+    print xs, x_start, x_end
+    print start_index, end_index
+    print x_series
+    '''
+    
     x_phase = x_series[start_index : end_index+1]
     y_phase = y_series[start_index : end_index+1]
 

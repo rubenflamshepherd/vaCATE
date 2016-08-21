@@ -533,7 +533,4 @@ def write_phase_corrected_p12(
 
      
 if __name__ == "__main__":
-    #temp_book = xlsxwriter.Workbook('filename.xlsx')
-    temp_data = grab_data("C:\Users\Ruben\Projects\CATEAnalysis", "CATE Template - Multi Run.xlsx")
-    generate_analysis(temp_data)
-    #generate_template ("C:\Users\Ruben\Desktop\CATE_EXCEL_TEST.xlsx")  
+    pass

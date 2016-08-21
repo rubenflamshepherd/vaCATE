@@ -693,8 +693,11 @@ class MainFrame(wx.Frame):
 		self.Destroy()
 		   
 if __name__ == '__main__':
+	import os
 	import Excel
-	temp_experiment = Excel.grab_data(r"C:\Users\Daniel\Projects\CATEAnalysis\Tests\1", "Test_SingleRun3.xlsx")
+
+	directory = os.path.dirname(os.path.abspath(__file__))
+	temp_experiment = Excel.grab_data(directory, "/Tests/1/Test_SingleRun1.xlsx")
 	'''
 	temp_experiment.analyses[0].kind = 'subj'
 	temp_experiment.analyses[0].xs_p1 = (1,5)
