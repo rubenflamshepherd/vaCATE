@@ -66,53 +66,58 @@ class Analysis(object):
                 elut_ends=self.run.elut_ends,
                 SA=self.run.SA, load_time=self.run.load_time)
             Operations.advanced_run_calcs(analysis=self)
-        if self.xs_p2 != ('', ''):
-            # Set series' to be curvestripped
-            end_p12_index = Operations.x_to_index(
-                x_value=self.xs_p2[1], index_type='end',
-                x_series=self.run.elut_ends_parsed, larger_x=self.run.elut_ends)
-            self.x_p12 = self.run.x[: end_p12_index+1]
-            self.y_p12 = self.run.y[: end_p12_index+1]
-            # Curve strip phase 1 + 2 data of phase 3
-            # From here on data series potentially have 'holes' from ommitting
-            # negative log operations during curvestripping
-            self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3 = \
-                Operations.curvestrip(
-                    x_series=self.x_p12, y_series=self.y_p12, 
-                    slope=self.phase3.slope, intercept=self.phase3.intercept)
-            self.phase2 = Operations.extract_phase(
-                xs=self.xs_p2, 
-                x_series=self.x_p12_curvestrip_p3,
-                y_series=self.y_p12_curvestrip_p3,
-                elut_ends=self.run.elut_ends,
-                SA=self.run.SA, load_time=self.run.load_time)
-        if self.xs_p1 != ('', ''):
-            start_p1_index = Operations.x_to_index(
-                x_value=self.xs_p1[0], index_type='start',
-                x_series=self.run.elut_ends_parsed, larger_x=self.run.elut_ends)
-            end_p1_index = Operations.x_to_index(
-                x_value=self.xs_p1[1], index_type='end',
-                x_series=self.run.elut_ends, larger_x=self.run.elut_ends)
-            self.x_p1 = self.run.x[start_p1_index : end_p1_index+1]
-            self.y_p1 = self.run.y[start_p1_index : end_p1_index+1]
-            # Set series' to be further curvestripped (already partially done)
-            self.x_p1_curvestrip_p3 =\
-                self.x_p12_curvestrip_p3[start_p1_index : end_p1_index+1]
-            self.y_p1_curvestrip_p3 =\
-                self.y_p12_curvestrip_p3[start_p1_index : end_p1_index+1]
-            # Curve strip phase 1 data of phase 3 (already stripped phase 3)
-            self.x_p1_curvestrip_p23, self.y_p1_curvestrip_p23 = \
-                Operations.curvestrip(
-                    x_series=self.x_p1_curvestrip_p3,
-                    y_series=self.y_p1_curvestrip_p3, 
-                    slope=self.phase2.slope, intercept=self.phase2.intercept)
-            self.phase1 = Operations.extract_phase(
-                xs=self.xs_p1, 
-                x_series=self.x_p1_curvestrip_p23,
-                y_series=self.y_p1_curvestrip_p23,
-                elut_ends=self.run.elut_ends,
-                SA=self.run.SA, load_time=self.run.load_time)
-            print start_p1_index, end_p1_index, self.xs_p1
+            if self.xs_p2 != ('', ''):
+                # Set series' to be curvestripped
+                end_p12_index = Operations.x_to_index(
+                    x_value=self.xs_p2[1], index_type='end',
+                    x_series=self.run.elut_ends_parsed,
+                    larger_x=self.run.elut_ends)
+                self.x_p12 = self.run.x[: end_p12_index+1]
+                self.y_p12 = self.run.y[: end_p12_index+1]
+                # Curve strip phase 1 + 2 data of phase 3
+                # From here on data series potentially have 'holes' from ommitting
+                # negative log operations during curvestripping
+                self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3 = \
+                    Operations.curvestrip(
+                        x_series=self.x_p12, y_series=self.y_p12, 
+                        slope=self.phase3.slope,
+                        intercept=self.phase3.intercept)
+                self.phase2 = Operations.extract_phase(
+                    xs=self.xs_p2, 
+                    x_series=self.x_p12_curvestrip_p3,
+                    y_series=self.y_p12_curvestrip_p3,
+                    elut_ends=self.run.elut_ends,
+                    SA=self.run.SA, load_time=self.run.load_time)
+                if self.xs_p1 != ('', ''):
+                    start_p1_index = Operations.x_to_index(
+                        x_value=self.xs_p1[0], index_type='start',
+                        x_series=self.run.elut_ends_parsed,
+                        larger_x=self.run.elut_ends)
+                    end_p1_index = Operations.x_to_index(
+                        x_value=self.xs_p1[1], index_type='end',
+                        x_series=self.run.elut_ends,
+                        larger_x=self.run.elut_ends)
+                    self.x_p1 = self.run.x[start_p1_index : end_p1_index+1]
+                    self.y_p1 = self.run.y[start_p1_index : end_p1_index+1]
+                    # Set series' to be further curvestripped (already partially done)
+                    self.x_p1_curvestrip_p3 =\
+                        self.x_p12_curvestrip_p3[start_p1_index : end_p1_index+1]
+                    self.y_p1_curvestrip_p3 =\
+                        self.y_p12_curvestrip_p3[start_p1_index : end_p1_index+1]
+                    # Curve strip phase 1 data of phase 3 (already stripped phase 3)
+                    self.x_p1_curvestrip_p23, self.y_p1_curvestrip_p23 = \
+                        Operations.curvestrip(
+                            x_series=self.x_p1_curvestrip_p3,
+                            y_series=self.y_p1_curvestrip_p3, 
+                            slope=self.phase2.slope,
+                            intercept=self.phase2.intercept)
+                    self.phase1 = Operations.extract_phase(
+                        xs=self.xs_p1, 
+                        x_series=self.x_p1_curvestrip_p23,
+                        y_series=self.y_p1_curvestrip_p23,
+                        elut_ends=self.run.elut_ends,
+                        SA=self.run.SA, load_time=self.run.load_time)
+                    print start_p1_index, end_p1_index, self.xs_p1
 
 class Run(object):
     '''

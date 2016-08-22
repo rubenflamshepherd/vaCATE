@@ -216,7 +216,7 @@ def grab_answers(directory, filename, elut_ends):
 	("/Tests/1/Test_SubjSingleRun6.xlsx"),
 	("/Tests/1/Test_SubjMultiRun1.xlsx"),
 	])
-'''
+
 @parameterized([
 	("/Tests/Edge Cases/Test_MissLastPtPh3.xlsx"),
 	("/Tests/Edge Cases/Test_MissLastPtPh2.xlsx"),
@@ -227,7 +227,27 @@ def grab_answers(directory, filename, elut_ends):
 	("/Tests/Edge Cases/Test_MissMidPtPh3.xlsx"),
 	("/Tests/Edge Cases/Test_MissMidPtPh2.xlsx"),
 	("/Tests/Edge Cases/Test_MissMidPtPh1.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissLastPt.xlsx"),
+	("/Tests/Edge Cases/Test_RsqNoDec.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMiss1stPtPh1.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMiss1stPtPh2.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMiss1stPtPh3.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissLastPtPh3.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissLastPtPh2.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissLastPtPh1.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissMidPtPh3.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissMidPtPh23.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissMidPtPh123.xlsx"),
+	])
+'''
+@parameterized([
+	("/Tests/2/Test_SingleRun1.xlsx"),
+	("/Tests/2/Test_SingleRun2.xlsx"),
+	("/Tests/2/Test_SingleRun3.xlsx"),
+	("/Tests/2/Test_SingleRun4.xlsx"),
+	("/Tests/2/Test_SingleRun5.xlsx"),
+	("/Tests/2/Test_SingleRun6.xlsx"),
+	("/Tests/2/Test_SingleRun7.xlsx"),
+	("/Tests/2/Test_SingleRun8.xlsx"),
 	])
 
 def test_basic(file_name):
@@ -285,7 +305,7 @@ def test_basic(file_name):
 	("/Tests/1/Test_SubjSingleRun6.xlsx"),
 	("/Tests/1/Test_SubjMultiRun1.xlsx"),
 	])
-'''
+
 @parameterized([
 	("/Tests/Edge Cases/Test_MissLastPtPh3.xlsx"),
 	("/Tests/Edge Cases/Test_MissLastPtPh2.xlsx"),
@@ -296,7 +316,26 @@ def test_basic(file_name):
 	("/Tests/Edge Cases/Test_MissMidPtPh3.xlsx"),
 	("/Tests/Edge Cases/Test_MissMidPtPh2.xlsx"),
 	("/Tests/Edge Cases/Test_MissMidPtPh1.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissLastPt.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMiss1stPtPh1.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMiss1stPtPh2.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMiss1stPtPh3.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissLastPtPh3.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissLastPtPh2.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissLastPtPh1.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissMidPtPh3.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissMidPtPh23.xlsx"),
+	("/Tests/Edge Cases/Test_SubjMissMidPtPh123.xlsx"),
+	])
+'''
+@parameterized([
+	("/Tests/2/Test_SingleRun1.xlsx"),
+	("/Tests/2/Test_SingleRun2.xlsx"),
+	("/Tests/2/Test_SingleRun3.xlsx"),
+	("/Tests/2/Test_SingleRun4.xlsx"),
+	("/Tests/2/Test_SingleRun5.xlsx"),
+	("/Tests/2/Test_SingleRun6.xlsx"),
+	("/Tests/2/Test_SingleRun7.xlsx"),
+	("/Tests/2/Test_SingleRun8.xlsx"),
 	])
 def test_phases(file_name):
 	directory = os.path.dirname(os.path.abspath(__file__))
@@ -396,8 +435,8 @@ def test_phases(file_name):
 			"{0:.7f}".format(question.phase1.k),
 			"{0:.7f}".format(answer.phase1.k))
 		assert_equals(
-			"{0:.7f}".format(question.phase1.r0),
-			"{0:.7f}".format(answer.phase1.r0))				
+			"{0:.5f}".format(question.phase1.r0),
+			"{0:.5f}".format(answer.phase1.r0))				
 		assert_equals(
 			"{0:.7f}".format(question.phase1.efflux),
 			"{0:.7f}".format(answer.phase1.efflux))
@@ -411,19 +450,22 @@ def test_phases(file_name):
 if __name__ == '__main__':
 	import Excel
 	directory = os.path.dirname(os.path.abspath(__file__))
-	temp_data = Excel.grab_data(directory, "/Tests/Edge Cases/Test_MissLastPtPh1.xlsx")
+	#temp_data = Excel.grab_data(directory, "/Tests/Edge Cases/Test_SubjMissMidPtPh123.xlsx")
+	temp_data = Excel.grab_data(directory, "/Tests/2/Test_SingleRun5.xlsx")
 	temp_question = temp_data.analyses[0]
 	temp_question.kind = 'obj'
 	temp_question.obj_num_pts = 8
 	temp_question.analyze()
 
-	temp_exp = grab_answers(directory, "/Tests/Edge Cases/Test_MissLastPtPh1.xlsx", temp_question.run.elut_ends)
+	#temp_exp = grab_answers(directory, "/Tests/Edge Cases/Test_SubjMissMidPtPh123.xlsx", temp_question.run.elut_ends)
+	temp_exp = grab_answers(directory, "/Tests/2/Test_SingleRun5.xlsx", temp_question.run.elut_ends)
 	temp_answer = temp_exp.analyses[0]
 
 	print "ANSWERS"	
-	print temp_answer.r2s
+	#print temp_answer.phase1.x
 	#print temp_answer.phase1.slope
 	print "QUESTIONS"
-	print temp_question.r2s
+	print temp_question.phase1.x
+	print temp_question.phase1.y
 	#print temp_question.phase1.x
 	#print temp_question.phase1.slope

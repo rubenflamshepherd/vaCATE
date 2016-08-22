@@ -57,7 +57,8 @@ def get_obj_phase3(obj_num_pts, elut_ends_parsed, elut_cpms_log):
     # Determining the index at which r2 drops three times in a row 
     # from obj_num_pts from the end of the series
     counter = 0
-    for index in range(len(elut_ends_parsed) - obj_num_pts, -1, -1):
+    for index in range(len(elut_ends_parsed) - obj_num_pts, 1, -1):
+        print index
         # print elut_ends_parsed[index], r2s[index], counter
         if r2s[index - 1] < r2s[index]:
             counter += 1
@@ -83,6 +84,7 @@ def get_obj_phase12(xs_p3, elut_ends_parsed, elut_cpms_log, elut_ends):
     temp_x_p12 = elut_ends_parsed[:start_p3]
     temp_y_p12 = elut_cpms_log[:start_p3]
     highest_r2 = 0
+    print xs_p3
 
     for index in range(1, len(temp_x_p12) - 2): #-2 bec. min. len(list) = 2
         temp_start_p2 = index + 1
