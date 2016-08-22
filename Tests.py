@@ -65,8 +65,6 @@ def grab_answers(directory, filename, elut_ends):
 	Data are what analysis SHOULD be arriving at.
 	'''
 	# Accessing the file from which data is to be grabbed
-	print filename
-	print directory
 	input_file = '/'.join((directory, filename))
 	input_book = xlrd.open_workbook(input_file)
 	input_sheet = input_book.sheet_by_index(1)
@@ -451,21 +449,19 @@ if __name__ == '__main__':
 	import Excel
 	directory = os.path.dirname(os.path.abspath(__file__))
 	#temp_data = Excel.grab_data(directory, "/Tests/Edge Cases/Test_SubjMissMidPtPh123.xlsx")
-	temp_data = Excel.grab_data(directory, "/Tests/2/Test_SingleRun5.xlsx")
+	temp_data = Excel.grab_data(directory, "/Tests/2/Test_SingleRun10.xlsx")
 	temp_question = temp_data.analyses[0]
 	temp_question.kind = 'obj'
 	temp_question.obj_num_pts = 8
 	temp_question.analyze()
 
 	#temp_exp = grab_answers(directory, "/Tests/Edge Cases/Test_SubjMissMidPtPh123.xlsx", temp_question.run.elut_ends)
-	temp_exp = grab_answers(directory, "/Tests/2/Test_SingleRun5.xlsx", temp_question.run.elut_ends)
+	temp_exp = grab_answers(directory, "/Tests/2/Test_SingleRun10.xlsx", temp_question.run.elut_ends)
 	temp_answer = temp_exp.analyses[0]
 
 	print "ANSWERS"	
 	#print temp_answer.phase1.x
 	#print temp_answer.phase1.slope
 	print "QUESTIONS"
-	print temp_question.phase1.x
-	print temp_question.phase1.y
 	#print temp_question.phase1.x
 	#print temp_question.phase1.slope

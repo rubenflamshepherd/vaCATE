@@ -40,6 +40,8 @@ def get_obj_phase3(obj_num_pts, elut_ends_parsed, elut_cpms_log):
     Determine limits of phase 3 using objective regression (point in data series
         from which r2 decreases 3 times in a row). Refactored out of
         set_obj_phases so testing functions can access list of r2s (r2s)
+    Maximum length of phase 3 is all of elut_ends_parsed except for the first 
+        4 pts (set aside for phase 1 and 2).
     '''
     r2s = []
     ms = [] # y = mx+b
@@ -58,7 +60,6 @@ def get_obj_phase3(obj_num_pts, elut_ends_parsed, elut_cpms_log):
     # from obj_num_pts from the end of the series
     counter = 0
     for index in range(len(elut_ends_parsed) - obj_num_pts, 1, -1):
-        print index
         # print elut_ends_parsed[index], r2s[index], counter
         if r2s[index - 1] < r2s[index]:
             counter += 1
@@ -84,8 +85,7 @@ def get_obj_phase12(xs_p3, elut_ends_parsed, elut_cpms_log, elut_ends):
     temp_x_p12 = elut_ends_parsed[:start_p3]
     temp_y_p12 = elut_cpms_log[:start_p3]
     highest_r2 = 0
-    print xs_p3
-
+    
     for index in range(1, len(temp_x_p12) - 2): #-2 bec. min. len(list) = 2
         temp_start_p2 = index + 1
         temp_x_p2 = temp_x_p12[temp_start_p2:]
@@ -127,15 +127,22 @@ def extract_phase(xs, x_series, y_series, elut_ends, SA, load_time):
     x_phase = x_series[start_index : end_index+1]
     y_phase = y_series[start_index : end_index+1]
 
-    r2, slope, intercept = linear_regression(x_phase, y_phase) # y=(M)x+(B)
-    xy1, xy2 = grab_x_ys(x_phase, slope, intercept)
-    k = abs(slope) * 2.303
-    t05 = 0.693/k
-    r0 = 10 ** intercept
-    efflux = 60 * r0 / (SA * (1 - math.exp(-1 * k * load_time)))
-
+    if len(x_phase) > 1:
+        phase_xs = xs
+        r2, slope, intercept = linear_regression(x_phase, y_phase) # y=(M)x+(B)
+        xy1, xy2 = grab_x_ys(x_phase, slope, intercept)
+        k = abs(slope) * 2.303
+        t05 = 0.693/k
+        r0 = 10 ** intercept
+        efflux = 60 * r0 / (SA * (1 - math.exp(-1 * k * load_time)))
+    else:
+        phase_xs = ('', '')
+        r2, slope, intercept = '','',''
+        xy1, xy2 = ('', ''), ('', '')
+        k, t05, r0, efflux = '', '', '', ''
+        
     return Objects.Phase(
-        xs, xy1, xy2, r2, slope, intercept,
+        phase_xs, xy1, xy2, r2, slope, intercept,
         x_phase, y_phase, k, t05, r0, efflux)
 
 def x_to_index(x_value, index_type, x_series, larger_x):

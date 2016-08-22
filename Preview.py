@@ -490,9 +490,9 @@ class MainFrame(wx.Frame):
 		self.plot_phase3.set_ylim(bottom = 0)
 		
 		# Graphing the p3 series and regression line
-		if analysis.xs_p3 != ('', ''):
+		if analysis.xs_p3 != ('', '') and analysis.phase3.xs!= ('', ''):
 			self.plot_phase3.scatter(
-				analysis.phase3.x, analysis.phase3.y, 
+				analysis.phase3.x_series, analysis.phase3.y_series, 
 				s = self.slider_width.GetValue(),
 				alpha = 0.75, edgecolors = 'k', facecolors = 'k')            
 			line_p3 = matplotlib.lines.Line2D(
@@ -525,7 +525,7 @@ class MainFrame(wx.Frame):
     		self.data_poolsize.SetValue ('%0.3f'%(analysis.poolsize))
 						
 		# Graphing raw uncorrected data of p1 and p2
-		if analysis.xs_p2 != ('', ''):
+		if analysis.xs_p2 != ('', '') and analysis.phase2.xs!= ('', ''):
 			self.plot_phase2.scatter(
 				analysis.x_p12, analysis.y_p12, s = self.slider_width.GetValue(),
 				alpha = 0.50, edgecolors = 'k', facecolors = 'w', picker = 5)
@@ -539,8 +539,8 @@ class MainFrame(wx.Frame):
 				alpha = 0.50, edgecolors = 'r', facecolors = 'w')
 			
 			self.plot_phase2.scatter(
-				analysis.phase2.x,
-				analysis.phase2.y,
+				analysis.phase2.x_series,
+				analysis.phase2.y_series,
 				s = self.slider_width.GetValue(),
 				alpha = 0.75, edgecolors = 'k', facecolors = 'k')	
 			
@@ -559,7 +559,7 @@ class MainFrame(wx.Frame):
 			self.data_p2_efflux.SetValue ('%0.2f'%(analysis.phase2.efflux))	
 									
 		# Graphing the p1 series and regression line	
-		if analysis.xs_p1 != ('', ''):
+		if analysis.xs_p1 != ('', '') and analysis.phase1.xs != ('', ''):
 			self.plot_phase1.scatter(
 				analysis.x_p1, analysis.y_p1,
 				s = self.slider_width.GetValue(),
@@ -697,7 +697,7 @@ if __name__ == '__main__':
 	import Excel
 
 	directory = os.path.dirname(os.path.abspath(__file__))
-	temp_experiment = Excel.grab_data(directory, "/Tests/1/Test_SingleRun1.xlsx")
+	temp_experiment = Excel.grab_data(directory, "/Tests/2/Test_SingleRun10.xlsx")
 	'''
 	temp_experiment.analyses[0].kind = 'subj'
 	temp_experiment.analyses[0].xs_p1 = (1,5)
