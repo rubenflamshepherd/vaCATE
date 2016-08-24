@@ -529,8 +529,6 @@ def write_phase_corrected_p12(
             elution_counter += 1
             
         row_counter += 1     
-    
-
      
 if __name__ == "__main__":
     pass

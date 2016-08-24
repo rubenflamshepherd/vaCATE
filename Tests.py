@@ -191,64 +191,72 @@ def grab_answers(directory, filename, elut_ends):
 				phase3,	phase2, phase1))
 		
 	return TestExperiment(directory, all_test_analyses)
-'''
-@parameterized([
-	("/Tests/1/Test_SingleRun1.xlsx"),
-	("/Tests/1/Test_SingleRun2.xlsx"),
-	("/Tests/1/Test_SingleRun3.xlsx"),
-	("/Tests/1/Test_SingleRun4.xlsx"),
-	("/Tests/1/Test_SingleRun5.xlsx"),
-	("/Tests/1/Test_SingleRun6.xlsx"),
-	("/Tests/1/Test_SingleRun7.xlsx"),
-	("/Tests/1/Test_SingleRun8.xlsx"),
-	("/Tests/1/Test_SingleRun9.xlsx"),
-	("/Tests/1/Test_SingleRun10.xlsx"),
-	("/Tests/1/Test_SingleRun11.xlsx"),
-	("/Tests/1/Test_SingleRun12.xlsx"),
-	("/Tests/1/Test_MultiRun1.xlsx"),
-	("/Tests/1/Test_SubjSingleRun1.xlsx"),
-	("/Tests/1/Test_SubjSingleRun2.xlsx"),
-	("/Tests/1/Test_SubjSingleRun3.xlsx"),
-	("/Tests/1/Test_SubjSingleRun4.xlsx"),
-	("/Tests/1/Test_SubjSingleRun5.xlsx"),
-	("/Tests/1/Test_SubjSingleRun6.xlsx"),
-	("/Tests/1/Test_SubjMultiRun1.xlsx"),
-	])
 
 @parameterized([
-	("/Tests/Edge Cases/Test_MissLastPtPh3.xlsx"),
-	("/Tests/Edge Cases/Test_MissLastPtPh2.xlsx"),
-	("/Tests/Edge Cases/Test_MissLastPtPh1.xlsx"),
-	("/Tests/Edge Cases/Test_Miss1stPtPh3.xlsx"),
-	("/Tests/Edge Cases/Test_Miss1stPtPh2.xlsx"),
-	("/Tests/Edge Cases/Test_Miss1stPtPh1.xlsx"),
-	("/Tests/Edge Cases/Test_MissMidPtPh3.xlsx"),
-	("/Tests/Edge Cases/Test_MissMidPtPh2.xlsx"),
-	("/Tests/Edge Cases/Test_MissMidPtPh1.xlsx"),
-	("/Tests/Edge Cases/Test_RsqNoDec.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMiss1stPtPh1.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMiss1stPtPh2.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMiss1stPtPh3.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissLastPtPh3.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissLastPtPh2.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissLastPtPh1.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissMidPtPh3.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissMidPtPh23.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissMidPtPh123.xlsx"),
-	])
-'''
-@parameterized([
-	("/Tests/2/Test_SingleRun1.xlsx"),
-	("/Tests/2/Test_SingleRun2.xlsx"),
-	("/Tests/2/Test_SingleRun3.xlsx"),
-	("/Tests/2/Test_SingleRun4.xlsx"),
-	("/Tests/2/Test_SingleRun5.xlsx"),
-	("/Tests/2/Test_SingleRun6.xlsx"),
-	("/Tests/2/Test_SingleRun7.xlsx"),
-	("/Tests/2/Test_SingleRun8.xlsx"),
+	("/Tests/1/Test_SingleRun1.xlsx", 8),
+	("/Tests/1/Test_SingleRun2.xlsx", 8),
+	("/Tests/1/Test_SingleRun3.xlsx", 8),
+	("/Tests/1/Test_SingleRun4.xlsx", 8),
+	("/Tests/1/Test_SingleRun5.xlsx", 8),
+	("/Tests/1/Test_SingleRun6.xlsx", 8),
+	("/Tests/1/Test_SingleRun7.xlsx", 8),
+	("/Tests/1/Test_SingleRun8.xlsx", 8),
+	("/Tests/1/Test_SingleRun9.xlsx", 8),
+	("/Tests/1/Test_SingleRun10.xlsx", 8),
+	("/Tests/1/Test_SingleRun11.xlsx", 8),
+	("/Tests/1/Test_SingleRun12.xlsx", 8),
+	("/Tests/1/Test_MultiRun1.xlsx", 8),
+	("/Tests/1/Test_SubjSingleRun1.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/1/Test_SubjSingleRun2.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/1/Test_SubjSingleRun3.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/1/Test_SubjSingleRun4.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/1/Test_SubjSingleRun5.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/1/Test_SubjSingleRun6.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/1/Test_SubjMultiRun1.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_MissLastPtPh3.xlsx", 8),
+	("/Tests/Edge Cases/Test_MissLastPtPh2.xlsx", 8),
+	("/Tests/Edge Cases/Test_MissLastPtPh1.xlsx", 8),
+	("/Tests/Edge Cases/Test_Miss1stPtPh3.xlsx", 8),
+	("/Tests/Edge Cases/Test_Miss1stPtPh2.xlsx", 8),
+	("/Tests/Edge Cases/Test_Miss1stPtPh1.xlsx", 8),
+	("/Tests/Edge Cases/Test_MissMajPh3.xlsx", 8),
+	("/Tests/Edge Cases/Test_MissMidPtPh3.xlsx", 8),
+	("/Tests/Edge Cases/Test_MissMidPtPh2.xlsx", 8),
+	("/Tests/Edge Cases/Test_MissMidPtPh1.xlsx", 8),
+	("/Tests/Edge Cases/Test_Ph1Is1Pt.xlsx", 8),
+	("/Tests/Edge Cases/Test_RsqNoDec.xlsx", 8),
+	("/Tests/Edge Cases/Test_SubjMiss1stPtPh1.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMiss1stPtPh2.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMiss1stPtPh3.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMissLastPtPh3.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMissLastPtPh2.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMissLastPtPh1.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMissMidPtPh3.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMissMidPtPh23.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMissMidPtPh123.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/2/Test_SingleRun1.xlsx", 8),
+	("/Tests/2/Test_SingleRun2.xlsx", 8),
+	("/Tests/2/Test_SingleRun3.xlsx", 8),
+	("/Tests/2/Test_SingleRun4.xlsx", 8),
+	("/Tests/2/Test_SingleRun5.xlsx", 8),
+	("/Tests/2/Test_SingleRun6.xlsx", 8),
+	("/Tests/2/Test_SingleRun7.xlsx", 8),
+	("/Tests/2/Test_SingleRun8.xlsx", 8),
+	("/Tests/2/Test_SingleRun9.xlsx", 8),
+	("/Tests/2/Test_SingleRun10.xlsx", 8),
+	("/Tests/2/Test_SingleRun11.xlsx", 8),
+	("/Tests/2/Test_SingleRun12.xlsx", 8),
+	("/Tests/2/Test_SingleRun13.xlsx", 8),
+	("/Tests/2/Test_SingleRun14.xlsx", 8),
+	("/Tests/2/Test_SingleRun15.xlsx", 8),
+	("/Tests/2/Test_SingleRun16.xlsx", 8),
+	("/Tests/2/Test_MultiRun1.xlsx", 8),
+	("/Tests/2/Test_SubjSingleRun1.xlsx", [(1,3), (4,10), (11.5,40)]),
+	("/Tests/2/Test_SubjSingleRun3.xlsx", [(1,3), (4,10), (11.5,40)]),
+	("/Tests/2/Test_SubjMultiRun1.xlsx", [(1,3), (4,10), (11.5,40)]),
 	])
 
-def test_basic(file_name):
+def test_basic(file_name, analysis_data):
 	directory = os.path.dirname(os.path.abspath(__file__))
 	question_exp = Excel.grab_data(directory, file_name)
 	answer_exp = grab_answers(directory, file_name,\
@@ -256,14 +264,14 @@ def test_basic(file_name):
 	for index, question in enumerate(question_exp.analyses):
 		if 'Subj' in file_name:
 			question.kind = 'subj'
-			question.xs_p3 = (11.5,45)
-			question.xs_p2 = (4,10)
-			question.xs_p1 = (1,3)
+			question.xs_p3 = analysis_data[2]
+			question.xs_p2 = analysis_data[1]
+			question.xs_p1 = analysis_data[0]
 			question.analyze()
 			answer = answer_exp.analyses[index]
 		else:
 			question.kind = 'obj'
-			question.obj_num_pts = 8
+			question.obj_num_pts = analysis_data
 			question.analyze()
 			answer = answer_exp.analyses[index]
 
@@ -280,76 +288,86 @@ def test_basic(file_name):
 		assert_equals(question.run.elut_cpms_gfact, answer.elut_cpms_gfact)
 		assert_equals(question.run.elut_cpms_gRFW, answer.elut_cpms_gRFW)
 		assert_equals(question.run.elut_cpms_log, answer.elut_cpms_log)
-'''
-@parameterized([
-	("/Tests/1/Test_SingleRun1.xlsx"),
-	("/Tests/1/Test_SingleRun2.xlsx"),
-	("/Tests/1/Test_SingleRun3.xlsx"),
-	("/Tests/1/Test_SingleRun4.xlsx"),
-	("/Tests/1/Test_SingleRun5.xlsx"),
-	("/Tests/1/Test_SingleRun6.xlsx"),
-	("/Tests/1/Test_SingleRun7.xlsx"),
-	("/Tests/1/Test_SingleRun8.xlsx"),
-	("/Tests/1/Test_SingleRun9.xlsx"),
-	("/Tests/1/Test_SingleRun10.xlsx"),
-	("/Tests/1/Test_SingleRun11.xlsx"),
-	("/Tests/1/Test_SingleRun12.xlsx"),
-	("/Tests/1/Test_MultiRun1.xlsx"),
-	("/Tests/1/Test_SubjSingleRun1.xlsx"),
-	("/Tests/1/Test_SubjSingleRun2.xlsx"),
-	("/Tests/1/Test_SubjSingleRun3.xlsx"),
-	("/Tests/1/Test_SubjSingleRun4.xlsx"),
-	("/Tests/1/Test_SubjSingleRun5.xlsx"),
-	("/Tests/1/Test_SubjSingleRun6.xlsx"),
-	("/Tests/1/Test_SubjMultiRun1.xlsx"),
-	])
 
 @parameterized([
-	("/Tests/Edge Cases/Test_MissLastPtPh3.xlsx"),
-	("/Tests/Edge Cases/Test_MissLastPtPh2.xlsx"),
-	("/Tests/Edge Cases/Test_MissLastPtPh1.xlsx"),
-	("/Tests/Edge Cases/Test_Miss1stPtPh3.xlsx"),
-	("/Tests/Edge Cases/Test_Miss1stPtPh2.xlsx"),
-	("/Tests/Edge Cases/Test_Miss1stPtPh1.xlsx"),
-	("/Tests/Edge Cases/Test_MissMidPtPh3.xlsx"),
-	("/Tests/Edge Cases/Test_MissMidPtPh2.xlsx"),
-	("/Tests/Edge Cases/Test_MissMidPtPh1.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMiss1stPtPh1.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMiss1stPtPh2.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMiss1stPtPh3.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissLastPtPh3.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissLastPtPh2.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissLastPtPh1.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissMidPtPh3.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissMidPtPh23.xlsx"),
-	("/Tests/Edge Cases/Test_SubjMissMidPtPh123.xlsx"),
+	("/Tests/1/Test_SingleRun1.xlsx", 8),
+	("/Tests/1/Test_SingleRun2.xlsx", 8),
+	("/Tests/1/Test_SingleRun3.xlsx", 8),
+	("/Tests/1/Test_SingleRun4.xlsx", 8),
+	("/Tests/1/Test_SingleRun5.xlsx", 8),
+	("/Tests/1/Test_SingleRun6.xlsx", 8),
+	("/Tests/1/Test_SingleRun7.xlsx", 8),
+	("/Tests/1/Test_SingleRun8.xlsx", 8),
+	("/Tests/1/Test_SingleRun9.xlsx", 8),
+	("/Tests/1/Test_SingleRun10.xlsx", 8),
+	("/Tests/1/Test_SingleRun11.xlsx", 8),
+	("/Tests/1/Test_SingleRun12.xlsx", 8),
+	("/Tests/1/Test_MultiRun1.xlsx", 8),
+	("/Tests/1/Test_SubjSingleRun1.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/1/Test_SubjSingleRun2.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/1/Test_SubjSingleRun3.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/1/Test_SubjSingleRun4.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/1/Test_SubjSingleRun5.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/1/Test_SubjSingleRun6.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/1/Test_SubjMultiRun1.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_MissLastPtPh3.xlsx", 8),
+	("/Tests/Edge Cases/Test_MissLastPtPh2.xlsx", 8),
+	("/Tests/Edge Cases/Test_MissLastPtPh1.xlsx", 8),
+	("/Tests/Edge Cases/Test_Miss1stPtPh3.xlsx", 8),
+	("/Tests/Edge Cases/Test_Miss1stPtPh2.xlsx", 8),
+	("/Tests/Edge Cases/Test_Miss1stPtPh1.xlsx", 8),
+	("/Tests/Edge Cases/Test_MissMajPh3.xlsx", 8),
+	("/Tests/Edge Cases/Test_MissMidPtPh3.xlsx", 8),
+	("/Tests/Edge Cases/Test_MissMidPtPh2.xlsx", 8),
+	("/Tests/Edge Cases/Test_MissMidPtPh1.xlsx", 8),
+	("/Tests/Edge Cases/Test_Ph1Is1Pt.xlsx", 8),
+	("/Tests/Edge Cases/Test_RsqNoDec.xlsx", 8),
+	("/Tests/Edge Cases/Test_SubjMiss1stPtPh1.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMiss1stPtPh2.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMiss1stPtPh3.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMissLastPtPh3.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMissLastPtPh2.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMissLastPtPh1.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMissMidPtPh3.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMissMidPtPh23.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/Edge Cases/Test_SubjMissMidPtPh123.xlsx", [(1,3), (4,10), (11.5,45)]),
+	("/Tests/2/Test_SingleRun1.xlsx", 8),
+	("/Tests/2/Test_SingleRun2.xlsx", 8),
+	("/Tests/2/Test_SingleRun3.xlsx", 8),
+	("/Tests/2/Test_SingleRun4.xlsx", 8),
+	("/Tests/2/Test_SingleRun5.xlsx", 8),
+	("/Tests/2/Test_SingleRun6.xlsx", 8),
+	("/Tests/2/Test_SingleRun7.xlsx", 8),
+	("/Tests/2/Test_SingleRun8.xlsx", 8),
+	("/Tests/2/Test_SingleRun9.xlsx", 8),
+	("/Tests/2/Test_SingleRun10.xlsx", 8),
+	("/Tests/2/Test_SingleRun11.xlsx", 8),
+	("/Tests/2/Test_SingleRun12.xlsx", 8),
+	("/Tests/2/Test_SingleRun13.xlsx", 8),
+	("/Tests/2/Test_SingleRun14.xlsx", 8),
+	("/Tests/2/Test_SingleRun15.xlsx", 8),
+	("/Tests/2/Test_SingleRun16.xlsx", 8),
+	("/Tests/2/Test_MultiRun1.xlsx", 8),
+	("/Tests/2/Test_SubjSingleRun1.xlsx", [(1,3), (4,10), (11.5,40)]),
+	("/Tests/2/Test_SubjSingleRun3.xlsx", [(1,3), (4,10), (11.5,40)]),
+	("/Tests/2/Test_SubjMultiRun1.xlsx", [(1,3), (4,10), (11.5,40)]),
 	])
-'''
-@parameterized([
-	("/Tests/2/Test_SingleRun1.xlsx"),
-	("/Tests/2/Test_SingleRun2.xlsx"),
-	("/Tests/2/Test_SingleRun3.xlsx"),
-	("/Tests/2/Test_SingleRun4.xlsx"),
-	("/Tests/2/Test_SingleRun5.xlsx"),
-	("/Tests/2/Test_SingleRun6.xlsx"),
-	("/Tests/2/Test_SingleRun7.xlsx"),
-	("/Tests/2/Test_SingleRun8.xlsx"),
-	])
-def test_phases(file_name):
+
+def test_phases(file_name, analysis_data):
 	directory = os.path.dirname(os.path.abspath(__file__))
 	question_exp = Excel.grab_data(directory, file_name)
 	answer_exp = grab_answers(directory, file_name, question_exp.analyses[0].run.elut_ends)
 	for index, question in enumerate(question_exp.analyses):
 		if 'Subj' in file_name:
 			question.kind = 'subj'
-			question.xs_p3 = (11.5, 45)
-			question.xs_p2 = (4,10)
-			question.xs_p1 = (1,3)
+			question.xs_p3 = analysis_data[2]
+			question.xs_p2 = analysis_data[1]
+			question.xs_p1 = analysis_data[0]
 			question.analyze()
 			answer = answer_exp.analyses[index]
 		else:
 			question.kind = 'obj'
-			question.obj_num_pts = 8
+			question.obj_num_pts = analysis_data
 			question.analyze()
 			answer = answer_exp.analyses[index]
 			for counter in range(0, len(question.r2s)):
@@ -409,8 +427,8 @@ def test_phases(file_name):
 			"{0:.7f}".format(question.phase2.k),
 			"{0:.7f}".format(answer.phase2.k))
 		assert_equals(
-			"{0:.7f}".format(question.phase2.r0),
-			"{0:.7f}".format(answer.phase2.r0))				
+			"{0:.5f}".format(question.phase2.r0),
+			"{0:.5f}".format(answer.phase2.r0))				
 		assert_equals(
 			"{0:.7f}".format(question.phase2.efflux),
 			"{0:.7f}".format(answer.phase2.efflux))
@@ -423,27 +441,36 @@ def test_phases(file_name):
 
 		assert_equals(question.phase1.xs[0], answer.phase1.xs[0])
 		assert_equals(question.phase1.xs[1], answer.phase1.xs[1])
-		assert_equals(
-			"{0:.7f}".format(question.phase1.slope),
-			"{0:.7f}".format(answer.phase1.slope))	
-		assert_equals(
-			"{0:.7f}".format(question.phase1.intercept),
-			"{0:.7f}".format(answer.phase1.intercept))			
-		assert_equals(
-			"{0:.7f}".format(question.phase1.k),
-			"{0:.7f}".format(answer.phase1.k))
-		assert_equals(
-			"{0:.5f}".format(question.phase1.r0),
-			"{0:.5f}".format(answer.phase1.r0))				
-		assert_equals(
-			"{0:.7f}".format(question.phase1.efflux),
-			"{0:.7f}".format(answer.phase1.efflux))
-		assert_equals(
-			"{0:.7f}".format(question.phase1.t05),
-			"{0:.7f}".format(answer.phase1.t05))
-		assert_equals(
-			"{0:.7f}".format(question.phase1.r2),
-			"{0:.7f}".format(answer.phase1.r2))		
+		if question.phase1.xs != ('',''):
+			assert_equals(
+				"{0:.7f}".format(question.phase1.slope),
+				"{0:.7f}".format(answer.phase1.slope))	
+			assert_equals(
+				"{0:.7f}".format(question.phase1.intercept),
+				"{0:.7f}".format(answer.phase1.intercept))			
+			assert_equals(
+				"{0:.7f}".format(question.phase1.k),
+				"{0:.7f}".format(answer.phase1.k))
+			assert_equals(
+				"{0:.5f}".format(question.phase1.r0),
+				"{0:.5f}".format(answer.phase1.r0))				
+			assert_equals(
+				"{0:.7f}".format(question.phase1.efflux),
+				"{0:.7f}".format(answer.phase1.efflux))
+			assert_equals(
+				"{0:.7f}".format(question.phase1.t05),
+				"{0:.7f}".format(answer.phase1.t05))
+			assert_equals(
+				"{0:.7f}".format(question.phase1.r2),
+				"{0:.7f}".format(answer.phase1.r2))
+		else:
+			assert_equals(question.phase1.slope, answer.phase1.slope)	
+			assert_equals(question.phase1.intercept, answer.phase1.intercept)			
+			assert_equals(question.phase1.k, answer.phase1.k)
+			assert_equals(question.phase1.r0, answer.phase1.r0)				
+			assert_equals(question.phase1.efflux, answer.phase1.efflux)
+			assert_equals(question.phase1.t05, answer.phase1.t05)
+			assert_equals(question.phase1.r2, answer.phase1.r2)		
 
 if __name__ == '__main__':
 	import Excel

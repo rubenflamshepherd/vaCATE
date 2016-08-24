@@ -114,7 +114,6 @@ class Analysis(object):
                             y_series=self.y_p1_curvestrip_p3, 
                             slope=self.phase2.slope,
                             intercept=self.phase2.intercept)
-                    print self.x_p1_curvestrip_p23
                     self.phase1 = Operations.extract_phase(
                         xs=self.xs_p1, 
                         x_series=self.x_p1_curvestrip_p23,
