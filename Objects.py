@@ -107,13 +107,16 @@ class Analysis(object):
                         self.x_p12_curvestrip_p3[start_p1_index : end_p1_index+1]
                     self.y_p1_curvestrip_p3 =\
                         self.y_p12_curvestrip_p3[start_p1_index : end_p1_index+1]
-                    # Curve strip phase 1 data of phase 3 (already stripped phase 3)
+                    # Curve strip phase 1 data of phase 3 (already stripped phase 
                     self.x_p1_curvestrip_p23, self.y_p1_curvestrip_p23 = \
                         Operations.curvestrip(
                             x_series=self.x_p1_curvestrip_p3,
                             y_series=self.y_p1_curvestrip_p3, 
                             slope=self.phase2.slope,
                             intercept=self.phase2.intercept)
+                    #print 'input', self.x_p1_curvestrip_p3
+                    #print 'ouput', self.x_p1_curvestrip_p23
+                    
                     self.phase1 = Operations.extract_phase(
                         xs=self.xs_p1, 
                         x_series=self.x_p1_curvestrip_p23,
@@ -161,6 +164,11 @@ class Phase(object):
         self.r2, self.slope, self.intercept = r2, slope, intercept
         self.x_series, self.y_series = x_series, y_series
         self.k, self.t05, self.r0, self.efflux = k, t05, r0, efflux
+
+    def blank_phase():
+        self.xs = ('','')
+        self.r2, self.slope, intercept = '','',''
+
 
 if __name__ == "__main__":
     import Excel

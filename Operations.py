@@ -113,16 +113,20 @@ def extract_phase(xs, x_series, y_series, elut_ends, SA, load_time):
         - must check which x-value elut_ends_parsed(index[0]/index1) lines up with
         - this is the fuctional index for our purposes.
     '''
+    if len(x_series) < 1:
+        phase_xs = ('', '')
+        r2, slope, intercept = '','',''
+        xy1, xy2 = ('', ''), ('', '')
+        k, t05, r0, efflux = '', '', '', ''
+        return Objects.Phase(
+            phase_xs, xy1, xy2, r2, slope, intercept,
+            x_series, y_series, k, t05, r0, efflux)
+
     x_start, x_end = xs
     start_index = x_to_index(
         x_value=x_start, index_type='start', x_series=x_series, larger_x=elut_ends)
     end_index = x_to_index(
         x_value=x_end, index_type='end', x_series=x_series, larger_x=elut_ends)
-    '''
-    print xs, x_start, x_end
-    print start_index, end_index
-    print x_series
-    '''
     
     x_phase = x_series[start_index : end_index+1]
     y_phase = y_series[start_index : end_index+1]
@@ -146,8 +150,9 @@ def extract_phase(xs, x_series, y_series, elut_ends, SA, load_time):
         x_phase, y_phase, k, t05, r0, efflux)
 
 def x_to_index(x_value, index_type, x_series, larger_x):
-    assert x_value in larger_x, 'ERROR: x_to_index x_value not in larger x'
+    assert x_value in larger_x, 'ERROR: x_to_index x_value(%s) not in larger x' %(x_value)
     while x_value not in x_series:
+        #print x_value, x_series
         new_index = x_to_index(x_value, index_type, larger_x, larger_x)
         if index_type == 'start':
             x_value = larger_x[new_index + 1]
@@ -205,7 +210,7 @@ def curvestrip(x_series, y_series, slope, intercept):
     for item in x_series:
         extrapolated_x = (slope*item) + intercept
         extrapolated_raw.append(extrapolated_x)
-        
+
     # Antilog extrapolated p3 data and p1/2 data, subtract them, and relog them
     # Containers for curve-stripped p1/2 data
     y_curvestrip = []

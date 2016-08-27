@@ -697,18 +697,18 @@ if __name__ == '__main__':
 	import Excel
 
 	directory = os.path.dirname(os.path.abspath(__file__))
-	temp_experiment = Excel.grab_data(directory, "/Tests/2/Test_SingleRun10.xlsx")
-	'''
+	temp_experiment = Excel.grab_data(directory, "/Tests/3/Test_SubjSingleRun2.xlsx")
+	
 	temp_experiment.analyses[0].kind = 'subj'
-	temp_experiment.analyses[0].xs_p1 = (1,5)
-	temp_experiment.analyses[0].xs_p2 = (6,10)
-	temp_experiment.analyses[0].xs_p3 = (11.5,45)
+	temp_experiment.analyses[0].xs_p1 = (1,3)
+	temp_experiment.analyses[0].xs_p2 = (4,10)
+	temp_experiment.analyses[0].xs_p3 = (11.5,40)
 	temp_experiment.analyses[0].analyze()
 	'''
 	temp_experiment.analyses[0].kind = 'obj'
 	temp_experiment.analyses[0].obj_num_pts = 8
 	temp_experiment.analyses[0].analyze()
-	
+	'''
 	app = wx.PySimpleApp()
 	app.frame = MainFrame(temp_experiment)
 	app.frame.Show()
