@@ -226,6 +226,7 @@ def grab_answers(directory, filename, elut_ends):
 	#("/Tests/Edge Cases/Test_MissMidPtPh1.xlsx", 8),
 	#("/Tests/Edge Cases/Test_Ph1Is1Pt.xlsx", 8),
 	#("/Tests/Edge Cases/Test_RsqNoDec.xlsx", 8),
+	#("/Tests/Edge Cases/Test_EarlyEndPh3.xlsx", 8),
 	#("/Tests/Edge Cases/Test_SubjMiss1stPtPh1.xlsx", [(1,3), (4,10), (11.5,45)]),
 	#("/Tests/Edge Cases/Test_SubjMiss1stPtPh2.xlsx", [(1,3), (4,10), (11.5,45)]),
 	#("/Tests/Edge Cases/Test_SubjMiss1stPtPh3.xlsx", [(1,3), (4,10), (11.5,45)]),
@@ -278,16 +279,33 @@ def grab_answers(directory, filename, elut_ends):
 	#("/Tests/3/Test_MultiRun1.xlsx", 8),
 	#("/Tests/3/Test_SubjSingleRun1.xlsx", [(1,3), (4,10), (11.5,40)]),
 	#("/Tests/3/Test_SubjMultiRun1.xlsx", [(1,3), (4,10), (11.5,40)]),
-	("/Tests/4/Test_SingleRun1.xlsx", 8),
-	("/Tests/4/Test_SingleRun2.xlsx", 8),
-	("/Tests/4/Test_SingleRun3.xlsx", 8),
-	("/Tests/4/Test_SingleRun4.xlsx", 8),
-	("/Tests/4/Test_SingleRun5.xlsx", 8),
-	("/Tests/4/Test_SingleRun6.xlsx", 8),
-	("/Tests/4/Test_SingleRun7.xlsx", 8),
-	("/Tests/4/Test_SingleRun8.xlsx", 8),
-	("/Tests/4/Test_SingleRun9.xlsx", 8),
-	("/Tests/4/Test_SingleRun10.xlsx", 8),
+	#("/Tests/4/Test_SingleRun1.xlsx", 8),
+	#("/Tests/4/Test_SingleRun2.xlsx", 8),
+	#("/Tests/4/Test_SingleRun3.xlsx", 8),
+	#("/Tests/4/Test_SingleRun4.xlsx", 8),
+	#("/Tests/4/Test_SingleRun5.xlsx", 8),
+	#("/Tests/4/Test_SingleRun6.xlsx", 8),
+	#("/Tests/4/Test_SingleRun7.xlsx", 8),
+	#("/Tests/4/Test_SingleRun8.xlsx", 8),
+	#("/Tests/4/Test_SingleRun9.xlsx", 8),
+	#("/Tests/4/Test_SingleRun10.xlsx", 8),
+	#("/Tests/4/Test_SingleRun11.xlsx", 8),
+	#("/Tests/4/Test_SingleRun12.xlsx", 8),
+	#("/Tests/4/Test_SingleRun13.xlsx", 8),
+	#("/Tests/4/Test_SingleRun14.xlsx", 8),
+	#("/Tests/4/Test_SingleRun15.xlsx", 8),
+	#("/Tests/4/Test_SingleRun16.xlsx", 8),
+	#("/Tests/4/Test_SingleRun17.xlsx", 8),
+	#("/Tests/4/Test_SingleRun18.xlsx", 8),
+	#("/Tests/4/Test_SingleRun19.xlsx", 8),
+	#("/Tests/4/Test_SingleRun20.xlsx", 8),
+	#("/Tests/4/Test_SingleRun21.xlsx", 8),
+	#("/Tests/4/Test_SingleRun22.xlsx", 8),
+	#("/Tests/4/Test_SingleRun23.xlsx", 8),
+	#("/Tests/4/Test_SingleRun24.xlsx", 8),
+	#("/Tests/4/Test_MultiRun1.xlsx", 8),
+	#("/Tests/4/Test_SubjSingleRun1.xlsx", [(1.5,4.5), (6,9), (10.5,39)]),
+	#("/Tests/4/Test_SubjMultiRun1.xlsx", [(1.5,4.5), (6,9), (10.5,39)]),
 	])
 
 def test_analysis(file_name, analysis_data):
@@ -355,11 +373,11 @@ def test_analysis(file_name, analysis_data):
 			"{0:.7f}".format(answer.phase3.r2))		
 		
 		assert_equals(
+			"{0:.7f}".format(question.netflux),
+			"{0:.7f}".format(answer.netflux))		
+		assert_equals(
 			"{0:.7f}".format(question.influx),
 			"{0:.7f}".format(answer.influx))
-		assert_equals(
-			"{0:.7f}".format(question.netflux),
-			"{0:.7f}".format(answer.netflux))
 		assert_equals(
 			"{0:.7f}".format(question.ratio),
 			"{0:.7f}".format(answer.ratio))
@@ -419,8 +437,8 @@ def test_analysis(file_name, analysis_data):
 				"{0:.5f}".format(question.phase1.r0),
 				"{0:.5f}".format(answer.phase1.r0))				
 			assert_equals(
-				"{0:.7f}".format(question.phase1.efflux),
-				"{0:.7f}".format(answer.phase1.efflux))
+				"{0:.6f}".format(question.phase1.efflux),
+				"{0:.6f}".format(answer.phase1.efflux))
 			assert_equals(
 				"{0:.7f}".format(question.phase1.t05),
 				"{0:.7f}".format(answer.phase1.t05))
