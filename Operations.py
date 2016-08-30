@@ -113,7 +113,7 @@ def extract_phase(xs, x_series, y_series, elut_ends, SA, load_time):
         - must check which x-value elut_ends_parsed(index[0]/index1) lines up with
         - this is the fuctional index for our purposes.
     '''
-    if len(x_series) < 1:
+    if len(x_series) < 2:
         phase_xs = ('', '')
         r2, slope, intercept = '','',''
         xy1, xy2 = ('', ''), ('', '')

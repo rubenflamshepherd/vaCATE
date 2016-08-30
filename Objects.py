@@ -132,7 +132,7 @@ class Run(object):
     '''        
     def __init__(
     	   self, name, SA, rt_cnts, sht_cnts, rt_wght, gfact,
-    	   load_time, elut_ends, elut_cpms):       
+    	   load_time, elut_ends, raw_cpms, elut_cpms):       
         self.name = name # Text identifier extracted from col header in excel
         self.SA = SA
         self.rt_cnts = rt_cnts
@@ -141,7 +141,8 @@ class Run(object):
         self.gfact = gfact
         self.load_time = load_time
         self.elut_ends = elut_ends
-        self.elut_cpms = elut_cpms        
+        self.raw_cpms = raw_cpms
+        self.elut_cpms = elut_cpms # = raw_cpms with blanks('') replaced w/0        
         self.elut_starts = [0.0] + elut_ends[:-1]
         self.elut_cpms_gfact, self.elut_cpms_gRFW, \
             self.elut_cpms_log, self.elut_ends_parsed = \
