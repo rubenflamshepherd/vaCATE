@@ -428,11 +428,11 @@ class MainFrame(wx.Frame):
 			self.subj_p1_start_textbox.SetValue('')
 			self.subj_p1_end_textbox.SetValue('')
 			self.subj_p2_start_textbox.SetValue('')
-			self.subj_p2_end_textbox.SetValue('')	    
+			self.subj_p2_end_textbox.SetValue('')
 			self.subj_p3_start_textbox.SetValue('')
 			self.subj_p3_end_textbox.SetValue('')	    
 		elif analysis.kind == 'subj':
-			self.obj_textbox.SetValue ('')
+			self.obj_textbox.SetValue('')
 			if analysis.xs_p3 != ('',''):
 				self.subj_p3_start_textbox.SetValue(
 					str(analysis.xs_p3[0]))
@@ -441,12 +441,12 @@ class MainFrame(wx.Frame):
 			if analysis.xs_p2 != ('',''):
 				self.subj_p2_start_textbox.SetValue(
 					str(analysis.xs_p2[0]))
-				self.subj_p2_end_textbox.SetValue (
+				self.subj_p2_end_textbox.SetValue(
 					str(analysis.xs_p2[1]))
 			if analysis.xs_p1 != ('',''):    
 				self.subj_p1_start_textbox.SetValue(
 					str(analysis.xs_p1[0]))
-				self.subj_p1_end_textbox.SetValue (
+				self.subj_p1_end_textbox.SetValue(
 					str(analysis.xs_p1[1]))  
 			
 		title_string = 'Compartmental Analysis of Tracer Efflux Automator - '
@@ -520,9 +520,9 @@ class MainFrame(wx.Frame):
 			self.data_rtwght.SetValue ('%0.3f'%(analysis.run.rt_wght))
 			self.data_loadtime.SetValue ('%0.2f'%(analysis.run.load_time))
 			self.data_influx.SetValue ('%0.3f'%(analysis.influx))
-    		self.data_netflux.SetValue ('%0.3f'%(analysis.netflux))
-    		self.data_ratio.SetValue ('%0.3f'%(analysis.ratio))
-    		self.data_poolsize.SetValue ('%0.3f'%(analysis.poolsize))
+    		#self.data_netflux.SetValue ('%0.3f'%(analysis.netflux))
+    		#self.data_ratio.SetValue ('%0.3f'%(analysis.ratio))
+    		#self.data_poolsize.SetValue ('%0.3f'%(analysis.poolsize))
 						
 		# Graphing raw uncorrected data of p1 and p2
 		if analysis.xs_p2 != ('', '') and analysis.phase2.xs!= ('', ''):
@@ -548,9 +548,7 @@ class MainFrame(wx.Frame):
 					[analysis.phase2.xy1[0], analysis.phase2.xy2[0]],
 					[analysis.phase2.xy1[1], analysis.phase2.xy2[1]],
 					color = 'r', ls = '--', label = 'Phase II')
-			self.plot_phase2.add_line (self.line_p2)
-
-			# Outputting the data from the linear regressions to widgets        
+			self.plot_phase2.add_line (self.line_p2)			# Outputting the data from the linear regressions to widgets        
 			self.data_p2_slope.SetValue ('%0.3f'%(analysis.phase2.slope))
 			self.data_p2_int.SetValue ('%0.3f'%(analysis.phase2.intercept))
 			self.data_p2_r2.SetValue ('%0.3f'%(analysis.phase2.r2))     
@@ -582,7 +580,7 @@ class MainFrame(wx.Frame):
 				[analysis.phase1.xy1[0], analysis.phase1.xy2[0]],
 				[analysis.phase1.xy1[1], analysis.phase1.xy2[1]],
 				color = 'r', ls = ':', label = 'Phase I')
-			self.plot_phase1.add_line (self.line_p1)          
+			self.plot_phase1.add_line(self.line_p1)          
 		
 			# Outputting the data from the linear regressions to widgets        
 			self.data_p1_slope.SetValue ('%0.3f'%(analysis.phase1.slope))
@@ -665,7 +663,7 @@ class MainFrame(wx.Frame):
 			new_analysis.xs_p2 = xs_p2
 			new_analysis.xs_p1 = xs_p1
 			new_analysis.analyze()
-			self.experiment.analyses[run_num] = new_analysis
+			self.experiment.analyses[analysis_num] = new_analysis
 		self.draw_figure()
 	
 	def on_cb_grid(self, event):
@@ -697,7 +695,7 @@ if __name__ == '__main__':
 	import Excel
 
 	directory = os.path.dirname(os.path.abspath(__file__))
-	temp_experiment = Excel.grab_data(directory, "/Tests/3/Test_SubjSingleRun2.xlsx")
+	temp_experiment = Excel.grab_data(directory, "/Tests/3/Test_MultiRun1.xlsx")
 	
 	temp_experiment.analyses[0].kind = 'subj'
 	temp_experiment.analyses[0].xs_p1 = (1,3)

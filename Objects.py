@@ -53,7 +53,7 @@ class Analysis(object):
         if self.kind == 'obj':
             self.obj_x_start = self.run.x[-self.obj_num_pts:]
             self.obj_y_start = self.run.y[-self.obj_num_pts:]
-            self.xs_p3, self.r2s = Operations.get_obj_phase3(
+            self.xs_p3, self.r2s, self.ms, self.bs = Operations.get_obj_phase3(
                 obj_num_pts=self.obj_num_pts,
                 elut_ends_parsed=self.run.elut_ends_parsed,
                 elut_cpms_log=self.run.elut_cpms_log)

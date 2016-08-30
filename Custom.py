@@ -43,12 +43,12 @@ class Toolbar(NavigationToolbar2WxAgg):
         wx.EVT_TOOL(self, self.ON_EXTRACT, self._on_extract)
     
     def _on_next(self, evt):
-        self.frame_object.run_num += 1
-        self.frame_object.draw_figure ()
+        self.frame_object.analysis_num += 1
+        self.frame_object.draw_figure()
         
     def _on_previous(self, evt):
-        self.frame_object.run_num -= 1
-        self.frame_object.draw_figure ()    
+        self.frame_object.analysis_num-= 1
+        self.frame_object.draw_figure()    
 
     def _on_extract(self, evt):
         # add some text to the axes in a random location in axes (0,1)
@@ -70,7 +70,7 @@ class Toolbar(NavigationToolbar2WxAgg):
         file_name = 'CATE Finished - ' + time.strftime("(%Y_%m_%d).xlsx")
         output_file_path = '/'.join ((self.frame_object.data_object.output_folder, file_name))  
         
-        Excel.generate_analysis (self.frame_object.data_object)
+        Excel.generate_analysis(self.frame_object.data_object)
         
         evt.Skip()
         

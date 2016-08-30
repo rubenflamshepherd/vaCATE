@@ -129,6 +129,7 @@ class DialogFrame(wx.Frame):
         innerBox = wx.BoxSizer(wx.VERTICAL)
         buttonBox1 = wx.BoxSizer(wx.HORIZONTAL)
         buttonBox2 = wx.BoxSizer(wx.HORIZONTAL)
+        buttonBox3 = wx.BoxSizer(wx.HORIZONTAL)
         
         # Main text presented to user
         txt1 = "     Welcome to the CATE Data Analyzer!     "
@@ -153,6 +154,7 @@ class DialogFrame(wx.Frame):
         # Option Buttons        
         btn1 = wx.Button(innerPanel, id=1, label="Analyze CATE Data")
         btn2 = wx.Button(innerPanel, id=2, label="Generate CATE Template")
+        self.checkbox = wx.CheckBox (innerPanel, id=5, label="Automatically analyze")
         btn3 = wx.Button(innerPanel, id=3, label="About")
         btn4 = wx.Button(innerPanel, id=4, label="Quit")
         
@@ -173,15 +175,20 @@ class DialogFrame(wx.Frame):
         buttonBox1.AddSpacer(7,10)        
         buttonBox1.Add(btn1, 0, wx.CENTER)
         buttonBox1.AddSpacer(7,10)
-        buttonBox1.Add(btn2, 0, wx.CENTER)
+        buttonBox1.Add(self.checkbox, 0, wx.CENTER)
         buttonBox1.AddSpacer(7,15)
-        buttonBox2.Add(btn3, 0, wx.CENTER)
-        buttonBox2.AddSpacer(7,15)        
-        buttonBox2.Add(btn4, 0, wx.CENTER)
-        buttonBox2.AddSpacer(7,10)        
+        buttonBox2.AddSpacer(7,10)
+        buttonBox2.Add(btn2, 0, wx.CENTER)
+        buttonBox3.AddSpacer(7,10)
+        buttonBox3.Add(btn3, 0, wx.CENTER)
+        buttonBox3.AddSpacer(7,15)        
+        buttonBox3.Add(btn4, 0, wx.CENTER)
+        buttonBox3.AddSpacer(7,10)        
         innerBox.Add(buttonBox1, 0, wx.CENTER)
         innerBox.AddSpacer ((150,10))
         innerBox.Add(buttonBox2, 0, wx.CENTER)
+        innerBox.AddSpacer ((150,10))
+        innerBox.Add(buttonBox3, 0, wx.CENTER)
         innerBox.AddSpacer ((150,10))
         
         # Adding disclaimer text to main spacer 'innerBox' (under buttons)
@@ -209,11 +216,16 @@ class DialogFrame(wx.Frame):
             directory = u'%s' %directory
             directory = directory.replace (u'\\', '/')            
             
-            temp_CATE_data = Excel.grab_data (directory, filename)
+            temp_CATE_data = Excel.grab_data(directory, filename)
+            if self.checkbox.GetValue():
+                for temp_analysis in temp_CATE_data.analyses:
+                    temp_analysis.kind = 'obj'
+                    temp_analysis.obj_num_pts = 8
+                    temp_analysis.analyze()
             
-            frame = Preview.MainFrame (temp_CATE_data)
-            frame.Show (True)
-            frame.MakeModal (True)            
+            frame = Preview.MainFrame(temp_CATE_data)
+            frame.Show(True)
+            frame.MakeModal(True)            
             dlg.Destroy()
                         
         self.Close()                         
@@ -235,11 +247,11 @@ class DialogFrame(wx.Frame):
             directory = u'%s' %directory
             self.directory = directory.replace (u'\\', '/')
             
-            output_name = 'CATE Template - ' + time.strftime ("(%Y_%m_%d).xlsx")
+            output_name = 'CATE Template - ' + time.strftime("(%Y_%m_%d).xlsx")
             output_file_path = '/'.join ((directory, output_name))            
             
             workbook = xlsxwriter.Workbook(output_file_path)
-            Excel.generate_template (workbook)
+            Excel.generate_template(workbook)
             
             workbook.close()        
                

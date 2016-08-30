@@ -71,7 +71,7 @@ def get_obj_phase3(obj_num_pts, elut_ends_parsed, elut_cpms_log):
     end_index = len(elut_ends_parsed)
     xs_p3 = (elut_ends_parsed[start_index], elut_ends_parsed[-1])
 
-    return xs_p3, r2s # r2s is returned for testing
+    return xs_p3, r2s, ms, bs # r2s is returned for testing
 
 def get_obj_phase12(xs_p3, elut_ends_parsed, elut_cpms_log, elut_ends):
     '''
