@@ -18,7 +18,9 @@ class Analysis(object):
         self.xs_p1 = xs_p1
 
         # Default values are None unless assigned
-        self.phase3, self.phase2, self.phase1 = None, None, None
+        blank_phase = Phase(
+            ('',''), ('',''), ('',''), '', '', '', [], [], '', '' ,'' ,'')
+        self.phase3, self.phase2, self.phase1 = blank_phase, blank_phase, blank_phase
         self.r2s = None
 
         self.x1_p3, self.y1_p3, self.x2_p3, self.y2_p3 = None, None, None, None
@@ -166,10 +168,9 @@ class Phase(object):
         self.x_series, self.y_series = x_series, y_series
         self.k, self.t05, self.r0, self.efflux = k, t05, r0, efflux
 
-    def blank_phase():
-        self.xs = ('','')
-        self.r2, self.slope, intercept = '','',''
-
+    def blank_phase(self):
+        return Phase(
+            ('',''), ('',''), ('',''), '', '', '', [], [], '', '' ,'' ,'')
 
 if __name__ == "__main__":
     import Excel

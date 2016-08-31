@@ -104,7 +104,7 @@ def generate_sheet(workbook, sheet_name, template=True):
 def generate_template(workbook):
     '''
     Generates a CATE template sheet in an already created workbook.
-    '''    
+    '''
     worksheet = generate_sheet(workbook, 'Template', template=True)
 
     # Formatting for basic cells (previously run_header)
@@ -123,7 +123,8 @@ def generate_analysis(experiment):
     Data in the file are the product of CATE analysis from a template file
     containing the raw information.
     '''
-    workbook = xlsxwriter.Workbook('Didthiswork.xlsx')
+    output_name = 'CATE Output - ' + time.strftime("(%Y_%m_%d).xlsx")
+    workbook = xlsxwriter.Workbook(experiment.directory + "\\" + output_name)
     # Formatting for not bolded cells (previously not_req/analyzed_header/not_bold)
     bot_border = workbook.add_format()
     bot_border.set_text_wrap()
@@ -156,15 +157,6 @@ def generate_analysis(experiment):
     # Formatting for bolded cells
     bold = workbook.add_format()   
     bold.set_bold()
-
-        
-    # Header info for analyzed CATE data
-    basic_headers = [
-        ("Corrected AIE (cpm)", 15), 
-        (u"Efflux (cpm \u00B7 min\u207b\u00b9 \u00B7 g RFW\u207b\u00b9)", 13.57),
-        ("Log Efflux", 8.86), (u"R\u00b2", 7),
-        (u"Slope (min\u207b\u00b9)", 8.14), ("Intercept", 8.5),
-        ("Phase-Corr. PII", 8.86), ("Phase-Corr. PI", 8.86)]    
     
     phasedata_headers = [
         'Start', 'End', "Slope", "Intercept", u"R\u00b2", "k", "Half-Life",
@@ -237,7 +229,7 @@ def generate_analysis(experiment):
             u"Efflux (cpm \u00B7 min\u207b\u00b9 \u00B7 g RFW\u207b\u00b9)",
             bold_bot)
         worksheet.set_column(5, 5, 14)
-        worksheet.write(22, 6, "Log efflux", bold_bot)
+        worksheet.write(22, 6, "Log(efflux)", bold_bot)
         worksheet.set_column(6, 6, 9)
         for index, item in enumerate(analysis.run.elut_ends):
             worksheet.write(23 + index, 0, index + 1)
@@ -296,7 +288,7 @@ def generate_analysis(experiment):
         p3_x_col = current_col
         current_col += 1
 
-        worksheet.write(22, current_col, "Phase III log efflux", bold_bot)
+        worksheet.write(22, current_col, "Phase III log(efflux)", bold_bot)
         worksheet.set_column(current_col, current_col, 9)
         for index, item in enumerate(analysis.phase3.y_series):
             worksheet.write(23 + index, current_col, item)
@@ -312,7 +304,7 @@ def generate_analysis(experiment):
         p2_x_col = current_col
         current_col += 1
 
-        worksheet.write(22, current_col, "Phase II log efflux", bold_bot)
+        worksheet.write(22, current_col, "Phase II log(efflux)", bold_bot)
         worksheet.set_column(current_col, current_col, 9)
         for index, item in enumerate(analysis.phase2.y_series):
             worksheet.write(23 + index, current_col, item)
@@ -328,7 +320,7 @@ def generate_analysis(experiment):
         p1_x_col = current_col
         current_col += 1
 
-        worksheet.write(22, current_col, "Phase I log efflux", bold_bot)
+        worksheet.write(22, current_col, "Phase I log(efflux)", bold_bot)
         worksheet.set_column(current_col, current_col, 9)
         for index, item in enumerate(analysis.phase1.y_series):
             worksheet.write(23 + index, current_col, item)
@@ -442,7 +434,7 @@ def generate_analysis(experiment):
             })
         #chart_all.set_legend({'none': True})        
         chart_all.set_x_axis({'name': 'Elution time (min)',})        
-        chart_all.set_y_axis({'name': 'Log Efflux/g RFW/min',})
+        chart_all.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})
 
         # Drawing the Phase III chart
         chart_p3 = workbook.add_chart({'type': 'scatter'})
@@ -502,7 +494,7 @@ def generate_analysis(experiment):
             })
         #chart_p3.set_legend({'none': True})        
         chart_p3.set_x_axis({'name': 'Elution time (min)',})        
-        chart_p3.set_y_axis({'name': 'Log Efflux/g RFW/min',})  
+        chart_p3.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})  
         
         # Drawing Phase II chart
         chart_p2 = workbook.add_chart({'type': 'scatter'})
@@ -532,7 +524,7 @@ def generate_analysis(experiment):
             })
         #chart_p2.set_legend({'none': True})        
         chart_p2.set_x_axis({'name': 'Elution time (min)',})        
-        chart_p2.set_y_axis({'name': 'Log Efflux/g RFW/min',})
+        chart_p2.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})
 
         # Drawing Phase I chart        
         chart_p1 = workbook.add_chart({'type': 'scatter'})
@@ -557,21 +549,22 @@ def generate_analysis(experiment):
             })
         #chart_p1.set_legend({'none': True})        
         chart_p1.set_x_axis({'name': 'Elution time (min)',})        
-        chart_p1.set_y_axis({'name': 'Log Efflux/g RFW/min',})
+        chart_p1.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})
         
         # Drawing anti-logged data chart        
         chart_antilog = workbook.add_chart({'type': 'scatter'})
         chart_antilog.set_title({'name': 'Anti-logged data', 'overlay': True})
         worksheet.insert_chart('R23', chart_antilog)        
         # Adding antilog data to chart_antilog
+        antilog_chart_start = int(len(analysis.run.elut_ends_parsed) * 0.7)
         chart_antilog.add_series({
             'categories': [analysis.run.name,
-                 antilog_chart_end-len(analysis.phase3.x_series), 3,
+                 antilog_chart_end-antilog_chart_start, 3,
                  antilog_chart_end, 3],
             'values': [analysis.run.name,
-                antilog_chart_end-len(analysis.phase3.x_series), 5,
+                antilog_chart_end-antilog_chart_start, 5,
                 antilog_chart_end, 5],
-            'name' : 'Anti-logged data',
+            'name' : 'Anti-logged partial dataset',
             'marker': {'type': 'circle',
                        'size,': 5,
                        'border': {'color': '#000000'},
@@ -641,9 +634,9 @@ def generate_summary(workbook, experiment):
     
     worksheet.merge_range (phase_corrected_efflux_row, 0,\
                            phase_corrected_efflux_row, 1,\
-                           "Phase-Corr. Log Eff.", phase_format)    
+                           "Phase-corr. Log(eff.)", phase_format)    
     worksheet.merge_range (log_efflux_row, 0, log_efflux_row, 1,\
-                           "Log Efflux", phase_format)
+                           "Log(efflux)", phase_format)
     worksheet.merge_range (efflux_row, 0, efflux_row, 1,\
                            "Efflux", phase_format)
     worksheet.merge_range (corrected_row, 0, corrected_row, 1,\
@@ -773,9 +766,10 @@ def grab_data(directory, filename):
      
 if __name__ == "__main__":
     directory = os.path.dirname(os.path.abspath(__file__))
-    #temp_experiment = grab_data(directory, "/Tests/3/Test_SingleRun1.xlsx")
-    temp_experiment = grab_data(directory, "/Tests/Edge Cases/Test_MissMidPtPh3.xlsx")
-    temp_experiment.analyses[0].kind = 'obj'
-    temp_experiment.analyses[0].obj_num_pts = 8
-    temp_experiment.analyses[0].analyze()
+    temp_experiment = grab_data(directory, "/Tests/3/Test_MultiRun1.xlsx")
+    #temp_experiment = grab_data(directory, "/Tests/Edge Cases/Test_MissMidPtPh3.xlsx")
+    for analysis in temp_experiment.analyses:
+        analysis.kind = 'obj'
+        analysis.obj_num_pts = 8
+        analysis.analyze()
     generate_analysis(temp_experiment)

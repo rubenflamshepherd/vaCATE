@@ -67,11 +67,12 @@ class Toolbar(NavigationToolbar2WxAgg):
                 color=rgb)
         self.frame_object.canvas.draw()
                 
-        file_name = 'CATE Finished - ' + time.strftime("(%Y_%m_%d).xlsx")
+        file_name = 'CATE Output - ' + time.strftime("(%Y_%m_%d).xlsx")
+        directory = os.path.dirname(os.path.abspath(__file__))
         output_file_path = '/'.join ((self.frame_object.data_object.output_folder, file_name))  
         
-        Excel.generate_analysis(self.frame_object.data_object)
+        Excel.generate_analysis(self.frame_object.experiment)
         
         evt.Skip()
         
-        self.frame_object.Destroy ()
+        self.frame_object.Destroy()
