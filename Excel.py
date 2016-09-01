@@ -125,6 +125,7 @@ def generate_analysis(experiment):
     '''
     output_name = 'CATE Output - ' + time.strftime("(%Y_%m_%d).xlsx")
     workbook = xlsxwriter.Workbook(experiment.directory + "\\" + output_name)
+    generate_summary(workbook, experiment)     
     # Formatting for not bolded cells (previously not_req/analyzed_header/not_bold)
     bot_border = workbook.add_format()
     bot_border.set_text_wrap()
@@ -230,7 +231,7 @@ def generate_analysis(experiment):
             bold_bot)
         worksheet.set_column(5, 5, 14)
         worksheet.write(22, 6, "Log(efflux)", bold_bot)
-        worksheet.set_column(6, 6, 9)
+        worksheet.set_column(6, 6, 10)
         for index, item in enumerate(analysis.run.elut_ends):
             worksheet.write(23 + index, 0, index + 1)
             worksheet.write(23 + index, 1, analysis.run.elut_ends[index])
@@ -289,7 +290,7 @@ def generate_analysis(experiment):
         current_col += 1
 
         worksheet.write(22, current_col, "Phase III log(efflux)", bold_bot)
-        worksheet.set_column(current_col, current_col, 9)
+        worksheet.set_column(current_col, current_col, 10)
         for index, item in enumerate(analysis.phase3.y_series):
             worksheet.write(23 + index, current_col, item)
         p3_y_col = current_col
@@ -305,7 +306,7 @@ def generate_analysis(experiment):
         current_col += 1
 
         worksheet.write(22, current_col, "Phase II log(efflux)", bold_bot)
-        worksheet.set_column(current_col, current_col, 9)
+        worksheet.set_column(current_col, current_col, 10)
         for index, item in enumerate(analysis.phase2.y_series):
             worksheet.write(23 + index, current_col, item)
         p2_y_col = current_col
@@ -572,7 +573,7 @@ def generate_analysis(experiment):
         chart_antilog.set_legend({'none': True})        
         chart_antilog.set_x_axis({'name': 'Elution time (min)',})        
         chart_antilog.set_y_axis({'name': 'Efflux/g RFW/min',})
-    #generate_summary(workbook, experiment)     
+    
     workbook.close()
 
 def generate_summary(workbook, experiment):
@@ -580,9 +581,225 @@ def generate_summary(workbook, experiment):
     Given an open workbook, create a summary sheet containing relevant data
     from all analyses in experiment.analyses
     '''
-    worksheet = workbook.add_worksheet("Summary")
+    # Formatting for not bolded cells (previously not_req/analyzed_header/not_bold)
+    bot_border = workbook.add_format()
+    bot_border.set_text_wrap()
+    bot_border.set_bottom()
+    # Formatting for not bolded cells (previously not_req/analyzed_header/not_bold)
+    top_border = workbook.add_format()
+    top_border.set_text_wrap()
+    top_border.set_top()
+    # Formatting for not bolded cells (previously not_req/analyzed_header/not_bold)
+    bot_centered = workbook.add_format()
+    bot_centered.set_text_wrap()
+    bot_centered.set_align('center')
+    bot_centered.set_align('vcenter')
+    bot_centered.set_bottom()
+    # Format for cells input to be aligned in the middle
+    middle = workbook.add_format()
+    middle.set_text_wrap()
+    middle.set_align('vcenter')
+    # Formatting for bolded cells (previously req)
+    bold_bot_top = workbook.add_format()
+    bold_bot_top.set_text_wrap()
+    bold_bot_top.set_align('center')
+    bold_bot_top.set_align('vcenter')
+    bold_bot_top.set_bold()
+    bold_bot_top.set_bottom()
+    bold_bot_top.set_top()
+
+    worksheet = generate_sheet(workbook, "Summary", template=False)    
     worksheet.freeze_panes(1,2)
+    worksheet.set_column(0, 0, 9)
+    # Format leftmost column with column headers
+    phase_headers = [
+        'Start', 'End', "Slope", "Intercept", u"R\u00b2", "k", "Half-Life"]
+    CATE_headers = ["Pool Size", "E:I Ratio", "Net flux"]
     
+    for index, item in enumerate(CATE_headers):
+        worksheet.write(index + 7, 1, item)
+    worksheet.write(10, 1, "Influx", bot_border)
+    worksheet.merge_range (11, 0, 18, 0, 'Phase III', bold_bot_top)
+    worksheet.merge_range (19, 0, 26, 0, 'Phase II', bold_bot_top)
+    worksheet.merge_range (27, 0, 34, 0, 'Phase I', bold_bot_top)
+    spacer = len(experiment.analyses[0].run.elut_ends) - 1
+    worksheet.merge_range (35, 0, 35+spacer, 0, 'Log (efflux)', bold_bot_top)
+    worksheet.merge_range (
+        36+spacer, 0,
+        36+(spacer*2), 0,
+        u"Efflux (cpm \u00B7 min\u207b\u00b9 \u00B7 g RFW\u207b\u00b9)",
+        bold_bot_top)
+    worksheet.merge_range (
+        37+(spacer*2), 0,
+        37+(spacer*3), 0,
+        "Phase III log (efflux)",
+        bold_bot_top)
+    worksheet.merge_range (
+        38+(spacer*3), 0,
+        38+(spacer*4), 0,
+        "Phase II log (efflux)",
+        bold_bot_top)
+    worksheet.merge_range (
+        39+(spacer*4), 0,
+        39+(spacer*5), 0,
+        "Phase I log (efflux)",
+        bold_bot_top)
+    worksheet.merge_range (
+        40+(spacer*5), 0,
+        40+(spacer*6), 0,
+        "Raw activity in eluate (AIE)",
+        bold_bot_top)
+    worksheet.merge_range (
+        41+(spacer*6), 0,
+        41+(spacer*7), 0,
+        "Corrected AIE",
+        bold_bot_top)
+    for index, item in enumerate(phase_headers):
+        worksheet.write(index + 11, 1, item)
+    worksheet.write(18, 1, "Efflux", bot_border)    
+    for index, item in enumerate(phase_headers):
+        worksheet.write(index + 19, 1, item)
+    worksheet.write(26, 1, "Efflux", bot_border)
+    for index, item in enumerate(phase_headers):
+        worksheet.write(index + 27, 1, item)
+    worksheet.write(34, 1, "Efflux", bot_border)
+    for index, item in enumerate(experiment.analyses[0].run.elut_ends):
+        if index == 0:
+            worksheet.write(35+index, 1, item, top_border)
+            worksheet.write(36+index+spacer, 1, item, top_border)
+            worksheet.write(37+index+(spacer*2), 1, item, top_border)
+            worksheet.write(38+index+(spacer*3), 1, item, top_border)
+            worksheet.write(39+index+(spacer*4), 1, item, top_border)
+            worksheet.write(40+index+(spacer*5), 1, item, top_border)
+            worksheet.write(41+index+(spacer*6), 1, item, top_border)
+        else:
+            worksheet.write(35+index, 1, item)
+            worksheet.write(36+index+spacer, 1, item)
+            worksheet.write(37+index+(spacer*2), 1, item)
+            worksheet.write(38+index+(spacer*3), 1, item)
+            worksheet.write(39+index+(spacer*4), 1, item)
+            worksheet.write(40+index+(spacer*5), 1, item)
+            worksheet.write(41+index+(spacer*6), 1, item)
+
+    # input basic run information
+    for index, analysis in enumerate(experiment.analyses):
+        worksheet.write(0, index + 2, analysis.run.name, bot_centered)
+        worksheet.write(1, index + 2, analysis.run.SA, middle)
+        worksheet.write(2, index + 2, analysis.run.rt_cnts)
+        worksheet.write(3, index + 2, analysis.run.sht_cnts)
+        worksheet.write(4, index + 2, analysis.run.rt_wght)
+        worksheet.write(5, index + 2, analysis.run.gfact)
+        worksheet.write(6, index + 2, analysis.run.load_time, bot_border)
+
+        worksheet.write(7, index + 2, analysis.poolsize)
+        worksheet.write(8, index + 2, analysis.ratio)
+        worksheet.write(9, index + 2, analysis.netflux)
+        worksheet.write(10, index + 2, analysis.influx, bot_border)
+
+        worksheet.write(11, index + 2, analysis.phase3.xs[0])
+        worksheet.write(12, index + 2, analysis.phase3.xs[1])
+        worksheet.write(13, index + 2, analysis.phase3.slope)
+        worksheet.write(14, index + 2, analysis.phase3.intercept)
+        worksheet.write(15, index + 2, analysis.phase3.r2)
+        worksheet.write(16, index + 2, analysis.phase3.k)
+        worksheet.write(17, index + 2, analysis.phase3.t05)
+        worksheet.write(18, index + 2, analysis.phase3.efflux, bot_border)
+
+        worksheet.write(19, index + 2, analysis.phase2.xs[0])
+        worksheet.write(20, index + 2, analysis.phase2.xs[1])
+        worksheet.write(21, index + 2, analysis.phase2.slope)
+        worksheet.write(22, index + 2, analysis.phase2.intercept)
+        worksheet.write(23, index + 2, analysis.phase2.r2)
+        worksheet.write(24, index + 2, analysis.phase2.k)
+        worksheet.write(25, index + 2, analysis.phase2.t05)
+        worksheet.write(26, index + 2, analysis.phase2.efflux, bot_border)
+
+        worksheet.write(27, index + 2, analysis.phase1.xs[0])
+        worksheet.write(28, index + 2, analysis.phase1.xs[1])
+        worksheet.write(29, index + 2, analysis.phase1.slope)
+        worksheet.write(30, index + 2, analysis.phase1.intercept)
+        worksheet.write(31, index + 2, analysis.phase1.r2)
+        worksheet.write(32, index + 2, analysis.phase1.k)
+        worksheet.write(33, index + 2, analysis.phase1.t05)
+        worksheet.write(34, index + 2, analysis.phase1.efflux, bot_border)
+
+        for index2, item2 in enumerate(analysis.run.elut_ends):
+            for index3, item3 in enumerate(analysis.run.elut_ends_parsed):
+                if item2 == item3:
+                    if index2 == 0: # First item needs top border to delineate
+                        worksheet.write(
+                            35 + index2, index + 2,
+                            analysis.run.elut_cpms_log[index3], top_border)
+                        worksheet.write(
+                            36 + index2 + spacer, index + 2,
+                            analysis.run.elut_cpms_gRFW[index3], top_border)
+                    else:
+                        worksheet.write(
+                            35 + index2, index + 2,
+                            analysis.run.elut_cpms_log[index3])
+                        worksheet.write(
+                            36 + index2 + spacer, index + 2,
+                            analysis.run.elut_cpms_gRFW[index3])
+        for index2, item2 in enumerate(analysis.run.elut_ends):
+            for index3, item3 in enumerate(analysis.phase3.x_series):
+                if item2 == item3:
+                    if index2 == 0: # First item needs top border to delineate
+                        worksheet.write(
+                            37 + index2 + (spacer*2), index + 2,
+                            analysis.phase3.y_series[index3], top_border)
+                    else:
+                        worksheet.write(
+                            37 + index2 + (spacer*2), index + 2,
+                            analysis.phase3.y_series[index3])
+        for index2, item2 in enumerate(analysis.run.elut_ends):
+            for index3, item3 in enumerate(analysis.phase2.x_series):
+                if item2 == item3:
+                    if index2 == 0: # First item needs top border to delineate
+                        worksheet.write(
+                            38 + index2 + (spacer*3), index + 2,
+                            analysis.phase2.y_series[index3], top_border)
+                    else:
+                        worksheet.write(
+                            38 + index2 + (spacer*3), index + 2,
+                            analysis.phase2.y_series[index3])
+        for index2, item2 in enumerate(analysis.run.elut_ends):
+            for index3, item3 in enumerate(analysis.phase1.x_series):
+                if item2 == item3:
+                    if index2 == 0: # First item needs top border to delineate
+                        worksheet.write(
+                            39 + index2 + (spacer*4), index + 2,
+                            analysis.phase1.y_series[index3], top_border)
+                    else:
+                        worksheet.write(
+                            39 + index2 + (spacer*4), index + 2,
+                            analysis.phase1.y_series[index3])
+        for index2, item2 in enumerate(analysis.run.elut_ends):
+            if index2 == 0: # First item needs top border to delineate
+                worksheet.write(
+                    40 + index2 + (spacer*5), index + 2,
+                    analysis.run.raw_cpms[index2], top_border)
+            else:
+                worksheet.write(
+                    40 + index2 + (spacer*5), index + 2,
+                    analysis.run.raw_cpms[index2])
+        for index2, item2 in enumerate(analysis.run.elut_ends):
+            for index3, item3 in enumerate(analysis.run.elut_ends_parsed):
+                if item2 == item3:
+                    if index2 == 0: # First item needs top border to delineate
+                        worksheet.write(
+                            41 + index2 + (spacer*6), index + 2,
+                            analysis.run.elut_cpms_gfact[index3], top_border)
+                    else:
+                        worksheet.write(
+                            41 + index2 + (spacer*6), index + 2,
+                            analysis.run.elut_cpms_gfact[index3])
+        #worksheet.merge_range (35, 0, 35+spacer, 0, 'Log (efflux)', bold_bot_top)
+
+
+
+
+    
+    '''
     bot_line = workbook.add_format()
     bot_line.set_bottom()        
     phase_format = workbook.add_format()
@@ -715,6 +932,7 @@ def generate_summary(workbook, experiment):
                 1 + raw_row + z, counter, analysis.elut_cpms[z])
         
         counter += 1
+    '''
 
 def grab_data(directory, filename):
     '''
