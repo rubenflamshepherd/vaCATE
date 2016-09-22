@@ -3,8 +3,10 @@ from matplotlib.backends.backend_wxagg import \
 import wx
 import time
 import xlsxwriter
-import Excel
 from matplotlib.backends.backend_wx import _load_bitmap
+import os
+
+import Excel
 
 class Toolbar(NavigationToolbar2WxAgg):
     """
@@ -69,7 +71,7 @@ class Toolbar(NavigationToolbar2WxAgg):
                 
         file_name = 'CATE Output - ' + time.strftime("(%Y_%m_%d).xlsx")
         directory = os.path.dirname(os.path.abspath(__file__))
-        output_file_path = '/'.join ((self.frame_object.data_object.output_folder, file_name))  
+        output_file_path = '/'.join ((self.frame_object.experiment.directory, file_name))  
         
         Excel.generate_analysis(self.frame_object.experiment)
         

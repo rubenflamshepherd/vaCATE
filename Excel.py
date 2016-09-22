@@ -363,7 +363,7 @@ def generate_analysis(experiment):
         chart_all.add_series({
             'categories': [analysis.run.name, 23, p1_x_col, p1_chart_end, p1_x_col],
             'values': [analysis.run.name, 23, p1_y_col, p1_chart_end, p1_y_col],
-            'name' : 'Phase II',
+            'name' : 'Phase I',
             'marker': {'type': 'circle',
                        'size,': 5,
                        'border': {'color': '#000000'},
@@ -793,146 +793,6 @@ def generate_summary(workbook, experiment):
                         worksheet.write(
                             41 + index2 + (spacer*6), index + 2,
                             analysis.run.elut_cpms_gfact[index3])
-        #worksheet.merge_range (35, 0, 35+spacer, 0, 'Log (efflux)', bold_bot_top)
-
-
-
-
-    
-    '''
-    bot_line = workbook.add_format()
-    bot_line.set_bottom()        
-    phase_format = workbook.add_format()
-    phase_format.set_align('right')
-    phase_format.set_right()    
-    phase_format.set_top()    
-    phase_format.set_bottom()    
-    middle_format = workbook.add_format()
-    middle_format.set_align('center')    
-    right_format = workbook.add_format()
-    right_format.set_align('right')        
-    # Row labels
-    row_headers = [
-            "Analysis Type",
-            u"Specific Activity (cpm \u00B7 \u00B5mol\u207b\u00b9)",
-            "Root Cnts (cpm)", "Shoot Cnts (cpm)", "Root weight (g)",
-            "G-Factor", "Load Time (min)", "", "Influx", "Net flux",
-            "E:I Ratio", "Pool Size"]
-    
-    phasedata_headers = [
-        "Slope", "Intercept", u"R\u00b2", "k", "Half-Life", "Efflux"]    
-    
-    # Writing row Labels
-    
-    for y in range (0, len (row_headers)):
-        if y != 7:
-            worksheet.merge_range (y + 1, 0, y + 1, 1, row_headers [y], req)
-
-    
-    for z in range (0, len (phasedata_headers)):
-        worksheet.merge_range(z + 13, 0, z + 13, 1,\
-                               phasedata_headers [z], req)
-        worksheet.merge_range(z + 20, 0, z + 20, 1,\
-                               phasedata_headers [z], req)        
-        worksheet.merge_range(z + 27, 0, z + 27, 1,\
-                               phasedata_headers [z], req)
-    
-    worksheet.merge_range(8, 0, 8, 1, "Phase III", phase_format)
-    worksheet.merge_range(19, 0, 19, 1, "Phase II", phase_format)
-    worksheet.merge_range(26, 0, 26, 1, "Phase I", phase_format)
-        
-    # Writing elution time points/headers for respective series
-    run_length_counter = len(experiment.analyses[0].elut_ends)
-    phase_corrected_efflux_row = 33
-    log_efflux_row = phase_corrected_efflux_row + run_length_counter + 1
-    efflux_row = log_efflux_row + run_length_counter + 1
-    corrected_row = efflux_row + run_length_counter + 1
-    raw_row = corrected_row + run_length_counter + 1
-    
-    worksheet.merge_range (phase_corrected_efflux_row, 0,\
-                           phase_corrected_efflux_row, 1,\
-                           "Phase-corr. Log(eff.)", phase_format)    
-    worksheet.merge_range (log_efflux_row, 0, log_efflux_row, 1,\
-                           "Log(efflux)", phase_format)
-    worksheet.merge_range (efflux_row, 0, efflux_row, 1,\
-                           "Efflux", phase_format)
-    worksheet.merge_range (corrected_row, 0, corrected_row, 1,\
-                           "Corrected AIE", phase_format)
-    worksheet.merge_range (raw_row, 0, raw_row, 1,\
-                           "Activity in eluant", phase_format)    
-    
-    for x in range (0, run_length_counter):
-        time_point = experiment.analyses [0].elution_ends [x]
-
-        worksheet.merge_range (1 + phase_corrected_efflux_row + x, 0, 1 + phase_corrected_efflux_row + x, 1, time_point, right_format)
-        worksheet.merge_range (1 + log_efflux_row + x, 0, 1 + log_efflux_row + x, 1, time_point, right_format)
-        worksheet.merge_range (1 + efflux_row + x, 0, 1 + efflux_row + x, 1, time_point, right_format)
-        worksheet.merge_range (1 + corrected_row + x, 0, 1 + corrected_row + x, 1, time_point, right_format)
-        worksheet.merge_range (1 + raw_row + x, 0, 1 + raw_row + x, 1, time_point, right_format)
-        
-    
-    
-    # Writing Runobject data to sheet
-    counter = 2
-    for analysis in experiment.analyses:
-        worksheet.write(0, counter, analysis.run_name, middle_format)
-        worksheet.write(1, counter, analysis.analysis_type[0])
-        worksheet.write(2, counter, analysis.SA)
-        worksheet.write(3, counter, analysis.root_cnts)
-        worksheet.write(4, counter, analysis.shoot_cnts)
-        worksheet.write(5, counter, analysis.root_weight)
-        worksheet.write(6, counter, analysis.g_factor)
-        worksheet.write(7, counter, analysis.load_time)
-        
-        worksheet.write(9, counter, analysis.influx)
-        worksheet.write(10, counter, analysis.netflux)
-        worksheet.write(11, counter, analysis.ratio)
-        worksheet.write(12, counter, analysis.poolsize)
-        worksheet.write(13, counter, analysis.slope_p3)
-        worksheet.write(14, counter, analysis.intercept_p3)
-        worksheet.write(15, counter, analysis.r2_p3)
-        worksheet.write(16, counter, analysis.k_p3)
-        worksheet.write(17, counter, analysis.t05_p3)
-        worksheet.write(18, counter, analysis.efflux_p3)
-        
-        worksheet.write(20, counter, analysis.slope_p2)
-        worksheet.write(21, counter, analysis.intercept_p2)
-        worksheet.write(22, counter, analysis.r2_p2)
-        worksheet.write(23, counter, analysis.k_p2)
-        worksheet.write(24, counter, analysis.t05_p2)
-        worksheet.write(25, counter, analysis.efflux_p2)
-
-        worksheet.write(27, counter, analysis.slope_p1)
-        worksheet.write(28, counter, analysis.intercept_p1)
-        worksheet.write(29, counter, analysis.r2_p1)
-        worksheet.write(30, counter, analysis.k_p1)
-        worksheet.write(31, counter, analysis.t05_p1)
-        worksheet.write(32, counter, analysis.efflux_p1)
-        
-        # Writing Phase I phase-corrected efflux data
-        write_phase_corrected_p12(
-            workbook, worksheet, analysis, counter, counter,
-            sheet_type='summary')
-
-        # Writing Phase III phase-corrected efflux data
-        phase_3_row_counter = 34 + len(analysis.y_p12) - 1
-        for y in range(0, len(analysis.y_p3)):
-            worksheet.write(
-                1 + phase_3_row_counter + y, counter, analysis.y_p3[y])
-                          
-        # Writing efflux elution data that is not phase corrected
-        for z in range (0, len(analysis.elution_ends)):
-            worksheet.write(
-                1 + log_efflux_row + z, counter, analysis.elut_cpms_log[z])        
-            worksheet.write(
-                1 + efflux_row + z, counter, analysis.elut_cpms_gRFW[z])
-            worksheet.write(
-                1 + corrected_row + z, counter, analysis.elut_cpms_gfact[z])
-            worksheet.write(
-                1 + raw_row + z, counter, analysis.elut_cpms[z])
-        
-        counter += 1
-    '''
 
 def grab_data(directory, filename):
     '''
@@ -984,10 +844,15 @@ def grab_data(directory, filename):
      
 if __name__ == "__main__":
     directory = os.path.dirname(os.path.abspath(__file__))
-    temp_experiment = grab_data(directory, "/Tests/3/Test_MultiRun1.xlsx")
-    #temp_experiment = grab_data(directory, "/Tests/Edge Cases/Test_MissMidPtPh3.xlsx")
+    temp_experiment = grab_data(directory, "/Tests/4/Test_MultiRun1.xlsx")
+    #temp_experiment = grab_data(directory, "/Tests/Edge Cases/Test_MissLastPtPh3.xlsx")
     for analysis in temp_experiment.analyses:
         analysis.kind = 'obj'
         analysis.obj_num_pts = 8
         analysis.analyze()
+    '''
+    temp_experiment.analyses[0].kind = 'obj'
+    temp_experiment.analyses[0].obj_num_pts = 8
+    temp_experiment.analyses[0].analyze()
+    '''
     generate_analysis(temp_experiment)

@@ -30,7 +30,7 @@ class AboutDialog(wx.Dialog):
         innerBox = wx.BoxSizer(wx.VERTICAL)
 
         txt1 = "Compartment Analysis by Tracer Efflux Automator (CATEautomator)"
-        txt2 = "Beta Version 1.0 as of April 6 2016"
+        txt2 = "Alpha Version 1.0 as of September 1, 2016"
         txt3 = "This program is designed to automate the output of parameters"
         txt4 = "extracted by CATE (as input into a generated template file)."
         txt5 = "Prior to extraction of automated data analysis into an Microsoft Excel (.xls)"
@@ -140,7 +140,7 @@ class DialogFrame(wx.Frame):
             innerPanel, id=-1, label=txt2, style=wx.ALIGN_CENTER, name="")
         
         # Disclaimer text (under buttons)
-        txt3 = "Note: .xls output files will be written in the same folder"
+        txt3 = "Note: .xls output file will be written in the same folder"
         txt4 = "that data is being extracted from"
         static_txt3 = wx.StaticText(
             innerPanel, id=-1, label=txt3, style=wx.ALIGN_CENTER, name="")
@@ -155,6 +155,7 @@ class DialogFrame(wx.Frame):
         btn1 = wx.Button(innerPanel, id=1, label="Analyze CATE Data")
         btn2 = wx.Button(innerPanel, id=2, label="Generate CATE Template")
         self.checkbox = wx.CheckBox (innerPanel, id=5, label="Automatically analyze")
+        self.checkbox.SetValue(True)
         btn3 = wx.Button(innerPanel, id=3, label="About")
         btn4 = wx.Button(innerPanel, id=4, label="Quit")
         
