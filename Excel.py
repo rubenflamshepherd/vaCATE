@@ -59,6 +59,9 @@ def generate_sheet(workbook, sheet_name, template=True):
     bold_bot.set_align('vcenter')
     bold_bot.set_bold()
     bold_bot.set_bottom()
+    bold_bot.set_right()    
+    bold_bot.set_left()
+    bold_bot.set_top()
     # Formatting for not bolded cells (prev. not_req/analyzed_header/not_bold)
     bot_border = workbook.add_format()
     bot_border.set_text_wrap()
@@ -72,13 +75,14 @@ def generate_sheet(workbook, sheet_name, template=True):
     # List of ordered tuples containing (title, formatting, column width) 
     # in order they are to be written to the file
     row_headers = [
+        'Run Name',
         u"Specific Activity (cpm \u00B7 \u00B5mol\u207b\u00b9)",
         "Root Cnts (cpm)", "Shoot Cnts (cpm)", "Root weight (g)", "G-Factor", 
         "Load Time (min)"]
     for index, item in enumerate(row_headers):
         worksheet.merge_range (
-            index + 1, 0,
-            index + 1, 1, 
+            index, 0,
+            index, 1, 
             row_headers[index], bold_bot)
         worksheet.write (index + 1, 2, "", border)
 

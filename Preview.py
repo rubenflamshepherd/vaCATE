@@ -520,9 +520,9 @@ class MainFrame(wx.Frame):
 			self.data_rtwght.SetValue ('%0.3f'%(analysis.run.rt_wght))
 			self.data_loadtime.SetValue ('%0.2f'%(analysis.run.load_time))
 			self.data_influx.SetValue ('%0.3f'%(analysis.influx))
-    		#self.data_netflux.SetValue ('%0.3f'%(analysis.netflux))
-    		#self.data_ratio.SetValue ('%0.3f'%(analysis.ratio))
-    		#self.data_poolsize.SetValue ('%0.3f'%(analysis.poolsize))
+    		self.data_netflux.SetValue ('%0.3f'%(analysis.netflux))
+    		self.data_ratio.SetValue ('%0.3f'%(analysis.ratio))
+    		self.data_poolsize.SetValue ('%0.3f'%(analysis.poolsize))
 						
 		# Graphing raw uncorrected data of p1 and p2
 		if analysis.xs_p2 != ('', '') and analysis.phase2.xs!= ('', ''):

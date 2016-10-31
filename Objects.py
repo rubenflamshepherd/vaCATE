@@ -23,23 +23,13 @@ class Analysis(object):
         self.phase3, self.phase2, self.phase1 = blank_phase, blank_phase, blank_phase
         self.r2s = None
 
-        self.x1_p3, self.y1_p3, self.x2_p3, self.y2_p3 = None, None, None, None
-        self.x1_p2, self.y1_p2, self.x2_p2, self.y2_p2 = None, None, None, None
-        self.x1_p1, self.y1_p1, self.x2_p1, self.y2_p1 = None, None, None, None
-
-        self.r2_p3, self.m_p3, self.b_p3 = None, None, None # y=mx+b
-        self.r2_p2, self.m_p2, self.b_p2 = None, None, None
-        self.r2_p1, self.m_p1, self.b_p1 = None, None, None
-
         self.obj_x_start, self.obj_y_start = None, None
         # Attributes for testing
         self.r2s = None # Lists from obj analysis, y=mx+b
         self.p12_r2_max = None
 
-        self.x_p3, self.x_p2, self.x_p1, self.x_p12 = None, None, None, None
-        self.y_p3, self.y_p2, self.y_p1, self.y_p12 = None, None, None, None
+        self.x_p12, self.y_p12 = None, None
         self.x_p12_curvestrip_p3, self.y_p12_curvestrip_p3 = None, None
-        self.x_p2_curvestrip_p3, self.y_p2_curvestrip_p3 = None, None
         self.x_p1_curvestrip_p3, self.y_p1_curvestrip_p3 = None, None
         self.x_p1_curvestrip_p23, self.y_p1_curvestrip_p23 = None, None
 
@@ -109,7 +99,7 @@ class Analysis(object):
                         self.x_p12_curvestrip_p3[start_p1_index : end_p1_index+1]
                     self.y_p1_curvestrip_p3 =\
                         self.y_p12_curvestrip_p3[start_p1_index : end_p1_index+1]
-                    # Curve strip phase 1 data of phase 3 (already stripped phase 
+                    # Curve strip phase 1 data of phase 3 (already stripped phase)
                     self.x_p1_curvestrip_p23, self.y_p1_curvestrip_p23 = \
                         Operations.curvestrip(
                             x_series=self.x_p1_curvestrip_p3,
