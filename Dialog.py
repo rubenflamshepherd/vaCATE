@@ -223,7 +223,6 @@ class DialogFrame(wx.Frame):
                     temp_analysis.kind = 'obj'
                     temp_analysis.obj_num_pts = 8
                     temp_analysis.analyze()
-            
             frame = Preview.MainFrame(temp_CATE_data)
             frame.Show(True)
             frame.MakeModal(True)            

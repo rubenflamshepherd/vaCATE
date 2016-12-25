@@ -71,7 +71,12 @@ class Analysis(object):
         # Default values are None unless assigned
         blank_phase = Phase(
             ('',''), ('',''), ('',''), '', '', '', [], [], '', '' ,'' ,'')
-        self.phase3, self.phase2, self.phase1 = blank_phase, blank_phase, blank_phase
+        self.phase3 = Phase(
+            ('',''), ('',''), ('',''), '', '', '', [], [], '', '' ,'' ,'')
+        self.phase2 = Phase(
+            ('',''), ('',''), ('',''), '', '', '', [], [], '', '' ,'' ,'')
+        self.phase1 = Phase(
+            ('',''), ('',''), ('',''), '', '', '', [], [], '', '' ,'' ,'')
         self.r2s = None
 
         self.obj_x_start, self.obj_y_start = None, None
