@@ -18,7 +18,10 @@ def generate_sheet(workbook, sheet_name, template=True):
         label of Worksheet object that is to be inserted
     @type Template: bool
     @rtype: Workbook
-    """
+    """    
+    worksheet = workbook.add_worksheet(sheet_name)
+    worksheet.set_row(1, 30.75) # Setting the height of the SA row to ~2 lines
+    
     # Formatting for cells surrounded by a border (prev. empty_row/basic_format)
     BORDER = workbook.add_format()
     BORDER.set_align('center')
@@ -43,9 +46,6 @@ def generate_sheet(workbook, sheet_name, template=True):
     BORDER_BOT.set_align('center')
     BORDER_BOT.set_align('vcenter')
     BORDER_BOT.set_bottom()
-
-    worksheet = workbook.add_worksheet(sheet_name)
-    worksheet.set_row(1, 30.75) # Setting the height of the SA row to ~2 lines
     
     # List of ordered tuples containing (title, formatting, column width) 
     # in order they are to be written to the file
@@ -106,6 +106,9 @@ def generate_analysis(experiment):
     @type experiment: Experiment
     @rtype: None
     '''
+    output_name = 'CATE Output - ' + time.strftime("(%Y_%m_%d).xlsx")
+    workbook = xlsxwriter.Workbook(experiment.directory + "\\" + output_name)
+
     # Formatting for bolded cells
     BOLD = workbook.add_format()   
     BOLD.set_bold()    # Formatting for bolded cells
@@ -141,8 +144,6 @@ def generate_analysis(experiment):
     BORDER_RIGHT.set_align('right')
     BORDER_RIGHT.set_right()
 
-    output_name = 'CATE Output - ' + time.strftime("(%Y_%m_%d).xlsx")
-    workbook = xlsxwriter.Workbook(experiment.directory + "\\" + output_name)
     generate_summary(workbook, experiment)     
     phasedata_headers = [
         'Start', 'End', "Slope", "Intercept", u"R\u00b2", "k", "Half-Life",
@@ -496,10 +497,10 @@ def generate_analysis(experiment):
                        'border': {'color': '#000000'},
                        'fill':   {'color': '#0000CC'}} })
         # Add p2 regression line
-        worksheet.write (7, 2, analysis.phase2.xy1[0])          
-        worksheet.write (7, 3, analysis.phase2.xy1[1])          
-        worksheet.write (8, 2, analysis.phase2.xy2[0]) 
-        worksheet.write (8, 3, analysis.phase2.xy2[1])
+        worksheet.write(7, 2, analysis.phase2.xy1[0])          
+        worksheet.write(7, 3, analysis.phase2.xy1[1])          
+        worksheet.write(8, 2, analysis.phase2.xy2[0]) 
+        worksheet.write(8, 3, analysis.phase2.xy2[1])
 
         chart_p2.add_series({
             'categories': [analysis.run.name, 7, 2, 8, 2],
@@ -650,21 +651,21 @@ def generate_summary(workbook, experiment):
     worksheet.write(34, 1, "Efflux", BORDER_BOT)
     for index, item in enumerate(experiment.analyses[0].run.elut_ends):
         if index == 0:
-            worksheet.write(35+index, 1, item, BORDER_TOP)
-            worksheet.write(36+index+spacer, 1, item, BORDER_TOP)
-            worksheet.write(37+index+(spacer*2), 1, item, BORDER_TOP)
-            worksheet.write(38+index+(spacer*3), 1, item, BORDER_TOP)
-            worksheet.write(39+index+(spacer*4), 1, item, BORDER_TOP)
-            worksheet.write(40+index+(spacer*5), 1, item, BORDER_TOP)
-            worksheet.write(41+index+(spacer*6), 1, item, BORDER_TOP)
+            worksheet.write(35 + index,  1, item, BORDER_TOP)
+            worksheet.write(36 + index + spacer, 1, item, BORDER_TOP)
+            worksheet.write(37 + index + (spacer*2), 1, item, BORDER_TOP)
+            worksheet.write(38 + index + (spacer*3), 1, item, BORDER_TOP)
+            worksheet.write(39 + index + (spacer*4), 1, item, BORDER_TOP)
+            worksheet.write(40 + index + (spacer*5), 1, item, BORDER_TOP)
+            worksheet.write(41 + index + (spacer*6), 1, item, BORDER_TOP)
         else:
-            worksheet.write(35+index, 1, item)
-            worksheet.write(36+index+spacer, 1, item)
-            worksheet.write(37+index+(spacer*2), 1, item)
-            worksheet.write(38+index+(spacer*3), 1, item)
-            worksheet.write(39+index+(spacer*4), 1, item)
-            worksheet.write(40+index+(spacer*5), 1, item)
-            worksheet.write(41+index+(spacer*6), 1, item)
+            worksheet.write( 35 + index, 1, item)
+            worksheet.write( 36 + index + spacer, 1, item)
+            worksheet.write( 37 + index + (spacer*2), 1, item)
+            worksheet.write( 38 + index + (spacer*3), 1, item)
+            worksheet.write( 39 + index + (spacer*4), 1, item)
+            worksheet.write( 40 + index + (spacer*5), 1, item)
+            worksheet.write( 41 + index + (spacer*6), 1, item)
 
     # input basic run information
     for index, analysis in enumerate(experiment.analyses):
@@ -792,7 +793,7 @@ def grab_data(directory, filename):
     @rtype: Experiment
     '''
     # Accessing the file from which data is to be grabbed
-    input_file = '/'.join((directory, filename))
+    input_file = os.path.join(directory, filename)
     input_book = open_workbook(input_file)
     input_sheet = input_book.sheet_by_index(0)
 
