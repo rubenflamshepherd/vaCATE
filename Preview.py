@@ -680,7 +680,33 @@ class MainFrame(wx.Frame):
 		self.plot_phase2.legend(loc='upper right')
 		self.plot_phase3.legend(loc='upper right')
 		self.fig.subplots_adjust(bottom = 0.13, left = 0.10)
-		self.canvas.draw()    
+		self.canvas.draw()
+
+	def check_obj_input(self, obj_input_raw):
+		"""Check the input for objective regression to make sure its valid
+
+		@type self: MainFrame
+		@type obj_input_raw: Object
+		@rtype: bool
+		"""
+		elut_ends_temp = self.experiment.analyses[self.analysis_num].run.elut_ends
+		try:
+			obj_input = int(obj_input_raw)
+			if obj_input not in range(3, len(elut_ends_temp)//2):
+				msg = "'%s' must be between 3 and %s." %(
+					obj_input, len(elut_ends_temp)//2 - 1)
+				dlg = RegError(self, -1, msg)
+				val = dlg.ShowModal()
+				dlg.Destroy()
+				return False
+		except ValueError:
+				msg = "'%s' must be convertable to an integer." %(obj_input_raw)
+				dlg = RegError(self, -1, msg)
+				val = dlg.ShowModal()
+				dlg.Destroy()
+				return False
+		return True		
+
 		
 	def on_obj_draw (self, event):
 		"""Redraws the figures according to new objective analysis
@@ -689,21 +715,14 @@ class MainFrame(wx.Frame):
 		@type event: Event
 		@rtype: None
 		"""
-		# Overwrite subjective textbox entries
-		self.subj_p1_start_textbox.SetValue('')
-		self.subj_p1_end_textbox.SetValue('')
-		self.subj_p2_start_textbox.SetValue('')
-		self.subj_p2_end_textbox.SetValue('')
-		self.subj_p3_start_textbox.SetValue('')
-		self.subj_p3_end_textbox.SetValue('')
-
-		# Doing new analysis and saving it	
-		new_analysis = self.experiment.analyses[self.analysis_num]
-		new_analysis.kind = 'obj'
-		new_analysis.obj_num_pts = int (self.obj_textbox.GetValue ())
-		new_analysis.analyze()	
-		self.experiment.analyses[self.analysis_num] = new_analysis
-		self.draw_figure()   
+		if self.check_obj_input(self.obj_textbox.GetValue ()):
+			# Doing new analysis and saving it	
+			new_analysis = self.experiment.analyses[self.analysis_num]
+			new_analysis.kind = 'obj'
+			new_analysis.obj_num_pts = int(self.obj_textbox.GetValue ())
+			new_analysis.analyze()	
+			self.experiment.analyses[self.analysis_num] = new_analysis
+			self.draw_figure()   
 	
 	def on_obj_prop (self, event):
 		"""Propagates settings of current objective analysis to all analyses
@@ -724,7 +743,8 @@ class MainFrame(wx.Frame):
 	def check_phase_boundary(self, boundary_raw, elut_ends_temp):
 		'''Returns whether <boundary_raw> == '' or is in <elut_ends_temp>.
 
-		Creates an error dialog box is both boundary conditions are false.
+		Creates a dialog box with a meaningful error message if both boundary
+			conditions are false.
 
 		@type boundary: Object
 		@type elut_ends_temp: [float]
@@ -746,6 +766,40 @@ class MainFrame(wx.Frame):
 			dlg.Destroy()
 			return False
 		return True
+
+	def check_boundary_order(self, boundary_start, boundary_end):
+		'''Returns whether <boundary_start> and <boundary_end> are a valid pair.
+
+		Valid pair: either both '' or both in elut_ends and	
+			<boundary_start> < <boundary_end>		
+		Creates a dialog box with a meaningful error message if both boundary
+			conditions are false.
+
+		Precondition: <boundary_start> and <boundary_end> are valid phase 
+			boundaries (either '' or in elut_ends)
+
+		@type boundary: str
+		@type boundary: str
+		@rtype: bool
+		'''
+		if boundary_start == '' and boundary_end == '':
+			return True 
+		elif (boundary_start == '' and boundary_end != '') or \
+				(boundary_start != '' and boundary_end == ''):
+			msg = "Only one end of a phase has been defined."
+			dlg = RegError(self, -1, msg)
+			val = dlg.ShowModal()
+			dlg.Destroy()
+			return False
+		elif float(boundary_start) >= float(boundary_end) != '':
+			msg = "The start of a defined phase must before after its end (%s must be before %s)."\
+			%(boundary_start, boundary_end)
+			dlg = RegError(self, -1, msg)
+			val = dlg.ShowModal()
+			dlg.Destroy()
+			return False
+		return True
+
 
 	def check_subj_input(self):
 		'''Confirm that subjective analysis input is valid.
@@ -774,38 +828,49 @@ class MainFrame(wx.Frame):
 			return False
 		p1_end = self.subj_p1_end_textbox.GetValue()
 		if not self.check_phase_boundary(p1_end, elut_ends_temp):
-			return False		
+			return False
+		if not self.check_boundary_order(p3_start, p3_end):
+			return False
+		if not self.check_boundary_order(p2_start, p2_end):
+			return False
+		if not self.check_boundary_order(p1_start, p1_end):
+			return False						
 		return True
 
 	def create_single_subj(self, analysis_num,
 			(p3_start, p3_end), (p2_start, p2_end), (p1_start, p1_end)):
 		"""Calculate a new subjective analysis from user input
+
+		Phase boundaries are passed as individual tuples because they may not
+			neccissarily be grabbed from user input every time (i.e. when user
+			choses to propagate regression).
+
+		Precondition: self.check_subj_input() is True
 		
 		@type self: MainFrame
 		@type analysis_num
 			index of analysis to be created using subjective regression
 		@rtype: None
-		"""
-		if self.check_subj_input():
-			# Start new subjective analysis
-			new_analysis = self.experiment.analyses[analysis_num]
-			new_analysis.kind = 'subj'
-			new_analysis.xs_p3 = ('', '')
-			new_analysis.xs_p2 = ('', '')
-			new_analysis.xs_p1 = ('', '')
-			# Convert subjective analysis textbox entries to floats
+		"""		
+		# Start new subjective analysis
+		new_analysis = self.experiment.analyses[analysis_num]
+		new_analysis.kind = 'subj'
+		new_analysis.xs_p3 = ('', '')
+		new_analysis.xs_p2 = ('', '')
+		new_analysis.xs_p1 = ('', '')
+		# Convert subjective analysis textbox entries to floats
+		new_analysis.xs_p3 = (p3_start, p3_end)
+		if p3_start != '' and p3_end != '':
+			p3_start, p3_end = float(p3_start), float(p3_end)
 			new_analysis.xs_p3 = (p3_start, p3_end)
-			if p3_start != '' and p3_end != '':
-				p3_start, p3_end = float(p3_start), float(p3_end)
-				new_analysis.xs_p3 = (p3_start, p3_end)
-			if p2_start != '' and p2_end != '':
-				p2_start, p2_end = float(p2_start), float(p2_end)
-				new_analysis.xs_p2 = (p2_start, p2_end)
-			if p1_start != '' and p1_end != '':
-				p1_start, p1_end = float(p1_start), float(p1_end)
-				new_analysis.xs_p1 = (p1_start, p1_end)
-			new_analysis.analyze()    	
-			self.experiment.analyses[analysis_num] = new_analysis
+		if p2_start != '' and p2_end != '':
+			p2_start, p2_end = float(p2_start), float(p2_end)
+			new_analysis.xs_p2 = (p2_start, p2_end)
+		if p1_start != '' and p1_end != '':
+			p1_start, p1_end = float(p1_start), float(p1_end)
+			new_analysis.xs_p1 = (p1_start, p1_end)
+		new_analysis.analyze()    	
+		self.experiment.analyses[analysis_num] = new_analysis
 	
 	def on_subj_draw(self, event):
 		"""Redraws the figures according to a single new subjective analysis
@@ -821,12 +886,12 @@ class MainFrame(wx.Frame):
 		p2_end = self.subj_p2_end_textbox.GetValue()
 		p1_start = self.subj_p1_start_textbox.GetValue()
 		p1_end = self.subj_p1_end_textbox.GetValue()
-		self.create_single_subj(
-			self.analysis_num,
-			(p3_start, p3_end), (p2_start, p2_end), (p1_start, p1_end)
-			)
-		self.obj_textbox.SetValue('') # Reset objective analysis text box
-		self.draw_figure()	
+		if self.check_subj_input():
+			self.create_single_subj(
+				self.analysis_num,
+				(p3_start, p3_end), (p2_start, p2_end), (p1_start, p1_end)
+				)
+			self.draw_figure()	
 	
 	def on_subj_prop(self, event):
 		"""Propagates settings of current subjective analysis to all analyses
@@ -842,13 +907,13 @@ class MainFrame(wx.Frame):
 		p2_end = self.subj_p2_end_textbox.GetValue()
 		p1_start = self.subj_p1_start_textbox.GetValue()
 		p1_end = self.subj_p1_end_textbox.GetValue()
-		for analysis_num in range(0, len(self.experiment.analyses)):
-			self.create_single_subj(
-				analysis_num,
-				(p3_start, p3_end), (p2_start, p2_end), (p1_start, p1_end)
-				)
-		self.obj_textbox.SetValue('') # Reset objective analysis text box
-		self.draw_figure()
+		if self.check_subj_input():
+			for analysis_num in range(0, len(self.experiment.analyses)):
+				self.create_single_subj(
+					analysis_num,
+					(p3_start, p3_end), (p2_start, p2_end), (p1_start, p1_end)
+					)
+			self.draw_figure()
 	
 	def on_cb_grid(self, event):
 		"""Redraw figures with grids
