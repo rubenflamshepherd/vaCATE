@@ -32,27 +32,107 @@ from matplotlib import pyplot as plt
 from matplotlib.backends.backend_wx import _load_bitmap
 import numpy as np
 import Custom
+import Operations
+
+class RegError(wx.Dialog):
+	'''window for user input error when invalid regression parameters recieved.
+	'''
+
+	def __init__(self, parent, id, error_msg, title ='ERROR'):
+		''' Constructor of 'Regression Analysis Error' box
+
+		@type self: RegError
+		@type parent: wx.Dialog | None
+		@type id: int
+			id number of parent window
+		@type error_msg: str
+			Error-specific message that is to be displayed.
+		@type title: str
+			Label for top on window
+		@rtype: None
+		'''
+		wx.Dialog.__init__(self, parent, id, title)
+		self.SetIcon(wx.Icon('Images/questionmark.ico', wx.BITMAP_TYPE_ICO))                
+		self.rootPanel = wx.Panel(self)        
+		innerPanel = wx.Panel(
+			self.rootPanel,-1, size=(500,260), style=wx.ALIGN_CENTER)
+		hbox = wx.BoxSizer(wx.HORIZONTAL) 
+		vbox = wx.BoxSizer(wx.VERTICAL)
+		innerBox = wx.BoxSizer(wx.VERTICAL)
+
+		# Creating objects to place in window
+		txt1 = "ERROR"
+		txt2 = error_msg
+		txt3 = "Please modify your input so that it is valid."
+		line1 = wx.StaticLine(innerPanel, -1, style=wx.LI_HORIZONTAL)
+		static_txt1 = wx.StaticText(
+			innerPanel, id=-1, label=txt1, style=wx.ALIGN_CENTER, name="")
+		static_txt2 = wx.StaticText(
+			innerPanel, id=-1, label=txt2, style=wx.ALIGN_CENTER, name="")
+		static_txt3 = wx.StaticText(
+			innerPanel, id=-1, label=txt3, style=wx.ALIGN_CENTER, name="")
+		btn1 = wx.Button (innerPanel, id=1, label="Ok")
+
+		self.Bind(wx.EVT_BUTTON, self.OnClose, id=1)
+
+		innerBox.AddSpacer((150,10))
+		innerBox.Add(static_txt1, 0, wx.CENTER)
+		innerBox.AddSpacer((150,10))
+		innerBox.Add(line1, 0, wx.CENTER|wx.EXPAND)
+		innerBox.AddSpacer((150,6))
+		innerBox.Add(static_txt2, 0, wx.CENTER)
+		innerBox.AddSpacer((150,6))
+		innerBox.Add(static_txt3, 0, wx.CENTER)
+		innerBox.AddSpacer((150,6))
+		innerBox.Add(btn1, 0, wx.CENTER)
+		innerBox.AddSpacer((150,6))
+		
+		innerPanel.SetSizer(innerBox)
+		hbox.Add(innerPanel, 0, wx.ALL|wx.ALIGN_CENTER)
+		vbox.Add(hbox, 1, wx.ALL|wx.ALIGN_CENTER, 5)        
+
+		self.rootPanel.SetSizer(vbox)
+		vbox.Fit(self) 
+
+	def OnClose(self, event):
+		'''Closing window when 'x' in top right corner is pressed
+
+		@type self: AboutDialog
+		@type event: Event
+		@rtype: None
+		'''
+		self.Close()        
 	
 class MainFrame(wx.Frame):
-	""" The main frame of the application
+	"""The main preview frame of the application
 	"""
-	title = 'Compartmental Analysis of Tracer Efflux Automator - '
-	
 	def __init__(self, experiment):
-		wx.Frame.__init__(self, None, -1, self.title)
+		'''Constructor of the main preview frame
+
+		@type self: MainFrame
+		@type experiment: Experiment
+		@rtype: None
+		'''
+		wx.Frame.__init__(self, None, -1, 'vaCATE - ')
 	
 		self.SetIcon(wx.Icon('Images/testtube.ico', wx.BITMAP_TYPE_ICO))
 		self.analysis_num = 0 # Attribute of frame, not exp/analysis
 		self.experiment = experiment
 		self.create_main_panel()            
-		# Default analysis:objective regression using the last 3 data points
+		# Default analysis: objective regression using the last 8 data points
 		self.draw_figure()
 	
+
 	def create_main_panel(self):
-		""" Creates the main panel with all the controls on it:
+		""" Creates the main panel with all the controls on it
+
+		The controls are:
 			 * mpl canvas 
 			 * mpl navigation toolbar
 			 * Control panel for interaction
+
+		@type self: MainFrame
+		@rtype: None
 		"""
 		self.panel = wx.Panel(self)
 		
@@ -100,7 +180,7 @@ class MainFrame(wx.Frame):
 		self.subj2_label = wx.StaticText (self.panel,
 		   label="Last Point:", style=wx.ALIGN_CENTER)
 		self.subj_disclaimer = wx.StaticText (self.panel,
-		   label="Points are numbered from left to right",
+		   label="Points are elution times.",
 		   style=wx.ALIGN_CENTER)
 		self.linedata_title = wx.StaticText (self.panel,
 		   label="Regression Parameters", style=wx.ALIGN_CENTER)
@@ -415,12 +495,19 @@ class MainFrame(wx.Frame):
 		self.vbox.Fit(self)
 	
 	def create_status_bar(self):
+		"""Creates the status bar
+
+		@type self: MainFrame
+		@rtype: None
+		"""
 		self.statusbar = self.CreateStatusBar()
 	
 	def draw_figure(self):
-		""" Redraws the figures
-		"""
-		
+		"""Redraws the figures
+
+		@type self: MainFrame
+		@rtype: None
+		"""		
 		analysis = self.experiment.analyses[self.analysis_num]        
 		
 		if analysis.kind == 'obj':
@@ -449,7 +536,7 @@ class MainFrame(wx.Frame):
 				self.subj_p1_end_textbox.SetValue(
 					str(analysis.xs_p1[1]))  
 			
-		title_string = 'Compartmental Analysis of Tracer Efflux Automator - '
+		title_string = 'vaCATE - '
 		detail_string = "Run " + str (self.analysis_num + 1) + "/"\
 			+ str(len (self.experiment.analyses))
 		name_string = ' - "'+ analysis.run.name + '"'
@@ -466,8 +553,6 @@ class MainFrame(wx.Frame):
 		else:
 			self.toolbar.EnableTool (self.toolbar.ON_NEXT, True)
 			
-		#self.toolbar.Realize()		#REMOVE BEFORE DEPLOY???
-				   
 		# Clearing the plots so they can be redrawn anew
 		self.plot_phase1.clear()
 		self.plot_phase2.clear()
@@ -598,13 +683,21 @@ class MainFrame(wx.Frame):
 		self.canvas.draw()    
 		
 	def on_obj_draw (self, event):
+		"""Redraws the figures according to new objective analysis
+		
+		@type self: MainFrame
+		@type event: Event
+		@rtype: None
+		"""
+		# Overwrite subjective textbox entries
 		self.subj_p1_start_textbox.SetValue('')
 		self.subj_p1_end_textbox.SetValue('')
 		self.subj_p2_start_textbox.SetValue('')
 		self.subj_p2_end_textbox.SetValue('')
 		self.subj_p3_start_textbox.SetValue('')
 		self.subj_p3_end_textbox.SetValue('')
-	
+
+		# Doing new analysis and saving it	
 		new_analysis = self.experiment.analyses[self.analysis_num]
 		new_analysis.kind = 'obj'
 		new_analysis.obj_num_pts = int (self.obj_textbox.GetValue ())
@@ -613,6 +706,12 @@ class MainFrame(wx.Frame):
 		self.draw_figure()   
 	
 	def on_obj_prop (self, event):
+		"""Propagates settings of current objective analysis to all analyses
+		
+		@type self: MainFrame
+		@type event: Evemt
+		@rtype: None
+		"""		
 		obj_num_pts = int (self.obj_textbox.GetValue ())
 		for analysis_num in range(0, len(self.experiment.analyses)):
 			new_analysis = self.experiment.analyses[analysis_num]
@@ -620,62 +719,162 @@ class MainFrame(wx.Frame):
 			new_analysis.obj_num_pts = obj_num_pts
 			new_analysis.analyze()
 			self.experiment.analyses[analysis_num] = new_analysis
-		self.draw_figure()    
-		
-	def on_subj_draw(self, event):
-		self.obj_textbox.SetValue('')
-		new_analysis = self.experiment.analyses[self.analysis_num]
-		new_analysis.kind = 'subj'
-		
-		p3_start = self.subj_p3_start_textbox.GetValue ()
-		p3_end = self.subj_p3_end_textbox.GetValue ()
-		p2_start = self.subj_p2_start_textbox.GetValue ()
-		p2_end = self.subj_p2_end_textbox.GetValue ()
-		p1_start = self.subj_p1_start_textbox.GetValue ()
-		p1_end = self.subj_p1_end_textbox.GetValue ()
-		if p3_start != '' or p3_end != '':
-			p3_start, p3_end = float(p3_start), float(p3_end)
-		new_analysis.xs_p3 = (p3_start, p3_end)
-		if p2_start != '' or p2_end != '':
-			p2_start, p2_end = float(p2_start), float(p2_end)
-		new_analysis.xs_p2 = (p2_start, p2_end)
-		if p1_start != '' or p1_end != '':
-			p1_start, p1_end = float(p1_start), float(p1_end)
-		new_analysis.xs_p1 = (p1_start, p1_end)
-		new_analysis.analyze()    	
-		self.experiment.analyses[self.analysis_num] = new_analysis
 		self.draw_figure()
-	
-	def on_subj_prop(self, event):
-		xs_p3 = (
-			float(self.subj_p3_start_textbox.GetValue ()),
-			float(self.subj_p3_end_textbox.GetValue ()))
-		xs_p2 = (
-			float(self.subj_p2_start_textbox.GetValue ()),
-			float(self.subj_p2_end_textbox.GetValue ()))
-		xs_p1 = (
-			float(self.subj_p1_start_textbox.GetValue ()),
-			float(self.subj_p1_end_textbox.GetValue ()))
-		for analysis_num in range(0, len(self.experiment.analyses)):
+
+	def check_phase_boundary(self, boundary_raw, elut_ends_temp):
+		'''Returns whether <boundary_raw> == '' or is in <elut_ends_temp>.
+
+		Creates an error dialog box is both boundary conditions are false.
+
+		@type boundary: Object
+		@type elut_ends_temp: [float]
+		@rtype: bool
+		'''
+		try:
+			if boundary_raw != '':
+				boundary = float(boundary_raw)
+				if boundary not in elut_ends_temp:
+					msg = "'%s' must be an elution time (min)." %(boundary_raw)
+					dlg = RegError(self, -1, msg)
+					val = dlg.ShowModal()
+					dlg.Destroy()
+					return False
+		except ValueError:
+			msg = "'%s' must be convertable to a floating point integer." %(boundary_raw)
+			dlg = RegError(self, -1, msg)
+			val = dlg.ShowModal()
+			dlg.Destroy()
+			return False
+		return True
+
+	def check_subj_input(self):
+		'''Confirm that subjective analysis input is valid.
+
+		Return True if it is. False otherwise.
+
+		@type self: MainFraem
+		@type event: Event
+		@rtype: bool
+		'''
+		elut_ends_temp = self.experiment.analyses[self.analysis_num].run.elut_ends
+		p3_start = self.subj_p3_start_textbox.GetValue()
+		if not self.check_phase_boundary(p3_start, elut_ends_temp):
+			return False
+		p3_end = self.subj_p3_end_textbox.GetValue()
+		if not self.check_phase_boundary(p3_end, elut_ends_temp):
+			return False
+		p2_start = self.subj_p2_start_textbox.GetValue()
+		if not self.check_phase_boundary(p2_start, elut_ends_temp):
+			return False
+		p2_end = self.subj_p2_end_textbox.GetValue()
+		if not self.check_phase_boundary(p2_end, elut_ends_temp):
+			return False					
+		p1_start = self.subj_p1_start_textbox.GetValue()
+		if not self.check_phase_boundary(p1_start, elut_ends_temp):
+			return False
+		p1_end = self.subj_p1_end_textbox.GetValue()
+		if not self.check_phase_boundary(p1_end, elut_ends_temp):
+			return False		
+		return True
+
+	def create_single_subj(self, analysis_num,
+			(p3_start, p3_end), (p2_start, p2_end), (p1_start, p1_end)):
+		"""Calculate a new subjective analysis from user input
+		
+		@type self: MainFrame
+		@type analysis_num
+			index of analysis to be created using subjective regression
+		@rtype: None
+		"""
+		if self.check_subj_input():
+			# Start new subjective analysis
 			new_analysis = self.experiment.analyses[analysis_num]
 			new_analysis.kind = 'subj'
-			new_analysis.xs_p3 = xs_p3
-			new_analysis.xs_p2 = xs_p2
-			new_analysis.xs_p1 = xs_p1
-			new_analysis.analyze()
+			new_analysis.xs_p3 = ('', '')
+			new_analysis.xs_p2 = ('', '')
+			new_analysis.xs_p1 = ('', '')
+			# Convert subjective analysis textbox entries to floats
+			new_analysis.xs_p3 = (p3_start, p3_end)
+			if p3_start != '' and p3_end != '':
+				p3_start, p3_end = float(p3_start), float(p3_end)
+				new_analysis.xs_p3 = (p3_start, p3_end)
+			if p2_start != '' and p2_end != '':
+				p2_start, p2_end = float(p2_start), float(p2_end)
+				new_analysis.xs_p2 = (p2_start, p2_end)
+			if p1_start != '' and p1_end != '':
+				p1_start, p1_end = float(p1_start), float(p1_end)
+				new_analysis.xs_p1 = (p1_start, p1_end)
+			new_analysis.analyze()    	
 			self.experiment.analyses[analysis_num] = new_analysis
+	
+	def on_subj_draw(self, event):
+		"""Redraws the figures according to a single new subjective analysis
+		
+		@type self: MainFrame
+		@type event: Event
+		@rtype: None
+		"""
+		# Get subjective analysis parameters		
+		p3_start = self.subj_p3_start_textbox.GetValue()
+		p3_end = self.subj_p3_end_textbox.GetValue()
+		p2_start = self.subj_p2_start_textbox.GetValue ()
+		p2_end = self.subj_p2_end_textbox.GetValue()
+		p1_start = self.subj_p1_start_textbox.GetValue()
+		p1_end = self.subj_p1_end_textbox.GetValue()
+		self.create_single_subj(
+			self.analysis_num,
+			(p3_start, p3_end), (p2_start, p2_end), (p1_start, p1_end)
+			)
+		self.obj_textbox.SetValue('') # Reset objective analysis text box
+		self.draw_figure()	
+	
+	def on_subj_prop(self, event):
+		"""Propagates settings of current subjective analysis to all analyses
+		
+		@type self: MainFrame
+		@type event: Event
+		@rtype: None
+		"""
+		# Get subjective analysis parameters		
+		p3_start = self.subj_p3_start_textbox.GetValue()
+		p3_end = self.subj_p3_end_textbox.GetValue()
+		p2_start = self.subj_p2_start_textbox.GetValue ()
+		p2_end = self.subj_p2_end_textbox.GetValue()
+		p1_start = self.subj_p1_start_textbox.GetValue()
+		p1_end = self.subj_p1_end_textbox.GetValue()
+		for analysis_num in range(0, len(self.experiment.analyses)):
+			self.create_single_subj(
+				analysis_num,
+				(p3_start, p3_end), (p2_start, p2_end), (p1_start, p1_end)
+				)
+		self.obj_textbox.SetValue('') # Reset objective analysis text box
 		self.draw_figure()
 	
 	def on_cb_grid(self, event):
+		"""Redraw figures with grids
+		
+		@type self: MainFrame
+		@type event: Event
+		@rtype: None
+		"""	
 		self.draw_figure()
 	
 	def on_slider_width(self, event):
-		self.draw_figure()
-	
-	def on_draw_bttn(self, event):
+		"""Redraw figures with data point size changed
+		
+		@type self: MainFrame
+		@type event: Event
+		@rtype: None
+		"""	
 		self.draw_figure()
 	
 	def on_pick_unstripped(self, event):
+		"""Outputs data when unstripped data point is clicked
+		
+		@type self: MainFrame
+		@type event: Event
+		@rtype: None
+		"""	
 		# The event received here is of the type
 		#   matplotlib.backend_bases.PickEvent
 		# It carries lots of information, of which we're using
@@ -688,6 +887,12 @@ class MainFrame(wx.Frame):
 		self.num_clicked_data.SetValue ('%0.0f'%(ind[0]+1))
 
 	def on_exit(self, event):
+		"""Closes windows when 'x' at top is clicked.
+		
+		@type self: MainFrame
+		@type event: Event
+		@rtype: None
+		"""	
 		self.Destroy()
 		   
 if __name__ == '__main__':

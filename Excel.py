@@ -80,6 +80,7 @@ def generate_sheet(workbook, sheet_name, template=True):
       
     return worksheet
 
+
 def generate_template(workbook):
     '''Generates a CATE template sheet in an already created workbook.
     '''
@@ -95,6 +96,7 @@ def generate_template(workbook):
     worksheet.write(0, 2, "Run 1", BASIC)
     worksheet.write(0, 3, "etc.", BASIC)
         
+
 def generate_analysis(experiment):
     '''Creating an excel file in directory using a preset naming convention.
 
@@ -562,6 +564,7 @@ def generate_analysis(experiment):
     
     workbook.close()
 
+
 def generate_summary(workbook, experiment):
     '''Create a summary sheet in an open <workbook>.
 
@@ -780,7 +783,8 @@ def generate_summary(workbook, experiment):
                             41 + index2 + (spacer*6), index + 2,
                             analysis.run.elut_cpms_gfact[index3])
 
-def grab_data(directory, filename):
+
+def grab_data(input_file):
     '''Extracts data from an excel file in directory/filename.
 
     Data is used to create/return an Experiment object.
@@ -788,12 +792,11 @@ def grab_data(directory, filename):
     Precondition: input file is formated according to 
         generate_sheet/generate_template    
     
-    @type directory: str
-    @type filename: str
+    @type input_file: path
     @rtype: Experiment
     '''
     # Accessing the file from which data is to be grabbed
-    input_file = os.path.join(directory, filename)
+    #    input_file = os.path.join(directory, filename)
     input_book = open_workbook(input_file)
     input_sheet = input_book.sheet_by_index(0)
 
@@ -831,7 +834,7 @@ def grab_data(directory, filename):
         all_analysis_objects.append(Objects.Analysis(
             kind=None, obj_num_pts=None, run=temp_run))
    
-    return Objects.Experiment(directory, all_analysis_objects)              
+    return Objects.Experiment(os.path.dirname(input_file), all_analysis_objects)              
      
 if __name__ == "__main__":
     directory = os.path.dirname(os.path.abspath(__file__))

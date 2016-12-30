@@ -20,6 +20,7 @@ from matplotlib.backends.backend_wxagg import \
 class AboutDialog(wx.Dialog):
     '''window for 'About' dialog box
     '''
+
     def __init__(self, parent, id, title):
         ''' Constructor of 'About' dialog box
 
@@ -42,7 +43,7 @@ class AboutDialog(wx.Dialog):
         innerBox = wx.BoxSizer(wx.VERTICAL)
 
         # Creating objects to place in window
-        txt1 = "Compartment Analysis by Tracer Efflux Automator (CATEautomator)"
+        txt1 = "Visualized Automator of Compartment Analysis by Tracer Efflux Automator (vaCATE)"
         txt2 = "Alpha Version 1.0 as of September 1, 2016"
         txt3 = "This program is designed to automate the output of parameters"
         txt4 = "extracted by CATE (as input into a generated template file)."
@@ -50,7 +51,7 @@ class AboutDialog(wx.Dialog):
         txt6 = "users are able to preview data and dynamically change the analysis."
         txt7 = "More detailed information about how to do this can be found"
         txt8 = "in the 'README.txt' file found in the directory from which"
-        txt9 = "the CATEautomator was downloaded/cloned."
+        txt9 = "the vaCATE was downloaded/cloned."
         txt10 = "Copyright 2016 Ruben Flam-Shepherd. All rights reserved."
         txt11 = "This work is licensed under a"
         txt12 = "Creative Commons Attribution 4.0 International License."
@@ -126,6 +127,7 @@ class AboutDialog(wx.Dialog):
         self.rootPanel.SetSizer(vbox)
         vbox.Fit(self)        
         
+
     def OnClose(self, event):
         '''Closing window when 'x' in top right corner is pressed
 
@@ -138,7 +140,7 @@ class AboutDialog(wx.Dialog):
 class DialogFrame(wx.Frame):
     '''First dialog window presented to the user
     '''
-        
+
     def __init__(self, parent, id, title):
         ''' Constructor of first dialog window presented to user
 
@@ -238,6 +240,7 @@ class DialogFrame(wx.Frame):
         self.rootPanel.SetSizer(vbox)
         vbox.Fit(self)
         
+
     def OnClose(self, event):
         '''Closing window when 'x' in top right corner is pressed
 
@@ -247,6 +250,7 @@ class DialogFrame(wx.Frame):
         '''
         self.Close()
         
+
     def OnAnalyze(self, event):
         '''Creating preview of data analysis when 'Analyse' button is pushed
 
@@ -263,10 +267,11 @@ class DialogFrame(wx.Frame):
 
             # Formatting the directory (and path) to unicode w/ forward slash
             # so it can be passed between methods/classes w/o bugs
+            file_path = os.path.join(directory, filename)
             directory = u'%s' %directory
             directory = directory.replace (u'\\', '/')            
             
-            temp_CATE_data = Excel.grab_data(directory, filename)
+            temp_CATE_data = Excel.grab_data(file_path)
             if self.checkbox.GetValue():
                 for temp_analysis in temp_CATE_data.analyses:
                     temp_analysis.kind = 'obj'
@@ -278,7 +283,8 @@ class DialogFrame(wx.Frame):
             dlg.Destroy()
                         
         self.Close()                         
-                    
+            
+
     def OnAbout(self, event):
         '''Creating About window when 'About' button is pushed
         
@@ -286,10 +292,11 @@ class DialogFrame(wx.Frame):
         @type event: Event
         @rtype: None        
         '''        
-        dlg = AboutDialog (self, -1, 'About')
+        dlg = AboutDialog (self, -1, 'vaCATE - About')
         val = dlg.ShowModal()
         dlg.Destroy()
     
+
     def OnGenerate(self, event): # Event when 'Generate Template' button is pushed
         '''Creating a template input file when when 'Generate' button is pushed
 
@@ -320,7 +327,7 @@ class DialogFrame(wx.Frame):
                
 if __name__ == '__main__':
     app = wx.PySimpleApp()
-    app.frame = DialogFrame(None, -1, 'CATE Data Analyzer')
+    app.frame = DialogFrame(None, -1, 'vaCATE')
     app.frame.Show(True)
     app.frame.Center()
     app.MainLoop()    
