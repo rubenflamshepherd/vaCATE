@@ -965,13 +965,14 @@ if __name__ == '__main__':
 	import Excel
 
 	directory = os.path.dirname(os.path.abspath(__file__))
-	temp_experiment = Excel.grab_data(directory, "/Tests/3/Test_MultiRun1.xlsx")
-	
-	temp_experiment.analyses[0].kind = 'subj'
-	temp_experiment.analyses[0].xs_p1 = (1,3)
-	temp_experiment.analyses[0].xs_p2 = (4,10)
-	temp_experiment.analyses[0].xs_p3 = (11.5,40)
-	temp_experiment.analyses[0].analyze()
+	file_path = os.path.join(directory, "Tests/3/Test_MultiRun1.xlsx")
+	temp_experiment = Excel.grab_data(file_path)
+	for analysis in temp_experiment.analyses:
+		analysis.kind = 'subj'
+		analysis.xs_p1 = (1,4)
+		analysis.xs_p2 = (5,10)
+		analysis.xs_p3 = (11.5,40)
+		analysis.analyze()
 	'''
 	temp_experiment.analyses[0].kind = 'obj'
 	temp_experiment.analyses[0].obj_num_pts = 8
@@ -979,6 +980,8 @@ if __name__ == '__main__':
 	'''
 	app = wx.PySimpleApp()
 	app.frame = MainFrame(temp_experiment)
+	
 	app.frame.Show()
 	app.frame.Center()
+
 	app.MainLoop()
