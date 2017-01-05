@@ -5,7 +5,7 @@ import xlsxwriter
 
 import Objects
 
-def generate_sheet(workbook, sheet_name, template=True):
+def generate_sheet(workbook, sheet_name, template=False):
 	"""Create/return basic excel sheet template (in existing <workbook>)
 
 	This is the template upon which most sheets (which the exception of summary
@@ -59,7 +59,7 @@ def generate_sheet(workbook, sheet_name, template=True):
 			index, 0,
 			index, 1, 
 			row_headers[index], BORDER_BOLD)
-		worksheet.write (index + 1, 2, "", BORDER)
+		worksheet.write (index, 2, "", BORDER)
 
 	if template:
 		worksheet.write(
@@ -77,6 +77,13 @@ def generate_sheet(workbook, sheet_name, template=True):
 			"Activity in eluant (cpm)",
 			BORDER_BOLD)
 		worksheet.set_column(2, 2, 15)
+	else:
+		worksheet.merge_range (
+			index + 1, 0,
+			index + 1, 1, 
+			'Reg Type', BORDER_BOLD)
+		worksheet.write (index, 2, "", BORDER)
+
 	  
 	return worksheet
 
@@ -95,6 +102,408 @@ def generate_template(workbook):
 	# Writing headers columns containing individual runs 
 	worksheet.write(0, 2, "Run 1", BASIC)
 	worksheet.write(0, 3, "etc.", BASIC)
+
+def write_run_labels(workbook, worksheet, formats):
+	'''Write basic field labels for worksheet for a single run
+
+	@type workbook: Workbook
+	@type worksheet: Worksheet
+	@type formats: [Format]
+	@rtype: None
+	'''
+	border_bot = formats[0]
+	border_right = formats[1]
+	border_bold_bot = formats[2]
+	phasedata_headers = [
+		'Start', 'End', "Slope", "Intercept", u"R\u00b2", "k", "Half-Life",
+		"Efflux", "Influx", "Net flux", "E:I Ratio", "Pool Size"]
+	for index, item in enumerate(phasedata_headers):
+		worksheet.write(1, index + 5, phasedata_headers[index], border_bot)
+	# Writing headers for phase data
+	worksheet.write(2, 4, 'Phase I', border_right)
+	worksheet.write(3, 4, 'Phase II', border_right)
+	worksheet.write(4, 4, 'Phase III', border_right)
+	# Data series labels
+	worksheet.write(22, 0, "#", border_bot)
+	worksheet.set_column(0, 0, 3.57)
+	worksheet.write(22, 1, "Raw elution time (min)", border_bold_bot)
+	worksheet.set_column(1, 1, 11.7)
+	worksheet.write(22, 2, "Raw activity in eluate (AIE)", border_bold_bot)
+	worksheet.set_column(2, 2, 13)
+	worksheet.write(22, 3, "Elution times (parsed)", border_bold_bot)
+	worksheet.set_column(3, 3, 11.7)
+	worksheet.write(22, 4, "Corrected AIE (cpm)", border_bold_bot)
+	worksheet.set_column(4, 4, 10.7)
+	worksheet.write(
+		22, 5, 
+		u"Efflux (cpm \u00B7 min\u207b\u00b9 \u00B7 g RFW\u207b\u00b9)",
+		border_bold_bot)
+	worksheet.set_column(5, 5, 14)
+	worksheet.write(22, 6, "Log(efflux)", border_bold_bot)
+	worksheet.set_column(6, 6, 10)
+
+def write_basic_series(workbook, worksheet, formats, run):
+	'''Write basic elution series data for worksheet for a single run.
+
+	Counters important to displaying of graphs are returned.
+
+	@type workbook: Workbook
+	@type worksheet: Worksheet
+	@type formats: [Format]
+	@rtype: (int, int)
+	'''
+	border_left = formats[0]
+	for index, item in enumerate(run.elut_ends):
+		worksheet.write(23 + index, 0, index + 1)
+		worksheet.write(23 + index, 1, run.elut_ends[index])
+		end_elut_ends_parsed = 23 + index
+	for index, item in enumerate(run.raw_cpms):
+		worksheet.write(23 + index, 2, item)
+	for index, item in enumerate(run.elut_ends_parsed):
+		worksheet.write(23 + index, 3, item, border_left)
+	for index, item in enumerate(run.elut_cpms_gfact):
+		worksheet.write(23 + index, 4, item)
+	for index, item in enumerate(run.elut_cpms_gRFW):
+		worksheet.write(23 + index, 5, item)
+	for index, item in enumerate(run.elut_cpms_log):
+		worksheet.write(23 + index, 6, item, border_left)
+		end_log_efflux = 23 + index
+
+	return end_elut_ends_parsed, end_log_efflux
+
+def write_objective(worksheet, formats, analysis):
+	'''Write data specific to objective regrassion.
+
+	Returns a counter for ordering later columns properly.
+
+	@type worksheet: Worksheet
+	@type formats: [Format]
+	@rtype: int
+	'''
+	BORDER_BOLD_BOT, BOLD, BORDER_LEFT = formats
+	current_col = 7 # Variable because obj analysis adds extra columns
+	if analysis.kind == 'obj':
+		worksheet.write(
+			22, current_col, "Objective regression", BORDER_BOLD_BOT)
+		worksheet.set_column(current_col, current_col, 12.7)
+		for index, item in enumerate(analysis.r2s):
+			if analysis.run.elut_ends_parsed[index] == analysis.xs_p3[0]:
+				worksheet.write(23 + index, current_col, item, BOLD)
+				p3_start_row = 23 + index
+			else:
+				worksheet.write(23 + index, current_col, item, BORDER_LEFT)
+			log_end_row = 23 + index
+		current_col += 1
+		worksheet.write(
+			22, current_col, "Objective slopes", BORDER_BOLD_BOT)
+		worksheet.set_column(current_col, current_col, 12.7)
+		for index, item in enumerate(analysis.ms):
+			if analysis.run.elut_ends_parsed[index] == analysis.xs_p3[0]:
+				worksheet.write(23 + index, current_col, item, BOLD)
+			else:
+				worksheet.write(23 + index, current_col, item)
+		current_col += 1
+		worksheet.write(
+			22, current_col, "Objective intercepts", BORDER_BOLD_BOT)
+		worksheet.set_column(current_col, current_col, 12.7)
+		for index, item in enumerate(analysis.bs):
+			if analysis.run.elut_ends_parsed[index] == analysis.xs_p3[0]:
+				worksheet.write(23 + index, current_col, item, BOLD)
+			else:
+				worksheet.write(23 + index, current_col, item)
+		current_col += 1
+	return current_col
+
+def write_phase_series(worksheet, formats, current_col, phase, phase_num):
+	'''Write x- and y-series data specific to a particular phase.
+
+	Returns counters for drawing graphs
+
+	@type worksheet: Worksheet
+	@type formats: [Format]
+	@type current_col: int
+	@type phase: Phase
+	@type phase_num: 'I' | 'II' | 'III'
+	@rtype: (int, int, int, int)
+	'''
+	BORDER_BOLD_BOT, BORDER_LEFT = formats
+	worksheet.write(
+			22, current_col,
+			"Phase " + phase_num + " times", BORDER_BOLD_BOT)
+	worksheet.set_column(current_col, current_col, 12.7)
+	index = 0 #  Need to instantiate because loop below doesn't always
+	for index, item in enumerate(phase.x_series):
+		worksheet.write(23 + index, current_col, item, BORDER_LEFT)
+	chart_end = index + 23
+	x_col = current_col
+	current_col += 1
+
+	worksheet.write(
+		22, current_col,
+		"Phase " + phase_num + " log(efflux)", BORDER_BOLD_BOT)
+	worksheet.set_column(current_col, current_col, 10)
+	for index, item in enumerate(phase.y_series):
+		worksheet.write(23 + index, current_col, item)
+	y_col = current_col
+	current_col += 1
+	return current_col, x_col, y_col, chart_end
+
+def write_charts(workbook, worksheet, analysis,
+			end_elut_ends_parsed, end_log_efflux,
+			p3_x_col, p3_y_col, p3_chart_end,
+			p2_x_col, p2_y_col, p2_chart_end,
+			p1_x_col, p1_y_col, p1_chart_end):
+	''' Draws charts in <worksheet> for individual runs
+	'''
+	# Drawing Summary Chart
+	
+	chart_all = workbook.add_chart({'type': 'scatter'})
+	chart_all.set_title({'name': 'Summary', 'overlay': True})
+	worksheet.insert_chart('A8', chart_all)        
+	# Adding larger log efflux data to chart_all
+	chart_all.add_series({
+		'categories': [analysis.run.name, 23, 3, end_elut_ends_parsed, 3],
+		'values': [analysis.run.name, 23, 6, end_log_efflux, 6],
+		'name' : 'Base log data',
+		'marker': {'type': 'circle',
+				   'size,': 5,
+				   'border': {'color': 'black'},
+				   'fill':   {'color': 'white'}} })
+	# Adding Phase III data to chart_all
+	chart_all.add_series({
+		'categories': [analysis.run.name, 23, p3_x_col, p3_chart_end, p3_x_col],
+		'values': [analysis.run.name, 23, p3_y_col, p3_chart_end, p3_y_col],
+		'name' : 'Phase III',
+		'marker': {'type': 'circle',
+				   'size,': 5,
+				   'border': {'color': '#000000'},
+				   'fill':   {'color': '#000000'}} })
+	# Adding Phase II data chart_all
+	chart_all.add_series({
+		'categories': [analysis.run.name, 23, p2_x_col, p2_chart_end, p2_x_col],
+		'values': [analysis.run.name, 23, p2_y_col, p2_chart_end, p2_y_col],
+		'name' : 'Phase II',
+		'marker': {'type': 'circle',
+				   'size,': 5,
+				   'border': {'color': '#000000'},
+				   'fill':   {'color': '#0000CC'}} })
+	# Adding Phase I data chart_all
+	chart_all.add_series({
+		'categories': [analysis.run.name, 23, p1_x_col, p1_chart_end, p1_x_col],
+		'values': [analysis.run.name, 23, p1_y_col, p1_chart_end, p1_y_col],
+		'name' : 'Phase I',
+		'marker': {'type': 'circle',
+				   'size,': 5,
+				   'border': {'color': '#000000'},
+				   'fill':   {'color': '#33CC00'}} })
+	if analysis.kind == 'obj':
+		# Highlighting last point of Phase III
+		chart_all.add_series({
+			'categories': [analysis.run.name, 23, p3_x_col, 23, p3_x_col],
+			'values': [analysis.run.name, 23, p3_y_col, 23, p3_y_col],
+			'name' : 'End of objective regression',
+			'marker': {'type': 'circle',
+					   'size,': 5,
+					   'border': {'color': 'black'},
+					   'fill':   {'color': 'red'}} })
+		# Highlighting num of pts used for regression
+		obj_num_pts = analysis.obj_num_pts
+		chart_all.add_series({
+			'categories': [
+				analysis.run.name,
+				p3_chart_end-obj_num_pts, p3_x_col,
+				p3_chart_end, p3_x_col],
+			'values': [
+				analysis.run.name,
+				p3_chart_end-obj_num_pts, p3_y_col,
+				p3_chart_end, p3_y_col],
+			'name' : 'Pts used to initiate regression',
+			'marker': {'type': 'circle',
+					   'size,': 5,
+					   'border': {'color': 'red'},
+					   'fill':   {'color': 'black'}} })
+	# Add p3 regression line
+	worksheet.write (7, 0, analysis.phase3.xy1[0])          
+	worksheet.write (7, 1, analysis.phase3.xy1[1])          
+	worksheet.write (8, 0, analysis.phase3.xy2[0]) 
+	worksheet.write (8, 1, analysis.phase3.xy2[1])
+	
+	chart_all.add_series({
+		'categories': [analysis.run.name, 7, 0, 8, 0],
+		'values': [analysis.run.name, 7, 1, 8, 1],
+		'line' : {'color': 'red','dash_type' : 'dash'},
+		'name' : 'PhIII regression',
+		'marker': {'type': 'none'}
+		})
+	# Add p2 regression line
+	worksheet.write (7, 2, analysis.phase2.xy1[0])          
+	worksheet.write (7, 3, analysis.phase2.xy1[1])          
+	worksheet.write (8, 2, analysis.phase2.xy2[0]) 
+	worksheet.write (8, 3, analysis.phase2.xy2[1])
+
+	chart_all.add_series({
+		'categories': [analysis.run.name, 7, 2, 8, 2],
+		'values': [analysis.run.name, 7, 3, 8, 3],
+		'line' : {'color': '#0000CC','dash_type' : 'dash'},
+		'name' : 'PhII regression',
+		'marker': {'type': 'none'}
+		})
+	# Add p2 regression line
+	worksheet.write (7, 4, analysis.phase1.xy1[0])          
+	worksheet.write (7, 5, analysis.phase1.xy1[1])          
+	worksheet.write (8, 4, analysis.phase1.xy2[0]) 
+	worksheet.write (8, 5, analysis.phase1.xy2[1])
+
+	chart_all.add_series({
+		'categories': [analysis.run.name, 7, 4, 8, 4],
+		'values': [analysis.run.name, 7, 5, 8, 5],
+		'line' : {'color': '#33CC00','dash_type' : 'dash'},
+		'name' : 'PhII regression',
+		'marker': {'type': 'none'}
+		})
+	#chart_all.set_legend({'none': True})        
+	chart_all.set_x_axis({'name': 'Elution time (min)',})        
+	chart_all.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})	
+	# Drawing the Phase III chart
+	chart_p3 = workbook.add_chart({'type': 'scatter'})
+	chart_p3.set_title({'name': 'Phase III', 'overlay': True})
+	worksheet.insert_chart('G8', chart_p3)        
+	# Adding larger log efflux data to chart_p3
+	chart_p3.add_series({
+		'categories': [analysis.run.name, 23, 3, end_elut_ends_parsed, 3],
+		'values': [analysis.run.name, 23, 6, end_log_efflux, 6],
+		'name' : 'Base log data',
+		'marker': {'type': 'circle',
+				   'size,': 5,
+				   'border': {'color': 'black'},
+				   'fill':   {'color': 'white'}} }) 
+	# Adding Phase III data to chart_p3
+	chart_p3.add_series({
+		'categories': [analysis.run.name, 23, p3_x_col, p3_chart_end, p3_x_col],
+		'values': [analysis.run.name, 23, p3_y_col, p3_chart_end, p3_y_col],
+		'name' : 'Phase III',
+		'marker': {'type': 'circle',
+				   'size,': 5,
+				   'border': {'color': '#000000'},
+				   'fill':   {'color': '#000000'}} })
+	if analysis.kind == 'obj':
+		# Highlighting last point of Phase III
+		chart_p3.add_series({
+			'categories': [analysis.run.name, 23, p3_x_col, 23, p3_x_col],
+			'values': [analysis.run.name, 23, p3_y_col, 23, p3_y_col],
+			'name' : 'End of objective regression',
+			'marker': {'type': 'circle',
+					   'size,': 5,
+					   'border': {'color': 'black'},
+					   'fill':   {'color': 'red'}} })
+		# Highlighting num of pts used for regression
+		obj_num_pts = analysis.obj_num_pts
+		chart_p3.add_series({
+			'categories': [
+				analysis.run.name,
+				p3_chart_end-obj_num_pts, p3_x_col,
+				p3_chart_end, p3_x_col],
+			'values': [
+				analysis.run.name,
+				p3_chart_end-obj_num_pts, p3_y_col,
+				p3_chart_end, p3_y_col],
+			'name' : 'Pts used to initiate regression',
+			'marker': {'type': 'circle',
+					   'size,': 5,
+					   'border': {'color': 'red'},
+					   'fill':   {'color': 'black'}} })
+	# Add p3 regression line
+	chart_p3.add_series({
+		'categories': [analysis.run.name, 7, 0, 8, 0],
+		'values': [analysis.run.name, 7, 1, 8, 1],
+		'line' : {'color': 'red','dash_type' : 'dash'},
+		'name' : 'PhIII regression',
+		'marker': {'type': 'none'}
+		})
+	#chart_p3.set_legend({'none': True})        
+	chart_p3.set_x_axis({'name': 'Elution time (min)',})        
+	chart_p3.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})
+
+	# Drawing Phase II chart
+	chart_p2 = workbook.add_chart({'type': 'scatter'})
+	chart_p2.set_title({'name': 'Phase II', 'overlay': True})
+	worksheet.insert_chart('M8', chart_p2)        
+	# Adding Phase II data chart_p2	
+	chart_p2.add_series({
+		'categories': [analysis.run.name, 23, p2_x_col, p2_chart_end, p2_x_col],
+		'values': [analysis.run.name, 23, p2_y_col, p2_chart_end, p2_y_col],
+		'name' : 'Phase II',
+		'marker': {'type': 'circle',
+				   'size,': 5,
+				   'border': {'color': '#000000'},
+				   'fill':   {'color': '#0000CC'}} })
+	# Add p2 regression line
+	worksheet.write(7, 2, analysis.phase2.xy1[0])          
+	worksheet.write(7, 3, analysis.phase2.xy1[1])          
+	worksheet.write(8, 2, analysis.phase2.xy2[0]) 
+	worksheet.write(8, 3, analysis.phase2.xy2[1])
+
+	chart_p2.add_series({
+		'categories': [analysis.run.name, 7, 2, 8, 2],
+		'values': [analysis.run.name, 7, 3, 8, 3],
+		'line' : {'color': '#0000CC','dash_type' : 'dash'},
+		'name' : 'PhII regression',
+		'marker': {'type': 'none'}
+		})
+	#chart_p2.set_legend({'none': True})        
+	chart_p2.set_x_axis({'name': 'Elution time (min)',})        
+	chart_p2.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})
+
+	# Drawing Phase I chart        
+	chart_p1 = workbook.add_chart({'type': 'scatter'})
+	chart_p1.set_title({'name': 'Phase I', 'overlay': True})
+	worksheet.insert_chart('S8', chart_p1)        
+	# Adding Phase I data chart_p1	
+	chart_p1.add_series({
+		'categories': [analysis.run.name, 23, p1_x_col, p1_chart_end, p1_x_col],
+		'values': [analysis.run.name, 23, p1_y_col, p1_chart_end, p1_y_col],
+		'name' : 'Phase I',
+		'marker': {'type': 'circle',
+				   'size,': 5,
+				   'border': {'color': '#000000'},
+				   'fill':   {'color': '#33CC00'}} })
+	# Add p1 regression line
+	chart_p1.add_series({
+		'categories': [analysis.run.name, 7, 4, 8, 4],
+		'values': [analysis.run.name, 7, 5, 8, 5],
+		'line' : {'color': '#33CC00','dash_type' : 'dash'},
+		'name' : 'PhI regression',
+		'marker': {'type': 'none'}
+		})
+	#chart_p1.set_legend({'none': True})        
+	chart_p1.set_x_axis({'name': 'Elution time (min)',})        
+	chart_p1.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})
+	
+	# Drawing anti-logged data chart        
+	chart_antilog = workbook.add_chart({'type': 'scatter'})
+	chart_antilog.set_title({'name': 'Anti-logged data', 'overlay': True})
+	worksheet.insert_chart('R23', chart_antilog)        
+	# Adding antilog data to chart_antilog
+	antilog_chart_start = int(len(analysis.run.elut_ends_parsed) * 0.7)
+	chart_antilog.add_series({
+		'categories': [analysis.run.name,
+			 end_log_efflux
+-antilog_chart_start, 3,
+			 end_log_efflux
+, 3],
+		'values': [analysis.run.name,
+			end_log_efflux
+-antilog_chart_start, 5,
+			end_log_efflux
+, 5],
+		'name' : 'Anti-logged partial dataset',
+		'marker': {'type': 'circle',
+				   'size,': 5,
+				   'border': {'color': '#000000'},
+				   'fill':   {'color': 'white'}} })
+	chart_antilog.set_legend({'none': True})        
+	chart_antilog.set_x_axis({'name': 'Elution time (min)',})        
+	chart_antilog.set_y_axis({'name': 'Efflux/g RFW/min',})	 	
 
 def generate_analysis(experiment):
 	'''Creating an excel file in directory using a preset naming convention.
@@ -146,434 +555,54 @@ def generate_analysis(experiment):
 	BORDER_RIGHT.set_right()
 
 	generate_summary(workbook, experiment)     
-	phasedata_headers = [
-		'Start', 'End', "Slope", "Intercept", u"R\u00b2", "k", "Half-Life",
-		"Efflux", "Influx", "Net flux", "E:I Ratio", "Pool Size"]
-
-	'''
+	
 	for analysis in experiment.analyses:
 		worksheet = generate_sheet(workbook, analysis.run.name, template=False)
+		write_run_labels(
+			workbook, worksheet, [BORDER_BOT, BORDER_RIGHT, BORDER_BOLD_BOT])
+		write_basic_calculations(
+			0, 2, worksheet, analysis, summary=False)
+		write_phase(
+			2, 5, worksheet, analysis.phase3,
+			last_format=None, vertical=False)
+		write_phase(
+			3, 5, worksheet, analysis.phase2,
+			last_format=None, vertical=False)
+		write_phase(
+			4, 5, worksheet, analysis.phase1,
+			last_format=None, vertical=False)	
 
-		# Writing headers for phase data
-		worksheet.write(2, 4, 'Phase I', BORDER_RIGHT)
-		worksheet.write(3, 4, 'Phase II', BORDER_RIGHT)
-		worksheet.write(4, 4, 'Phase III', BORDER_RIGHT)
-		for index, item in enumerate(phasedata_headers):
-			worksheet.write(
-				1, index + 5, phasedata_headers[index], BORDER_BOT)
-		# Writing individual phase data
-		worksheet.write(0, 2, analysis.run.name, BORDER_BOT)    
-		worksheet.write(1, 2, analysis.run.SA, BORDER)    
-		worksheet.write(2, 2, analysis.run.rt_cnts, BORDER)
-		worksheet.write(3, 2, analysis.run.sht_cnts, BORDER)
-		worksheet.write(4, 2, analysis.run.rt_wght, BORDER)
-		worksheet.write(5, 2, analysis.run.gfact, BORDER)
-		worksheet.write(6, 2, analysis.run.load_time, BORDER)
+		end_elut_ends_parsed, end_log_efflux = write_basic_series(
+			workbook, worksheet, [BORDER_LEFT], analysis.run)			
+				
+		current_col = write_objective(  # obj analysis adds extra columns
+			worksheet, [BORDER_BOLD_BOT, BOLD, BORDER_LEFT], analysis) 
 
-		worksheet.write(4, 5, analysis.phase3.xs[0])
-		worksheet.write(4, 6, analysis.phase3.xs[1])        
-		worksheet.write(4, 7, analysis.phase3.slope)
-		worksheet.write(4, 8, analysis.phase3.intercept)
-		worksheet.write(4, 9, analysis.phase3.r2)
-		worksheet.write(4, 10, analysis.phase3.k)
-		worksheet.write(4, 11, analysis.phase3.t05)
-		worksheet.write(4, 12, analysis.phase3.efflux)     
-		
-		worksheet.write(3, 5, analysis.phase2.xs[0])
-		worksheet.write(3, 6, analysis.phase2.xs[1])
-		worksheet.write(3, 7, analysis.phase2.slope)
-		worksheet.write(3, 8, analysis.phase2.intercept)
-		worksheet.write(3, 9, analysis.phase2.r2)
-		worksheet.write(3, 10, analysis.phase2.k)
-		worksheet.write(3, 11, analysis.phase2.t05)
-		worksheet.write(3, 12, analysis.phase2.efflux)   
-		
-		worksheet.write(2, 5, analysis.phase1.xs[0])
-		worksheet.write(2, 6, analysis.phase1.xs[1])
-		worksheet.write(2, 7, analysis.phase1.slope)
-		worksheet.write(2, 8, analysis.phase1.intercept)
-		worksheet.write(2, 9, analysis.phase1.r2)
-		worksheet.write(2, 10, analysis.phase1.k)
-		worksheet.write(2, 11, analysis.phase1.t05)
-		worksheet.write(2, 12, analysis.phase1.efflux)
-		
-		worksheet.write(4, 13, analysis.influx)
-		worksheet.write(4, 14, analysis.netflux)
-		worksheet.write(4, 15, analysis.ratio)
-		worksheet.write(4, 16, analysis.poolsize)
+		current_col, p3_x_col, p3_y_col, p3_chart_end = write_phase_series(
+			worksheet,
+			[BORDER_BOLD_BOT, BORDER_LEFT],
+			current_col, analysis.phase3, 'III')
+		current_col, p2_x_col, p2_y_col, p2_chart_end = write_phase_series(
+			worksheet,
+			[BORDER_BOLD_BOT, BORDER_LEFT],
+			current_col, analysis.phase2, 'II')
+		current_col, p1_x_col, p1_y_col, p1_chart_end = write_phase_series(
+			worksheet,
+			[BORDER_BOLD_BOT, BORDER_LEFT],
+			current_col, analysis.phase1, 'I')
+		write_charts(
+			workbook, worksheet, analysis,
+			end_elut_ends_parsed, end_log_efflux,
+			p3_x_col, p3_y_col, p3_chart_end,
+			p2_x_col, p2_y_col, p2_chart_end,
+			p1_x_col, p1_y_col, p1_chart_end
+			)
 
-		# Writing columns of data as they appear in the analysis object
-		worksheet.write(22, 0, "#", BORDER_BOT)
-		worksheet.set_column(0, 0, 3.57)
-		worksheet.write(22, 1, "Raw elution time (min)", BORDER_BOLD_BOT)
-		worksheet.set_column(1, 1, 11.7)
-		worksheet.write(22, 2, "Raw activity in eluate (AIE)", BORDER_BOLD_BOT)
-		worksheet.set_column(2, 2, 13)
-		worksheet.write(22, 3, "Elution times (parsed)", BORDER_BOLD_BOT)
-		worksheet.set_column(3, 3, 11.7)
-		worksheet.write(22, 4, "Corrected AIE (cpm)", BORDER_BOLD_BOT)
-		worksheet.set_column(4, 4, 10.7)
-		worksheet.write(
-			22, 5, 
-			u"Efflux (cpm \u00B7 min\u207b\u00b9 \u00B7 g RFW\u207b\u00b9)",
-			BORDER_BOLD_BOT)
-		worksheet.set_column(5, 5, 14)
-		worksheet.write(22, 6, "Log(efflux)", BORDER_BOLD_BOT)
-		worksheet.set_column(6, 6, 10)
-
-		for index, item in enumerate(analysis.run.elut_ends):
-			worksheet.write(23 + index, 0, index + 1)
-			worksheet.write(23 + index, 1, analysis.run.elut_ends[index])
-			end_elut_ends_parsed = 23 + index
-		for index, item in enumerate(analysis.run.raw_cpms):
-			worksheet.write(23 + index, 2, item)
-		for index, item in enumerate(analysis.run.elut_ends_parsed):
-			worksheet.write(23 + index, 3, item, BORDER_LEFT)
-		for index, item in enumerate(analysis.run.elut_cpms_gfact):
-			worksheet.write(23 + index, 4, item)
-		for index, item in enumerate(analysis.run.elut_cpms_gRFW):
-			worksheet.write(23 + index, 5, item)
-			antilog_chart_end = index + 23
-		for index, item in enumerate(analysis.run.elut_cpms_log):
-			worksheet.write(23 + index, 6, item, BORDER_LEFT)
-			end_log_efflux = 23 + index              
-
-		current_col = 7 # Variable because obj analysis adds extra columns
-		if analysis.kind == 'obj':
-			worksheet.write(
-				22, current_col, "Objective regression", BORDER_BOLD_BOT)
-			worksheet.set_column(current_col, current_col, 12.7)
-			for index, item in enumerate(analysis.r2s):
-				if analysis.run.elut_ends_parsed[index] == analysis.xs_p3[0]:
-					worksheet.write(23 + index, current_col, item, BOLD)
-					p3_start_row = 23 + index
-				else:
-					worksheet.write(23 + index, current_col, item, BORDER_LEFT)
-				log_end_row = 23 + index
-			current_col += 1
-			worksheet.write(
-				22, current_col, "Objective slopes", BORDER_BOLD_BOT)
-			worksheet.set_column(current_col, current_col, 12.7)
-			for index, item in enumerate(analysis.ms):
-				if analysis.run.elut_ends_parsed[index] == analysis.xs_p3[0]:
-					worksheet.write(23 + index, current_col, item, BOLD)
-				else:
-					worksheet.write(23 + index, current_col, item)
-			current_col += 1
-			worksheet.write(
-				22, current_col, "Objective intercepts", BORDER_BOLD_BOT)
-			worksheet.set_column(current_col, current_col, 12.7)
-			for index, item in enumerate(analysis.bs):
-				if analysis.run.elut_ends_parsed[index] == analysis.xs_p3[0]:
-					worksheet.write(23 + index, current_col, item, BOLD)
-				else:
-					worksheet.write(23 + index, current_col, item)
-			current_col += 1
-
-		worksheet.write(
-				22, current_col, "Phase III elution times", BORDER_BOLD_BOT)
-		worksheet.set_column(current_col, current_col, 12.7)
-		for index, item in enumerate(analysis.phase3.x_series):
-			worksheet.write(23 + index, current_col, item, BORDER_LEFT)
-			p3_chart_end = index + 23
-		p3_x_col = current_col
-		current_col += 1
-
-		worksheet.write(22, current_col, "Phase III log(efflux)", BORDER_BOLD_BOT)
-		worksheet.set_column(current_col, current_col, 10)
-		for index, item in enumerate(analysis.phase3.y_series):
-			worksheet.write(23 + index, current_col, item)
-		p3_y_col = current_col
-		current_col += 1
-
-		worksheet.write(
-				22, current_col, "Phase II elution times", BORDER_BOLD_BOT)
-		worksheet.set_column(current_col, current_col, 12.7)
-		for index, item in enumerate(analysis.phase2.x_series):
-			worksheet.write(23 + index, current_col, item, BORDER_LEFT)
-			p2_chart_end = index + 23
-		p2_x_col = current_col
-		current_col += 1
-
-		worksheet.write(22, current_col, "Phase II log(efflux)", BORDER_BOLD_BOT)
-		worksheet.set_column(current_col, current_col, 10)
-		for index, item in enumerate(analysis.phase2.y_series):
-			worksheet.write(23 + index, current_col, item)
-		p2_y_col = current_col
-		current_col += 1
-
-		worksheet.write(
-				22, current_col, "Phase I elution times", BORDER_BOLD_BOT)
-		worksheet.set_column(current_col, current_col, 12.7)
-		for index, item in enumerate(analysis.phase1.x_series):
-			worksheet.write(23 + index, current_col, item, BORDER_LEFT)
-			p1_chart_end = index + 23
-		p1_x_col = current_col
-		current_col += 1
-
-		worksheet.write(22, current_col, "Phase I log(efflux)", BORDER_BOLD_BOT)
-		worksheet.set_column(current_col, current_col, 9)
-		for index, item in enumerate(analysis.phase1.y_series):
-			worksheet.write(23 + index, current_col, item)
-		p1_y_col = current_col
-
-		# Drawing Summary Chart
-		
-		chart_all = workbook.add_chart({'type': 'scatter'})
-		chart_all.set_title({'name': 'Summary', 'overlay': True})
-		worksheet.insert_chart('A8', chart_all)        
-		# Adding larger log efflux data to chart_all
-		chart_all.add_series({
-			'categories': [analysis.run.name, 23, 3, end_elut_ends_parsed, 3],
-			'values': [analysis.run.name, 23, 6, end_log_efflux, 6],
-			'name' : 'Base log data',
-			'marker': {'type': 'circle',
-					   'size,': 5,
-					   'border': {'color': 'black'},
-					   'fill':   {'color': 'white'}} })        
-		# Adding Phase III data chart_all
-		if analysis.xs_p3 != ('', '') and analysis.phase3.xs!= ('', ''):
-			chart_all.add_series({
-
-				'categories': [analysis.run.name, 23, p3_x_col, p3_chart_end, p3_x_col],
-				'values': [analysis.run.name, 23, p3_y_col, p3_chart_end, p3_y_col],
-				'name' : 'Phase III',
-				'marker': {'type': 'circle',
-						   'size,': 5,
-						   'border': {'color': '#000000'},
-						   'fill':   {'color': '#000000'}} })
-		# Adding Phase II data chart_all
-		if analysis.xs_p2 != ('', '') and analysis.phase2.xs!= ('', ''):
-			chart_all.add_series({
-				'categories': [analysis.run.name, 23, p2_x_col, p2_chart_end, p2_x_col],
-				'values': [analysis.run.name, 23, p2_y_col, p2_chart_end, p2_y_col],
-				'name' : 'Phase II',
-				'marker': {'type': 'circle',
-						   'size,': 5,
-						   'border': {'color': '#000000'},
-						   'fill':   {'color': '#0000CC'}} })
-		# Adding Phase I data chart_all
-		if analysis.xs_p1 != ('', '') and analysis.phase1.xs!= ('', ''):
-			chart_all.add_series({
-				'categories': [analysis.run.name, 23, p1_x_col, p1_chart_end, p1_x_col],
-				'values': [analysis.run.name, 23, p1_y_col, p1_chart_end, p1_y_col],
-				'name' : 'Phase I',
-				'marker': {'type': 'circle',
-						   'size,': 5,
-						   'border': {'color': '#000000'},
-						   'fill':   {'color': '#33CC00'}} })
-		if analysis.kind == 'obj':
-			# Highlighting last point of Phase III
-			chart_all.add_series({
-				'categories': [analysis.run.name, 23, p3_x_col, 23, p3_x_col],
-				'values': [analysis.run.name, 23, p3_y_col, 23, p3_y_col],
-				'name' : 'End of objective regression',
-				'marker': {'type': 'circle',
-						   'size,': 5,
-						   'border': {'color': 'black'},
-						   'fill':   {'color': 'red'}} })
-			# Highlighting num of pts used for regression
-			obj_num_pts = analysis.obj_num_pts
-			chart_all.add_series({
-				'categories': [
-					analysis.run.name,
-					p3_chart_end-obj_num_pts, p3_x_col,
-					p3_chart_end, p3_x_col],
-				'values': [
-					analysis.run.name,
-					p3_chart_end-obj_num_pts, p3_y_col,
-					p3_chart_end, p3_y_col],
-				'name' : 'Pts used to initiate regression',
-				'marker': {'type': 'circle',
-						   'size,': 5,
-						   'border': {'color': 'red'},
-						   'fill':   {'color': 'black'}} })
-		# Add p3 regression line
-		worksheet.write (7, 0, analysis.phase3.xy1[0])          
-		worksheet.write (7, 1, analysis.phase3.xy1[1])          
-		worksheet.write (8, 0, analysis.phase3.xy2[0]) 
-		worksheet.write (8, 1, analysis.phase3.xy2[1])
-
-		chart_all.add_series({
-			'categories': [analysis.run.name, 7, 0, 8, 0],
-			'values': [analysis.run.name, 7, 1, 8, 1],
-			'line' : {'color': 'red','dash_type' : 'dash'},
-			'name' : 'PhIII regression',
-			'marker': {'type': 'none'}
-			})
-		# Add p2 regression line
-		worksheet.write (7, 2, analysis.phase2.xy1[0])          
-		worksheet.write (7, 3, analysis.phase2.xy1[1])          
-		worksheet.write (8, 2, analysis.phase2.xy2[0]) 
-		worksheet.write (8, 3, analysis.phase2.xy2[1])
-
-		chart_all.add_series({
-			'categories': [analysis.run.name, 7, 2, 8, 2],
-			'values': [analysis.run.name, 7, 3, 8, 3],
-			'line' : {'color': '#0000CC','dash_type' : 'dash'},
-			'name' : 'PhII regression',
-			'marker': {'type': 'none'}
-			})
-		# Add p2 regression line
-		worksheet.write (7, 4, analysis.phase1.xy1[0])          
-		worksheet.write (7, 5, analysis.phase1.xy1[1])          
-		worksheet.write (8, 4, analysis.phase1.xy2[0]) 
-		worksheet.write (8, 5, analysis.phase1.xy2[1])
-
-		chart_all.add_series({
-			'categories': [analysis.run.name, 7, 4, 8, 4],
-			'values': [analysis.run.name, 7, 5, 8, 5],
-			'line' : {'color': '#33CC00','dash_type' : 'dash'},
-			'name' : 'PhII regression',
-			'marker': {'type': 'none'}
-			})
-		#chart_all.set_legend({'none': True})        
-		chart_all.set_x_axis({'name': 'Elution time (min)',})        
-		chart_all.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})
-
-		# Drawing the Phase III chart
-		chart_p3 = workbook.add_chart({'type': 'scatter'})
-		chart_p3.set_title({'name': 'Phase III', 'overlay': True})
-		worksheet.insert_chart('G8', chart_p3)        
-		# Adding larger log efflux data to chart_p3
-		chart_p3.add_series({
-			'categories': [analysis.run.name, 23, 3, end_elut_ends_parsed, 3],
-			'values': [analysis.run.name, 23, 6, end_log_efflux, 6],
-			'name' : 'Base log data',
-			'marker': {'type': 'circle',
-					   'size,': 5,
-					   'border': {'color': 'black'},
-					   'fill':   {'color': 'white'}} })        
-		# Adding Phase III data chart_p3
-		if analysis.xs_p3 != ('', '') and analysis.phase3.xs!= ('', ''):
-			chart_p3.add_series({
-				'categories': [analysis.run.name, 23, p3_x_col, p3_chart_end, p3_x_col],
-				'values': [analysis.run.name, 23, p3_y_col, p3_chart_end, p3_y_col],
-				'name' : 'Phase III',
-				'marker': {'type': 'circle',
-						   'size,': 5,
-						   'border': {'color': '#000000'},
-						   'fill':   {'color': '#000000'}} })
-		if analysis.kind == 'obj':
-			# Highlighting last point of Phase III
-			chart_p3.add_series({
-				'categories': [analysis.run.name, 23, p3_x_col, 23, p3_x_col],
-				'values': [analysis.run.name, 23, p3_y_col, 23, p3_y_col],
-				'name' : 'End of objective regression',
-				'marker': {'type': 'circle',
-						   'size,': 5,
-						   'border': {'color': 'black'},
-						   'fill':   {'color': 'red'}} })
-			# Highlighting num of pts used for regression
-			obj_num_pts = analysis.obj_num_pts
-			chart_p3.add_series({
-				'categories': [
-					analysis.run.name,
-					p3_chart_end-obj_num_pts, p3_x_col,
-					p3_chart_end, p3_x_col],
-				'values': [
-					analysis.run.name,
-					p3_chart_end-obj_num_pts, p3_y_col,
-					p3_chart_end, p3_y_col],
-				'name' : 'Pts used to initiate regression',
-				'marker': {'type': 'circle',
-						   'size,': 5,
-						   'border': {'color': 'red'},
-						   'fill':   {'color': 'black'}} })
-		# Add p3 regression line
-		chart_p3.add_series({
-			'categories': [analysis.run.name, 7, 0, 8, 0],
-			'values': [analysis.run.name, 7, 1, 8, 1],
-			'line' : {'color': 'red','dash_type' : 'dash'},
-			'name' : 'PhIII regression',
-			'marker': {'type': 'none'}
-			})
-		#chart_p3.set_legend({'none': True})        
-		chart_p3.set_x_axis({'name': 'Elution time (min)',})        
-		chart_p3.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})  
-		
-		# Drawing Phase II chart
-		chart_p2 = workbook.add_chart({'type': 'scatter'})
-		chart_p2.set_title({'name': 'Phase II', 'overlay': True})
-		worksheet.insert_chart('M8', chart_p2)        
-		# Adding Phase II data chart_p2
-		if analysis.xs_p2 != ('', '') and analysis.phase2.xs!= ('', ''):
-			chart_p2.add_series({
-				'categories': [analysis.run.name, 23, p2_x_col, p2_chart_end, p2_x_col],
-				'values': [analysis.run.name, 23, p2_y_col, p2_chart_end, p2_y_col],
-				'name' : 'Phase II',
-				'marker': {'type': 'circle',
-						   'size,': 5,
-						   'border': {'color': '#000000'},
-						   'fill':   {'color': '#0000CC'}} })
-		# Add p2 regression line
-		worksheet.write(7, 2, analysis.phase2.xy1[0])          
-		worksheet.write(7, 3, analysis.phase2.xy1[1])          
-		worksheet.write(8, 2, analysis.phase2.xy2[0]) 
-		worksheet.write(8, 3, analysis.phase2.xy2[1])
-
-		chart_p2.add_series({
-			'categories': [analysis.run.name, 7, 2, 8, 2],
-			'values': [analysis.run.name, 7, 3, 8, 3],
-			'line' : {'color': '#0000CC','dash_type' : 'dash'},
-			'name' : 'PhII regression',
-			'marker': {'type': 'none'}
-			})
-		#chart_p2.set_legend({'none': True})        
-		chart_p2.set_x_axis({'name': 'Elution time (min)',})        
-		chart_p2.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})
-
-		# Drawing Phase I chart        
-		chart_p1 = workbook.add_chart({'type': 'scatter'})
-		chart_p1.set_title({'name': 'Phase I', 'overlay': True})
-		worksheet.insert_chart('S8', chart_p1)        
-		# Adding Phase I data chart_p1
-		if analysis.xs_p1 != ('', '') and analysis.phase1.xs!= ('', ''):
-			chart_p1.add_series({
-				'categories': [analysis.run.name, 23, p1_x_col, p1_chart_end, p1_x_col],
-				'values': [analysis.run.name, 23, p1_y_col, p1_chart_end, p1_y_col],
-				'name' : 'Phase I',
-				'marker': {'type': 'circle',
-						   'size,': 5,
-						   'border': {'color': '#000000'},
-						   'fill':   {'color': '#33CC00'}} })
-			# Add p1 regression line
-			chart_p1.add_series({
-				'categories': [analysis.run.name, 7, 4, 8, 4],
-				'values': [analysis.run.name, 7, 5, 8, 5],
-				'line' : {'color': '#33CC00','dash_type' : 'dash'},
-				'name' : 'PhI regression',
-				'marker': {'type': 'none'}
-				})
-			#chart_p1.set_legend({'none': True})        
-			chart_p1.set_x_axis({'name': 'Elution time (min)',})        
-			chart_p1.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})
-		
-		# Drawing anti-logged data chart        
-		chart_antilog = workbook.add_chart({'type': 'scatter'})
-		chart_antilog.set_title({'name': 'Anti-logged data', 'overlay': True})
-		worksheet.insert_chart('R23', chart_antilog)        
-		# Adding antilog data to chart_antilog
-		antilog_chart_start = int(len(analysis.run.elut_ends_parsed) * 0.7)
-		chart_antilog.add_series({
-			'categories': [analysis.run.name,
-				 antilog_chart_end-antilog_chart_start, 3,
-				 antilog_chart_end, 3],
-			'values': [analysis.run.name,
-				antilog_chart_end-antilog_chart_start, 5,
-				antilog_chart_end, 5],
-			'name' : 'Anti-logged partial dataset',
-			'marker': {'type': 'circle',
-					   'size,': 5,
-					   'border': {'color': '#000000'},
-					   'fill':   {'color': 'white'}} })
-		chart_antilog.set_legend({'none': True})        
-		chart_antilog.set_x_axis({'name': 'Elution time (min)',})        
-		chart_antilog.set_y_axis({'name': 'Efflux/g RFW/min',})
-	'''
 	workbook.close()
 
-def write_phase(first_row, first_col, worksheet, phase, last_format):
+def write_phase(
+		first_row, first_col, worksheet, phase,
+		last_format=None, vertical=True):
 	'''Write <phase> attributes to excel <worksheet>.
 
 	<first_row> and <first_col> used to position attributes.
@@ -585,16 +614,29 @@ def write_phase(first_row, first_col, worksheet, phase, last_format):
 	@type last_format: Format
 	@rtype: None
 	'''
-	worksheet.write(first_row, first_col, phase.xs[0])
-	worksheet.write(first_row + 1, first_col, phase.xs[1])
-	worksheet.write(first_row + 2, first_col, phase.slope)
-	worksheet.write(first_row + 3, first_col, phase.intercept)
-	worksheet.write(first_row + 4, first_col, phase.r2)
-	worksheet.write(first_row + 5, first_col, phase.k)
-	worksheet.write(first_row + 6, first_col, phase.t05)
-	worksheet.write(first_row + 7, first_col, phase.efflux, last_format)
+	if vertical:
+		worksheet.write(first_row, first_col, phase.xs[0])
+		worksheet.write(first_row + 1, first_col, phase.xs[1])
+		worksheet.write(first_row + 2, first_col, phase.slope)
+		worksheet.write(first_row + 3, first_col, phase.intercept)
+		worksheet.write(first_row + 4, first_col, phase.r2)
+		worksheet.write(first_row + 5, first_col, phase.k)
+		worksheet.write(first_row + 6, first_col, phase.t05)
+		worksheet.write(first_row + 7, first_col, phase.efflux, last_format)
+	else:
+		worksheet.write(first_row, first_col, phase.xs[0])
+		worksheet.write(first_row, first_col + 1, phase.xs[1])
+		worksheet.write(first_row, first_col + 2, phase.slope)
+		worksheet.write(first_row, first_col + 3, phase.intercept)
+		worksheet.write(first_row, first_col + 4, phase.r2)
+		worksheet.write(first_row, first_col + 5, phase.k)
+		worksheet.write(first_row, first_col + 6, phase.t05)
+		worksheet.write(first_row, first_col + 7, phase.efflux, last_format)		
 
-def write_basic_calculations(first_row, first_col, worksheet, analysis, last_format):
+
+def write_basic_calculations(
+		first_row, first_col, worksheet, analysis, last_format=None,
+		summary=True):
 	'''Write <phase> attributes to excel <worksheet>.
 
 	<first_row> and <first_col> used to position attributes.
@@ -612,12 +654,18 @@ def write_basic_calculations(first_row, first_col, worksheet, analysis, last_for
 	worksheet.write(first_row + 3, first_col, analysis.run.sht_cnts)
 	worksheet.write(first_row + 4, first_col, analysis.run.rt_wght)
 	worksheet.write(first_row + 5, first_col, analysis.run.gfact)
-	worksheet.write(first_row + 6, first_col, analysis.run.load_time, last_format)
-	worksheet.write(first_row + 7, first_col, analysis.kind)
-	worksheet.write(first_row + 8, first_col, analysis.poolsize)
-	worksheet.write(first_row + 9, first_col, analysis.ratio)
-	worksheet.write(first_row + 10, first_col, analysis.netflux)
-	worksheet.write(first_row + 11, first_col, analysis.influx, last_format)
+	worksheet.write(first_row + 6, first_col, analysis.run.load_time)
+	worksheet.write(first_row + 7, first_col, analysis.kind, last_format)
+	if summary:
+		worksheet.write(first_row + 8, first_col, analysis.poolsize)
+		worksheet.write(first_row + 9, first_col, analysis.ratio)
+		worksheet.write(first_row + 10, first_col, analysis.netflux)
+		worksheet.write(first_row + 11, first_col, analysis.influx, last_format)
+	else:
+		worksheet.write(4, 13, analysis.influx)
+		worksheet.write(4, 14, analysis.netflux)
+		worksheet.write(4, 15, analysis.ratio)
+		worksheet.write(4, 16, analysis.poolsize, last_format)
 
 def write_constant_row_labels(workbook, worksheet):
 	'''Fill in the left-most row of the summary worksheet with constant labels.
@@ -648,10 +696,10 @@ def write_constant_row_labels(workbook, worksheet):
 	worksheet.freeze_panes(1,2)
 	worksheet.set_column(0, 0, 9)
 
-	CATE_headers = ["Reg Type", "Pool Size", "E:I Ratio", "Net flux"]
+	CATE_headers = ["Pool Size", "E:I Ratio", "Net flux"]
 	for index, item in enumerate(CATE_headers):
-		worksheet.write(index + 7, 1, item)
-	worksheet.write(index + 8, 1, "Influx", BORDER_BOT)
+		worksheet.write(index + 8, 1, item)
+	worksheet.write(index + 9, 1, "Influx", BORDER_BOT)
 
 	phase_headers = [
 		'Start', 'End', "Slope", "Intercept", u"R\u00b2", "k", "Half-Life"]
