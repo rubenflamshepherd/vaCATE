@@ -321,8 +321,8 @@ class DialogFrame(wx.Frame):
             output_file_path = os.path.join(directory, output_name)            
             
             workbook = xlsxwriter.Workbook(output_file_path)
-            Excel.generate_template(workbook)
-            
+            Excel.generate_sheet(workbook, 'Template', template=True)
+                        
             workbook.close()        
                
 if __name__ == '__main__':

@@ -15,40 +15,44 @@ def generate_sheet(workbook, sheet_name, template=False):
 	@type workbook: Workbook
 		Workbook object into which sheet is inserted
 	@type sheet_name: str
-		label of Worksheet object that is to be inserted
+		Excel label of Worksheet object that is to be inserted.
 	@type Template: bool
 	@rtype: Workbook
 	"""    
 	worksheet = workbook.add_worksheet(sheet_name)
 	worksheet.set_row(1, 30.75) # Setting the height of the SA row to ~2 lines
-	
+
+	# Formatting for basic cells (previously run_header/basic)
+	basic = workbook.add_format()
+	basic.set_text_wrap()
+	basic.set_align('center')
+	basic.set_align('vcenter')	
 	# Formatting for cells surrounded by a border (prev. empty_row/basic_format)
-	BORDER = workbook.add_format()
-	BORDER.set_align('center')
-	BORDER.set_align('vcenter')
-	BORDER.set_top()    
-	BORDER.set_bottom()    
-	BORDER.set_right()    
-	BORDER.set_left()
+	border = workbook.add_format()
+	border.set_align('center')
+	border.set_align('vcenter')
+	border.set_top()    
+	border.set_bottom()    
+	border.set_right()    
+	border.set_left()
 	# Formatting for bolded cells (previously req/border_all)
-	BORDER_BOLD = workbook.add_format()
-	BORDER_BOLD.set_text_wrap()
-	BORDER_BOLD.set_align('center')
-	BORDER_BOLD.set_align('vcenter')
-	BORDER_BOLD.set_bold()
-	BORDER_BOLD.set_bottom()
-	BORDER_BOLD.set_right()    
-	BORDER_BOLD.set_left()
-	BORDER_BOLD.set_top()
+	border_bold = workbook.add_format()
+	border_bold.set_text_wrap()
+	border_bold.set_align('center')
+	border_bold.set_align('vcenter')
+	border_bold.set_bold()
+	border_bold.set_bottom()
+	border_bold.set_right()    
+	border_bold.set_left()
+	border_bold.set_top()
 	# Formatting for not bolded cells (prev. not_req/analyzed_header/not_bold)
-	BORDER_BOT = workbook.add_format()
-	BORDER_BOT.set_text_wrap()
-	BORDER_BOT.set_align('center')
-	BORDER_BOT.set_align('vcenter')
-	BORDER_BOT.set_bottom()
+	border_bot = workbook.add_format()
+	border_bot.set_text_wrap()
+	border_bot.set_align('center')
+	border_bot.set_align('vcenter')
+	border_bot.set_bottom()
 	
-	# List of ordered tuples containing (title, formatting, column width) 
-	# in order they are to be written to the file
+	# List of input field labels in order they are to be written to the file
 	row_headers = [
 		'Run Name',
 		u"Specific Activity (cpm \u00B7 \u00B5mol\u207b\u00b9)",
@@ -58,60 +62,49 @@ def generate_sheet(workbook, sheet_name, template=False):
 		worksheet.merge_range (
 			index, 0,
 			index, 1, 
-			row_headers[index], BORDER_BOLD)
-		worksheet.write (index, 2, "", BORDER)
+			row_headers[index], border_bold)
+		worksheet.write (index, 2, "", border)
 
 	if template:
 		worksheet.write(
 			7, 0,
 			"Vial #",
-			BORDER_BOT)
+			border_bot)
 		worksheet.set_column(0, 0, 3.57)
 		worksheet.write(
 			7, 1,
 			"Elution time (min)",
-			BORDER_BOLD)
+			border_bold)
 		worksheet.set_column(1, 1, 11.7)
 		worksheet.write(
 			7, 2,
 			"Activity in eluant (cpm)",
-			BORDER_BOLD)
+			border_bold)
 		worksheet.set_column(2, 2, 15)
-	else:
+		# Writing headers for columns that should contain individual runs 
+		worksheet.write(0, 2, "Run 1", basic)
+		worksheet.write(0, 3, "etc.", basic)
+	else: #  Creating a summary or individual run sheet.
 		worksheet.merge_range (
 			index + 1, 0,
 			index + 1, 1, 
-			'Reg Type', BORDER_BOLD)
-		worksheet.write (index, 2, "", BORDER)
-
+			'Reg Type', border_bold)
+		worksheet.write (index, 2, "", border)
 	  
 	return worksheet
 
 
-def generate_template(workbook):
-	'''Generates a CATE template sheet in an already created workbook.
-	'''
-	# Formatting for basic cells (previously run_header/basic)
-	BASIC = workbook.add_format()
-	BASIC.set_text_wrap()
-	BASIC.set_align('center')
-	BASIC.set_align('vcenter')
-
-	worksheet = generate_sheet(workbook, 'Template', template=True)
-
-	# Writing headers columns containing individual runs 
-	worksheet.write(0, 2, "Run 1", BASIC)
-	worksheet.write(0, 3, "etc.", BASIC)
-
 def write_run_labels(workbook, worksheet, formats):
-	'''Write basic field labels for worksheet for a single run
+	'''Write basic input field labels for the <worksheet> of a single run.
+
+	The are mostly the labels occurring in the leftmost column
 
 	@type workbook: Workbook
 	@type worksheet: Worksheet
 	@type formats: [Format]
 	@rtype: None
 	'''
-	border_bot = formats[0]
+	border_bot, border_right, border_bold_bot = formats
 	border_right = formats[1]
 	border_bold_bot = formats[2]
 	phasedata_headers = [
@@ -143,7 +136,7 @@ def write_run_labels(workbook, worksheet, formats):
 	worksheet.set_column(6, 6, 10)
 
 def write_basic_series(workbook, worksheet, formats, run):
-	'''Write basic elution series data for worksheet for a single run.
+	'''Write basic elution series data for the <worksheet> of a single run.
 
 	Counters important to displaying of graphs are returned.
 
@@ -172,7 +165,7 @@ def write_basic_series(workbook, worksheet, formats, run):
 	return end_elut_ends_parsed, end_log_efflux
 
 def write_objective(worksheet, formats, analysis):
-	'''Write data specific to objective regrassion.
+	'''Write data specific to objective regression.
 
 	Returns a counter for ordering later columns properly.
 
@@ -180,35 +173,35 @@ def write_objective(worksheet, formats, analysis):
 	@type formats: [Format]
 	@rtype: int
 	'''
-	BORDER_BOLD_BOT, BOLD, BORDER_LEFT = formats
-	current_col = 7 # Variable because obj analysis adds extra columns
+	border_bold_bot, bold, border_left = formats
+	current_col = 7 # Tracks current column to be written in
 	if analysis.kind == 'obj':
 		worksheet.write(
-			22, current_col, "Objective regression", BORDER_BOLD_BOT)
+			22, current_col, "Objective regression", border_bold_bot)
 		worksheet.set_column(current_col, current_col, 12.7)
 		for index, item in enumerate(analysis.r2s):
 			if analysis.run.elut_ends_parsed[index] == analysis.xs_p3[0]:
-				worksheet.write(23 + index, current_col, item, BOLD)
+				worksheet.write(23 + index, current_col, item, bold)
 				p3_start_row = 23 + index
 			else:
-				worksheet.write(23 + index, current_col, item, BORDER_LEFT)
+				worksheet.write(23 + index, current_col, item, border_left)
 			log_end_row = 23 + index
 		current_col += 1
 		worksheet.write(
-			22, current_col, "Objective slopes", BORDER_BOLD_BOT)
+			22, current_col, "Objective slopes", border_bold_bot)
 		worksheet.set_column(current_col, current_col, 12.7)
 		for index, item in enumerate(analysis.ms):
 			if analysis.run.elut_ends_parsed[index] == analysis.xs_p3[0]:
-				worksheet.write(23 + index, current_col, item, BOLD)
+				worksheet.write(23 + index, current_col, item, bold)
 			else:
 				worksheet.write(23 + index, current_col, item)
 		current_col += 1
 		worksheet.write(
-			22, current_col, "Objective intercepts", BORDER_BOLD_BOT)
+			22, current_col, "Objective intercepts", border_bold_bot)
 		worksheet.set_column(current_col, current_col, 12.7)
 		for index, item in enumerate(analysis.bs):
 			if analysis.run.elut_ends_parsed[index] == analysis.xs_p3[0]:
-				worksheet.write(23 + index, current_col, item, BOLD)
+				worksheet.write(23 + index, current_col, item, bold)
 			else:
 				worksheet.write(23 + index, current_col, item)
 		current_col += 1
@@ -226,21 +219,21 @@ def write_phase_series(worksheet, formats, current_col, phase, phase_num):
 	@type phase_num: 'I' | 'II' | 'III'
 	@rtype: (int, int, int, int)
 	'''
-	BORDER_BOLD_BOT, BORDER_LEFT = formats
+	border_bold_bot, border_left = formats
 	worksheet.write(
 			22, current_col,
-			"Phase " + phase_num + " times", BORDER_BOLD_BOT)
+			"Phase " + phase_num + " times", border_bold_bot)
 	worksheet.set_column(current_col, current_col, 12.7)
 	index = 0 #  Need to instantiate because loop below doesn't always
 	for index, item in enumerate(phase.x_series):
-		worksheet.write(23 + index, current_col, item, BORDER_LEFT)
+		worksheet.write(23 + index, current_col, item, border_left)
 	chart_end = index + 23
 	x_col = current_col
 	current_col += 1
 
 	worksheet.write(
 		22, current_col,
-		"Phase " + phase_num + " log(efflux)", BORDER_BOLD_BOT)
+		"Phase " + phase_num + " log(efflux)", border_bold_bot)
 	worksheet.set_column(current_col, current_col, 10)
 	for index, item in enumerate(phase.y_series):
 		worksheet.write(23 + index, current_col, item)
@@ -248,13 +241,30 @@ def write_phase_series(worksheet, formats, current_col, phase, phase_num):
 	current_col += 1
 	return current_col, x_col, y_col, chart_end
 
-def write_charts(workbook, worksheet, analysis,
-			end_elut_ends_parsed, end_log_efflux,
-			p3_x_col, p3_y_col, p3_chart_end,
-			p2_x_col, p2_y_col, p2_chart_end,
-			p1_x_col, p1_y_col, p1_chart_end):
-	''' Draws charts in <worksheet> for individual runs
+def write_summary_chart(
+		workbook, worksheet, analysis,
+		end_elut_ends_parsed, end_log_efflux,
+		chart3_data, chart2_data, chart1_data):
+	''' Draws summary chart in <worksheet> for individual runs.
+
+	@type workbook: Workbook
+	@type worksheet: Worksheet
+	@type analysis: Analysis
+	@type end_elut_ends_parsed: int
+		Counter for graphing
+	@type end_log_efflux: int
+		Counter for graphing
+	@type chart3_data: (int, int, int)
+		locations of data ranges in <worksheet> for graphing phase III
+	@type chart2_data: (int, int, int)
+		locations of data ranges in <worksheet> for graphing phase II
+	@type chart1_data: (int, int, int)
+		locations of data ranges in <worksheet> for graphing phase I			
+	@rtype: None
 	'''
+	p3_x_col, p3_y_col, p3_chart_end = chart3_data
+	p2_x_col, p2_y_col, p2_chart_end = chart2_data
+	p1_x_col, p1_y_col, p1_chart_end = chart1_data
 	# Drawing Summary Chart
 	
 	chart_all = workbook.add_chart({'type': 'scatter'})
@@ -269,6 +279,7 @@ def write_charts(workbook, worksheet, analysis,
 				   'size,': 5,
 				   'border': {'color': 'black'},
 				   'fill':   {'color': 'white'}} })
+	
 	# Adding Phase III data to chart_all
 	chart_all.add_series({
 		'categories': [analysis.run.name, 23, p3_x_col, p3_chart_end, p3_x_col],
@@ -364,33 +375,64 @@ def write_charts(workbook, worksheet, analysis,
 	#chart_all.set_legend({'none': True})        
 	chart_all.set_x_axis({'name': 'Elution time (min)',})        
 	chart_all.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})	
+
+
+def write_phase_chart(
+		workbook, worksheet, analysis, chart_data, phase_num,
+		end_elut_ends_parsed=None, end_log_efflux=None,):
+	''' Draws individual phase charts in <worksheet> for individual runs.
+
+	Precondition: if <phase_num> = 'III' then <end_elut_ends_parsed> and
+		<end_log_efflux> != None
+
+	@type workbook: Workbook
+	@type worksheet: Worksheet
+	@type analysis: Analysis
+	@type data_chart: (int, int, int)
+		locations of data ranges in <worksheet> for graphing phase
+	@type phase_num: 'III' | 'II' | 'I'
+	@type end_elut_ends_parsed: int
+		Counter for graphing. Only needed if <phase_num> == 3.
+	@type end_log_efflux: int
+		Counter for graphing. Only needed if <phase_num> == 3.			
+	@rtype: None
+	'''
+	x_col, y_col, chart_end = chart_data
+	if phase_num == 'III':
+		insert_cell, fill_color, reg_col = 'G8', '#000000', 0
+	elif phase_num == 'II':
+		insert_cell, fill_color, reg_col = 'M8', '#0000CC', 2
+	elif phase_num == 'I':
+		insert_cell, fill_color, reg_col = 'S8', '#33CC00', 4
 	# Drawing the Phase III chart
-	chart_p3 = workbook.add_chart({'type': 'scatter'})
-	chart_p3.set_title({'name': 'Phase III', 'overlay': True})
-	worksheet.insert_chart('G8', chart_p3)        
-	# Adding larger log efflux data to chart_p3
-	chart_p3.add_series({
-		'categories': [analysis.run.name, 23, 3, end_elut_ends_parsed, 3],
-		'values': [analysis.run.name, 23, 6, end_log_efflux, 6],
-		'name' : 'Base log data',
-		'marker': {'type': 'circle',
-				   'size,': 5,
-				   'border': {'color': 'black'},
-				   'fill':   {'color': 'white'}} }) 
-	# Adding Phase III data to chart_p3
-	chart_p3.add_series({
-		'categories': [analysis.run.name, 23, p3_x_col, p3_chart_end, p3_x_col],
-		'values': [analysis.run.name, 23, p3_y_col, p3_chart_end, p3_y_col],
-		'name' : 'Phase III',
+	chart = workbook.add_chart({'type': 'scatter'})
+	chart.set_title({'name': 'Phase ' + phase_num, 'overlay': True})
+	worksheet.insert_chart(insert_cell, chart)
+	if phase_num == 'III':
+		# Adding larger log efflux data to chart
+		chart.add_series({
+			'categories': [analysis.run.name, 23, 3, end_elut_ends_parsed, 3],
+			'values': [analysis.run.name, 23, 6, end_log_efflux, 6],
+			'name' : 'Base log data',
+			'marker': {'type': 'circle',
+					   'size,': 5,
+					   'border': {'color': 'black'},
+					   'fill':   {'color': 'white'}} }) 
+
+	# Adding Phase data to chart
+	chart.add_series({
+		'categories': [analysis.run.name, 23, x_col, chart_end, x_col],
+		'values': [analysis.run.name, 23, y_col, chart_end, y_col],
+		'name' : 'Phase ' + phase_num,
 		'marker': {'type': 'circle',
 				   'size,': 5,
 				   'border': {'color': '#000000'},
-				   'fill':   {'color': '#000000'}} })
-	if analysis.kind == 'obj':
+				   'fill':   {'color': fill_color}} })
+	if analysis.kind == 'obj' and phase_num == 'III':
 		# Highlighting last point of Phase III
-		chart_p3.add_series({
-			'categories': [analysis.run.name, 23, p3_x_col, 23, p3_x_col],
-			'values': [analysis.run.name, 23, p3_y_col, 23, p3_y_col],
+		chart.add_series({
+			'categories': [analysis.run.name, 23, x_col, 23, x_col],
+			'values': [analysis.run.name, 23, y_col, 23, y_col],
 			'name' : 'End of objective regression',
 			'marker': {'type': 'circle',
 					   'size,': 5,
@@ -398,87 +440,43 @@ def write_charts(workbook, worksheet, analysis,
 					   'fill':   {'color': 'red'}} })
 		# Highlighting num of pts used for regression
 		obj_num_pts = analysis.obj_num_pts
-		chart_p3.add_series({
+		chart.add_series({
 			'categories': [
 				analysis.run.name,
-				p3_chart_end-obj_num_pts, p3_x_col,
-				p3_chart_end, p3_x_col],
+				chart_end-obj_num_pts, x_col,
+				chart_end, x_col],
 			'values': [
 				analysis.run.name,
-				p3_chart_end-obj_num_pts, p3_y_col,
-				p3_chart_end, p3_y_col],
+				chart_end-obj_num_pts, y_col,
+				chart_end, y_col],
 			'name' : 'Pts used to initiate regression',
 			'marker': {'type': 'circle',
 					   'size,': 5,
 					   'border': {'color': 'red'},
 					   'fill':   {'color': 'black'}} })
-	# Add p3 regression line
-	chart_p3.add_series({
-		'categories': [analysis.run.name, 7, 0, 8, 0],
-		'values': [analysis.run.name, 7, 1, 8, 1],
+	# Add regression line
+	chart.add_series({
+		'categories': [analysis.run.name, 7, reg_col, 8, reg_col],
+		'values': [analysis.run.name, 7, reg_col + 1, 8, reg_col + 1],
 		'line' : {'color': 'red','dash_type' : 'dash'},
-		'name' : 'PhIII regression',
+		'name' : 'Ph' + phase_num + ' regression',
 		'marker': {'type': 'none'}
 		})
-	#chart_p3.set_legend({'none': True})        
-	chart_p3.set_x_axis({'name': 'Elution time (min)',})        
-	chart_p3.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})
+	#chart.set_legend({'none': True})        
+	chart.set_x_axis({'name': 'Elution time (min)',})        
+	chart.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})
 
-	# Drawing Phase II chart
-	chart_p2 = workbook.add_chart({'type': 'scatter'})
-	chart_p2.set_title({'name': 'Phase II', 'overlay': True})
-	worksheet.insert_chart('M8', chart_p2)        
-	# Adding Phase II data chart_p2	
-	chart_p2.add_series({
-		'categories': [analysis.run.name, 23, p2_x_col, p2_chart_end, p2_x_col],
-		'values': [analysis.run.name, 23, p2_y_col, p2_chart_end, p2_y_col],
-		'name' : 'Phase II',
-		'marker': {'type': 'circle',
-				   'size,': 5,
-				   'border': {'color': '#000000'},
-				   'fill':   {'color': '#0000CC'}} })
-	# Add p2 regression line
-	worksheet.write(7, 2, analysis.phase2.xy1[0])          
-	worksheet.write(7, 3, analysis.phase2.xy1[1])          
-	worksheet.write(8, 2, analysis.phase2.xy2[0]) 
-	worksheet.write(8, 3, analysis.phase2.xy2[1])
+def write_antilog_chart(workbook, worksheet, analysis, end_log_efflux):
+	''' Draws antilog chart in <worksheet> for individual runs.
 
-	chart_p2.add_series({
-		'categories': [analysis.run.name, 7, 2, 8, 2],
-		'values': [analysis.run.name, 7, 3, 8, 3],
-		'line' : {'color': '#0000CC','dash_type' : 'dash'},
-		'name' : 'PhII regression',
-		'marker': {'type': 'none'}
-		})
-	#chart_p2.set_legend({'none': True})        
-	chart_p2.set_x_axis({'name': 'Elution time (min)',})        
-	chart_p2.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})
-
-	# Drawing Phase I chart        
-	chart_p1 = workbook.add_chart({'type': 'scatter'})
-	chart_p1.set_title({'name': 'Phase I', 'overlay': True})
-	worksheet.insert_chart('S8', chart_p1)        
-	# Adding Phase I data chart_p1	
-	chart_p1.add_series({
-		'categories': [analysis.run.name, 23, p1_x_col, p1_chart_end, p1_x_col],
-		'values': [analysis.run.name, 23, p1_y_col, p1_chart_end, p1_y_col],
-		'name' : 'Phase I',
-		'marker': {'type': 'circle',
-				   'size,': 5,
-				   'border': {'color': '#000000'},
-				   'fill':   {'color': '#33CC00'}} })
-	# Add p1 regression line
-	chart_p1.add_series({
-		'categories': [analysis.run.name, 7, 4, 8, 4],
-		'values': [analysis.run.name, 7, 5, 8, 5],
-		'line' : {'color': '#33CC00','dash_type' : 'dash'},
-		'name' : 'PhI regression',
-		'marker': {'type': 'none'}
-		})
-	#chart_p1.set_legend({'none': True})        
-	chart_p1.set_x_axis({'name': 'Elution time (min)',})        
-	chart_p1.set_y_axis({'name': 'Log(efflux(cpm/g RFW/min))',})
-	
+	@type workbook: Workbook
+	@type worksheet: Worksheet
+	@type analysis: Analysis
+	@type end_log_efflux: int
+		Counter for graphing
+	@type data_chart3: (int, int, int)
+	@rtype: None
+	'''
 	# Drawing anti-logged data chart        
 	chart_antilog = workbook.add_chart({'type': 'scatter'})
 	chart_antilog.set_title({'name': 'Anti-logged data', 'overlay': True})
@@ -487,15 +485,11 @@ def write_charts(workbook, worksheet, analysis,
 	antilog_chart_start = int(len(analysis.run.elut_ends_parsed) * 0.7)
 	chart_antilog.add_series({
 		'categories': [analysis.run.name,
-			 end_log_efflux
--antilog_chart_start, 3,
-			 end_log_efflux
-, 3],
+			 end_log_efflux-antilog_chart_start, 3,
+			 end_log_efflux, 3],
 		'values': [analysis.run.name,
-			end_log_efflux
--antilog_chart_start, 5,
-			end_log_efflux
-, 5],
+			end_log_efflux-antilog_chart_start, 5,
+			end_log_efflux, 5],
 		'name' : 'Anti-logged partial dataset',
 		'marker': {'type': 'circle',
 				   'size,': 5,
@@ -590,14 +584,26 @@ def generate_analysis(experiment):
 			worksheet,
 			[BORDER_BOLD_BOT, BORDER_LEFT],
 			current_col, analysis.phase1, 'I')
-		write_charts(
+		
+		write_summary_chart(
 			workbook, worksheet, analysis,
 			end_elut_ends_parsed, end_log_efflux,
-			p3_x_col, p3_y_col, p3_chart_end,
-			p2_x_col, p2_y_col, p2_chart_end,
-			p1_x_col, p1_y_col, p1_chart_end
-			)
+			(p3_x_col, p3_y_col, p3_chart_end),
+			(p2_x_col, p2_y_col, p2_chart_end),
+			(p1_x_col, p1_y_col, p1_chart_end))
 
+		write_phase_chart(
+			workbook, worksheet, analysis,
+			(p3_x_col, p3_y_col, p3_chart_end), 'III',
+			end_elut_ends_parsed, end_log_efflux)
+		write_phase_chart(
+			workbook, worksheet, analysis,
+			(p2_x_col, p2_y_col, p2_chart_end), 'II')
+		write_phase_chart(
+			workbook, worksheet, analysis,
+			(p1_x_col, p1_y_col, p1_chart_end), 'I')
+		write_antilog_chart(workbook, worksheet, analysis, end_log_efflux)
+		
 	workbook.close()
 
 def write_phase(
