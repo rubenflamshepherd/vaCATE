@@ -83,7 +83,8 @@ def generate_sheet(workbook, sheet_name, template=False):
 		worksheet.set_column(2, 2, 15)
 		# Writing headers for columns that should contain individual runs 
 		worksheet.write(0, 2, "Run 1", basic)
-		worksheet.write(0, 3, "etc.", basic)
+		worksheet.write(0, 3, "Run 2", basic)
+		worksheet.write(0, 4, "etc.", basic)
 	else: #  Creating a summary or individual run sheet.
 		worksheet.merge_range (
 			index + 1, 0,

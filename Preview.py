@@ -784,16 +784,60 @@ class MainFrame(wx.Frame):
 		'''
 		if boundary_start == '' and boundary_end == '':
 			return True 
-		elif (boundary_start == '' and boundary_end != '') or \
-				(boundary_start != '' and boundary_end == ''):
-			msg = "Only one end of a phase has been defined."
+		elif boundary_start == '' and boundary_end != '':
+			msg = "Only one end of a phase (%s min) has been defined." %(boundary_end)
 			dlg = RegError(self, -1, msg)
 			val = dlg.ShowModal()
 			dlg.Destroy()
 			return False
+		elif boundary_start != '' and boundary_end == '':
+			msg = "Only one end of a phase (%s min) has been defined." %(boundary_start)
+			dlg = RegError(self, -1, msg)
+			val = dlg.ShowModal()
+			dlg.Destroy()
+			return False		
 		elif float(boundary_start) >= float(boundary_end) != '':
 			msg = "The start of a defined phase must before after its end (%s must be before %s)."\
 			%(boundary_start, boundary_end)
+			dlg = RegError(self, -1, msg)
+			val = dlg.ShowModal()
+			dlg.Destroy()
+			return False
+		return True
+
+	def check_phase_order(
+			self, previous_start, previous_end, current_start, current_end,
+			previous_num, current_num):
+		'''Returns whether a previous phase can be defined.
+
+		A previous phase can only be defined if the current phase is defined.
+		Phases can not overlap.
+		Creates a dialog box with a meaningful error message if the current 
+			phase is not defined and the previous one is.
+
+		Precondition: phase boundaries are valild inputs.
+
+		@type previous_start: int
+			elution time point where previous phase starts
+		@type previous_end: int
+			elution time point where previous phase ends			
+		@type current_start: int
+			elution time point where current phase starts
+		@type current_end: int
+			elution time point where current phase ends
+		@rtype: bool
+		'''
+		if (previous_start, previous_end) == ('', ''):
+			return True
+		elif (previous_start, previous_end) != ('', '') and \
+				(current_start, current_end) == ('', ''):
+			msg = "You can not define Phase %s if a later phase (%s) is undefined." %(previous_num, current_num)
+			dlg = RegError(self, -1, msg)
+			val = dlg.ShowModal()
+			dlg.Destroy()
+			return False
+		elif float(previous_end) >= float(current_start):
+			msg = "A previous phase extends beyond a later phase (%s >= %s)." %(previous_end, current_start)
 			dlg = RegError(self, -1, msg)
 			val = dlg.ShowModal()
 			dlg.Destroy()
@@ -811,6 +855,8 @@ class MainFrame(wx.Frame):
 		@rtype: bool
 		'''
 		elut_ends_temp = self.experiment.analyses[self.analysis_num].run.elut_ends
+
+		# First confirm that individual inputs are valid		
 		p3_start = self.subj_p3_start_textbox.GetValue()
 		if not self.check_phase_boundary(p3_start, elut_ends_temp):
 			return False
@@ -827,6 +873,8 @@ class MainFrame(wx.Frame):
 		if not self.check_phase_boundary(p1_start, elut_ends_temp):
 			return False
 		p1_end = self.subj_p1_end_textbox.GetValue()
+
+		# Then determine that input pairs for a phase are valid
 		if not self.check_phase_boundary(p1_end, elut_ends_temp):
 			return False
 		if not self.check_boundary_order(p3_start, p3_end):
@@ -834,7 +882,20 @@ class MainFrame(wx.Frame):
 		if not self.check_boundary_order(p2_start, p2_end):
 			return False
 		if not self.check_boundary_order(p1_start, p1_end):
-			return False						
+			return False
+
+		# Finally, determine that phases are valid relative to each other.
+		if not self.check_phase_order(
+			p1_start, p1_end, p2_start, p2_end, 'I', 'II'):
+			return False		
+		if not self.check_phase_order(
+			p2_start, p2_end, p3_start, p3_end, 'II', 'III'):
+			return False
+		if not self.check_phase_order(
+			p1_start, p1_end, p3_start, p3_end, 'I', 'III'):
+			return False
+
+
 		return True
 
 	def create_single_subj(self, analysis_num,
