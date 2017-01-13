@@ -161,7 +161,7 @@ class DialogFrame(wx.Frame):
         button_box3 = wx.BoxSizer(wx.HORIZONTAL)
         
         # Main text presented to user
-        txt1 = "     Welcome to the CATE Data Analyzer!     "
+        txt1 = "     Welcome to vaCATE!     "
         txt2 = "Please choose an option below:"
         static_txt1 = wx.StaticText(
             inner_panel, id=-1, label=txt1, style=wx.ALIGN_CENTER, name="")

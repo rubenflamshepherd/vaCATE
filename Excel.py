@@ -175,6 +175,7 @@ def write_objective(worksheet, formats, analysis):
 
     @type worksheet: Worksheet
     @type formats: [Format]
+    @type analysis: Analysis
     @rtype: int
     """
     border_bold_bot, bold, border_left = formats
@@ -248,15 +249,15 @@ def write_phase(worksheet, formats, first_row, first_col, phase, vertical=True):
 def write_phase_series(worksheet, formats, current_col, phase, phase_num):
     """Write x- and y-series data specific to a particular phase.
 
-	Returns counters for drawing graphs
+    Returns counters for drawing graphs
 
-	@type worksheet: Worksheet
-	@type formats: [Format]
-	@type current_col: int
-	@type phase: Phase
-	@type phase_num: 'I' | 'II' | 'III'
-	@rtype: (int, int, int, int)
-	"""
+    @type worksheet: Worksheet
+    @type formats: [Format]
+    @type current_col: int
+    @type phase: Phase
+    @type phase_num: 'I' | 'II' | 'III'
+    @rtype: (int, int, int, int)
+    """
     border_bold_bot, border_left = formats
     worksheet.write(
         22, current_col,
@@ -286,21 +287,21 @@ def write_summary_chart(
         chart3_data, chart2_data, chart1_data):
     """ Draws summary chart in <worksheet> for individual runs.
 
-	@type workbook: Workbook
-	@type worksheet: Worksheet
-	@type analysis: Analysis
-	@type end_elut_ends_parsed: int
-		Counter for graphing
-	@type end_log_efflux: int
-		Counter for graphing
-	@type chart3_data: (int, int, int)
-		locations of data ranges in <worksheet> for graphing phase III
-	@type chart2_data: (int, int, int)
-		locations of data ranges in <worksheet> for graphing phase II
-	@type chart1_data: (int, int, int)
-		locations of data ranges in <worksheet> for graphing phase I			
-	@rtype: None
-	"""
+    @type workbook: Workbook
+    @type worksheet: Worksheet
+    @type analysis: Analysis
+    @type end_elut_ends_parsed: int
+        Counter for graphing
+    @type end_log_efflux: int
+        Counter for graphing
+    @type chart3_data: (int, int, int)
+        locations of data ranges in <worksheet> for graphing phase III
+    @type chart2_data: (int, int, int)
+        locations of data ranges in <worksheet> for graphing phase II
+    @type chart1_data: (int, int, int)
+        locations of data ranges in <worksheet> for graphing phase I
+    @rtype: None
+    """
     p3_x_col, p3_y_col, p3_chart_end = chart3_data
     p2_x_col, p2_y_col, p2_chart_end = chart2_data
     p1_x_col, p1_y_col, p1_chart_end = chart1_data
@@ -422,21 +423,21 @@ def write_phase_chart(
         end_elut_ends_parsed=None, end_log_efflux=None, ):
     """ Draws individual phase charts in <worksheet> for individual runs.
 
-	Precondition: if <phase_num> = 'III' then <end_elut_ends_parsed> and
-		<end_log_efflux> != None
+    Precondition: if <phase_num> = 'III' then <end_elut_ends_parsed> and
+        <end_log_efflux> != None
 
-	@type workbook: Workbook
-	@type worksheet: Worksheet
-	@type analysis: Analysis
-	@type chart_data: (int, int, int)
-		locations of data ranges in <worksheet> for graphing phase
-	@type phase_num: 'III' | 'II' | 'I'
-	@type end_elut_ends_parsed: int
-		Counter for graphing. Only needed if <phase_num> == 3.
-	@type end_log_efflux: int
-		Counter for graphing. Only needed if <phase_num> == 3.			
-	@rtype: None
-	"""
+    @type workbook: Workbook
+    @type worksheet: Worksheet
+    @type analysis: Analysis
+    @type chart_data: (int, int, int)
+        locations of data ranges in <worksheet> for graphing phase
+    @type phase_num: 'III' | 'II' | 'I'
+    @type end_elut_ends_parsed: int
+    Counter for graphing. Only needed if <phase_num> == 3.
+    @type end_log_efflux: int
+        Counter for graphing. Only needed if <phase_num> == 3.
+    @rtype: None
+    """
     x_col, y_col, chart_end = chart_data
     # Assigning constants that depend on which phase is being analyzed
     if phase_num == 'III':
@@ -509,15 +510,15 @@ def write_phase_chart(
 
 
 def write_antilog_chart(workbook, worksheet, analysis, end_log_efflux):
-    """ Draws antilog chart in <worksheet> for individual runs.
+    """ Draws anti-log chart in <worksheet> for individual runs.
 
-	@type workbook: Workbook
-	@type worksheet: Worksheet
-	@type analysis: Analysis
-	@type end_log_efflux: int
-		Counter for graphing
-	@rtype: None
-	"""
+    @type workbook: Workbook
+    @type worksheet: Worksheet
+    @type analysis: Analysis
+    @type end_log_efflux: int
+        Counter for graphing
+    @rtype: None
+    """
     # Drawing anti-logged data chart
     chart_antilog = workbook.add_chart({'type': 'scatter'})
     chart_antilog.set_title({'name': 'Anti-logged data', 'overlay': True})
@@ -545,18 +546,18 @@ def write_basic_calculations(
         worksheet, formats, analysis, first_row, first_col, summary=True):
     """Write <phase> attributes to excel <worksheet>.
 
-	Preconditions: len(formats) = 1
+    Preconditions: len(formats) = 1
 
-	@type worksheet: Worksheet
-	@type formats: [Format] | [None]
-	@type analysis: Analysis
-	@type first_row: int
-		Used to position output of calculations.
-	@type first_col: int
-		Used to position output of calculations.
-	@type summary: bool
-	@rtype: None
-	"""
+    @type worksheet: Worksheet
+    @type formats: [Format] | [None]
+    @type analysis: Analysis
+    @type first_row: int
+        Used to position output of calculations.
+    @type first_col: int
+        Used to position output of calculations.
+    @type summary: bool
+    @rtype: None
+    """
     border_bot = formats[0]
     worksheet.write(first_row, first_col, analysis.run.name, border_bot)
     worksheet.write(first_row + 1, first_col, analysis.run.SA)
@@ -581,20 +582,20 @@ def write_basic_calculations(
 def write_constant_row_labels(worksheet, formats):
     """Fill in the left-most row of the summary worksheet with constant labels.
 
-	Constant labels are those whose position doesn't change depending on length
-		of various data series.
+    Constant labels are those whose position doesn't change depending on length
+        of various data series.
 
-	@type worksheet: Worksheet
-	@type formats: [Format]
-	@rtype: None
-	"""
+    @type worksheet: Worksheet
+    @type formats: [Format]
+    @rtype: None
+    """
     border_bold_bot_top, border_bot = formats
 
     worksheet.freeze_panes(1, 2)
     worksheet.set_column(0, 0, 9)
 
-    CATE_headers = ["Pool Size", "E:I Ratio", "Net flux"]
-    for index, item in enumerate(CATE_headers):
+    cate_headers = ["Pool Size", "E:I Ratio", "Net flux"]
+    for index, item in enumerate(cate_headers):
         worksheet.write(index + 8, 1, item)
     worksheet.write(index + 9, 1, "Influx", border_bot)
 
@@ -618,15 +619,15 @@ def write_constant_row_labels(worksheet, formats):
 def write_series_row_labels(worksheet, formats, spacer, elut_ends):
     """Fill in the left-most row of the summary worksheet with series labels.
 
-	The position of the series' labels change depending on the length of the 
-		series. <spacer> is used to account for this.
-	
-	@type worksheet: Worksheet
-	@type formats: [Format]
-	@type spacer: int
-	@type elut_ends: [float]
-	@rtype: None
-	"""
+    The position of the series' labels change depending on the length of the
+        series. <spacer> is used to account for this.
+
+    @type worksheet: Worksheet
+    @type formats: [Format]
+    @type spacer: int
+    @type elut_ends: [float]
+    @rtype: None
+    """
     border_bold_bot_top, border_top = formats
 
     worksheet.merge_range(
@@ -681,23 +682,23 @@ def write_series_row_labels(worksheet, formats, spacer, elut_ends):
 def write_series(worksheet, formats, row, col, x_series, y_series, raw_series):
     """Write a y series of data into a col
 
-	Data is written in a column starting from <row> and <col>.
-	Data is spaced according to a <raw_series> whose length is greater than or
-		equal to x_series. 
-	We iterate along the larger <raw_series> inputting points from <y_series> 
-		only if that point's correpondant in <x_series> matches the point from
-		<raw_series>. If no points match then a blank cell is left.
-	This allows us to space all data according to larger <raw_series>
-	
-	@type workbook: Worksheet
-	@type formats: [Format]
-	@type row: int
-	@type col: int
-	@type x_series: [int | float]
-	@type y_series: [int | float]
-	@type raw_series: [int | float]
-	@rtype: None
-	"""
+    Data is written in a column starting from <row> and <col>.
+    Data is spaced according to a <raw_series> whose length is greater than or
+        equal to x_series.
+    We iterate along the larger <raw_series> inputting points from <y_series>
+        only if that point's correpondant in <x_series> matches the point from
+        <raw_series>. If no points match then a blank cell is left.
+    This allows us to space all data according to larger <raw_series>
+
+    @type workbook: Worksheet
+    @type formats: [Format]
+    @type row: int
+    @type col: int
+    @type x_series: [int | float]
+    @type y_series: [int | float]
+    @type raw_series: [int | float]
+    @rtype: None
+    """
     border_top = formats[0]
     for index2, item2 in enumerate(raw_series):
         for index3, item3 in enumerate(x_series):
@@ -715,13 +716,13 @@ def write_series(worksheet, formats, row, col, x_series, y_series, raw_series):
 def generate_summary(workbook, experiment, formats):
     """Create a summary sheet in an open <workbook>.
 
-	Summary sheet contains relevant data from all analyses in <experiment>
+    Summary sheet contains relevant data from all analyses in <experiment>
 
-	@type workbook: Workbook
-	@type experiment: Experiment
-	@type formats: [Format]
-	@rtype: None
-	"""
+    @type workbook: Workbook
+    @type experiment: Experiment
+    @type formats: [Format]
+    @rtype: None
+    """
     border_bold_bot_top, border_bot, border_top = formats
 
     worksheet = generate_sheet(workbook, "Summary", template=False)
@@ -783,15 +784,15 @@ def generate_summary(workbook, experiment, formats):
 def generate_analysis(experiment):
     """Creating an excel file in <experiment>.directory.
 
-	Excel file contains comprehensive data analysis as created by the user.
-	File is named using a preset naming convention.
+    Excel file contains comprehensive data analysis as created by the user.
+    File is named using a preset naming convention.
 
-	Precondition: Data in the file are the product of a template file with with
-		CATE data inputted properly.
+    Precondition: Data in the file are the product of a template file with with
+        CATE data inputted properly.
 
-	@type experiment: Experiment
-	@rtype: None
-	"""
+    @type experiment: Experiment
+    @rtype: None
+    """
     output_name = 'CATE Output - ' + time.strftime("(%Y_%m_%d).xlsx")
     workbook = xlsxwriter.Workbook(experiment.directory + "\\" + output_name)
 
@@ -892,14 +893,14 @@ def generate_analysis(experiment):
 def grab_data(input_file):
     """Extracts data from an excel file in directory/filename.
 
-	Data is used to create/return an Experiment object.
+    Data is used to create/return an Experiment object.
 
-	Precondition: input file is formated according to 
-		generate_sheet/generate_template    
-	
-	@type input_file: path
-	@rtype: Experiment
-	"""
+    Precondition: input file is formatted according to
+        generate_sheet/generate_template
+
+    @type input_file: path
+    @rtype: Experiment
+    """
     # Accessing the file from which data is to be grabbed
     #    input_file = os.path.join(directory, filename)
     input_book = open_workbook(input_file)
@@ -921,7 +922,7 @@ def grab_data(input_file):
         root_weight = input_sheet.cell(4, col_index).value
         g_factor = input_sheet.cell(5, col_index).value
         load_time = input_sheet.cell(6, col_index).value
-        # Grabing elution cpms, correcting for header offset (8)
+        # Grabbing elution cpms, correcting for header offset (8)
         raw_cpm_column = input_sheet.col(col_index)[8:]  # Raw counts given by file
         raw_cpms = []
         elution_cpms = []
@@ -953,8 +954,8 @@ if __name__ == "__main__":
         analysis.obj_num_pts = 8
         analysis.analyze()
     """
-	temp_experiment.analyses[0].kind = 'obj'
-	temp_experiment.analyses[0].obj_num_pts = 8
-	temp_experiment.analyses[0].analyze()
-	"""
+    temp_experiment.analyses[0].kind = 'obj'
+    temp_experiment.analyses[0].obj_num_pts = 8
+    temp_experiment.analyses[0].analyze()
+    """
     generate_analysis(temp_experiment)

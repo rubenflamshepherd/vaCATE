@@ -64,7 +64,7 @@ class Toolbar(NavigationToolbar2WxAgg):
 
         @type self: Toolbar
         @type evt: Event
-        @rtyp: None
+        @rtype: None
         """
         self.frame_object.analysis_num -= 1
         self.frame_object.draw_figure()    
@@ -76,7 +76,7 @@ class Toolbar(NavigationToolbar2WxAgg):
 
         @type self: Toolbar
         @type evt: Event
-        @rtyp: None
+        @rtype: None
         """
         Excel.generate_analysis(self.frame_object.experiment)
         evt.Skip()
