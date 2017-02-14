@@ -45,39 +45,39 @@ class Toolbar(NavigationToolbar2WxAgg):
                            'Save to Excel', 'Activate custom control')
         wx.EVT_TOOL(self, self.ON_EXTRACT, self._on_extract)
     
-    def _on_next(self, evt):
+    def _on_next(self, event):
         """ Action governing what happens when we press the 'right arrow' icon
 
         Next analysis is displayed.
 
         @type self: Toolbar
-        @type evt: Event
+        @type event: Event
         @rtyp: None
         """
         self.frame_object.analysis_num += 1
         self.frame_object.draw_figure()
         
-    def _on_previous(self, evt):
+    def _on_previous(self, event):
         """ Action governing what happens when we press the 'left arrow' icon
 
         Previous analysis is displayed.
 
         @type self: Toolbar
-        @type evt: Event
+        @type event: Event
         @rtype: None
         """
         self.frame_object.analysis_num -= 1
         self.frame_object.draw_figure()    
 
-    def _on_extract(self, evt):
+    def _on_extract(self, event):
         """ Action governing what happens when we press the 'floppy disc' icon
 
         Current set of analyses are saved to an excel file.
 
         @type self: Toolbar
-        @type evt: Event
+        @type event: Event
         @rtype: None
         """
         Excel.generate_analysis(self.frame_object.experiment)
-        evt.Skip()
+        event.Skip()
         self.frame_object.Destroy()

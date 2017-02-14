@@ -1,6 +1,6 @@
-import wx
 import os
 import time
+import wx
 import xlsxwriter
 
 import Excel
@@ -152,7 +152,7 @@ class DialogFrame(wx.Frame):
         self.rootPanel = wx.Panel(self)
         
         inner_panel = wx.Panel(
-            self.rootPanel, -1, size=(500,160), style=wx.ALIGN_CENTER)
+            self.rootPanel, -1, size=(500, 160), style=wx.ALIGN_CENTER)
         hbox = wx.BoxSizer(wx.HORIZONTAL) 
         vbox = wx.BoxSizer(wx.VERTICAL)
         inner_box = wx.BoxSizer(wx.VERTICAL)
@@ -298,19 +298,11 @@ class DialogFrame(wx.Frame):
         if dlg_choose.ShowModal() == wx.ID_OK:
             directory = dlg_choose.GetPath()
             dlg_choose.Destroy()
-                    
-            # Formatting the directory (and path) to unicode w/ forward slash so
-            # it can be passed between methods/classes w/o bugs
-            directory = u'%s' % directory
-            self.directory = directory.replace(u'\\', '/')
-            
             output_name = 'CATE Template - ' + time.strftime("(%Y_%m_%d).xlsx")
             output_file_path = os.path.join(directory, output_name)            
-            
             workbook = xlsxwriter.Workbook(output_file_path)
             Excel.generate_sheet(workbook, 'Template', template=True)
-                        
-            workbook.close()        
+            workbook.close()
                
 if __name__ == '__main__':
     app = wx.PySimpleApp()
