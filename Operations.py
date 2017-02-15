@@ -123,7 +123,7 @@ def get_obj_phase12(xs_p3, elut_ends_parsed, elut_cpms_log, elut_ends):
         best boundaries of phase 2 and 1, and their combined r2
     """
     start_p3 = x_to_index(
-        x_value=xs_p3[0], index_type='start',
+        x_value=xs_p3[0], boundary_type='start',
         x_series=elut_ends_parsed, larger_x=elut_ends)
     temp_x_p12 = elut_ends_parsed[:start_p3]
     temp_y_p12 = elut_cpms_log[:start_p3]
@@ -182,10 +182,10 @@ def extract_phase(xs, x_series, y_series, elut_ends, SA, load_time):
 
     x_start, x_end = xs
     start_index = x_to_index(
-        x_value=x_start, index_type='start',
+        x_value=x_start, boundary_type='start',
         x_series=x_series, larger_x=elut_ends)
     end_index = x_to_index(
-        x_value=x_end, index_type='end',
+        x_value=x_end, boundary_type='end',
         x_series=x_series, larger_x=elut_ends)
     
     x_phase = x_series[start_index: end_index+1]
@@ -304,7 +304,11 @@ def curvestrip(x_series, y_series, slope, intercept):
     @type x_series: [floats]
         <x_series> we are using for for curve-stripping
     @type y_series: [floats]
-        <y_series> we are using for curve-stripping 
+        <y_series> we are using for curve-stripping
+    @type slope: float 
+        slope of the immediately later, more slowly-exchanging phase
+    @type intercept: float 
+        intercept of the immediately later, more slowly-exchanging phase        
     @rtype: [floats], [floats]
         Newly created curve-stripped x- and y-series'
     """

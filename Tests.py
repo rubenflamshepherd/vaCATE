@@ -3,6 +3,7 @@ from nose.tools import assert_equals
 from nose_parameterized import parameterized
 import os
 
+import Excel
 
 class TestExperiment(object):
     def __init__(self, directory, analyses):
@@ -15,7 +16,7 @@ class TestAnalysis(object):
 	This data includes values derived from objective or
 	subjective analyses (calculated within the class)
 	"""
-	def __init__(
+    def __init__(
             self, name, SA, rt_cnts, sht_cnts, rt_wght, gfact, load_time, elut_period,
             elut_ends, elut_cpms, elut_cpms_gfact, elut_cpms_gRFW, elut_cpms_log,
             r2s, influx, netflux, ratio, poolsize, tracer_retained,

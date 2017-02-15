@@ -127,7 +127,7 @@ class Analysis(object):
 			if self.xs_p2 != ('', '') and self.phase3.xs != ('', ''):
 				# Set series' to be curve-stripped
 				end_p12_index = Operations.x_to_index(
-					x_value=self.xs_p2[1], index_type='end',
+					x_value=self.xs_p2[1], boundary_type='end',
 					x_series=self.run.elut_ends_parsed,
 					larger_x=self.run.elut_ends)
 				self.x_p12 = self.run.x[: end_p12_index+1]
@@ -148,11 +148,11 @@ class Analysis(object):
 					SA=self.run.SA, load_time=self.run.load_time)
 				if self.xs_p1 != ('', '') and self.phase2.xs != ('', ''):
 					start_p1_index = Operations.x_to_index(
-						x_value=self.xs_p1[0], index_type='start',
+						x_value=self.xs_p1[0], boundary_type='start',
 						x_series=self.run.elut_ends_parsed,
 						larger_x=self.run.elut_ends)
 					end_p1_index = Operations.x_to_index(
-						x_value=self.xs_p1[1], index_type='end',
+						x_value=self.xs_p1[1], boundary_type='end',
 						x_series=self.run.elut_ends,
 						larger_x=self.run.elut_ends)
 					self.x_p1 = self.run.x[start_p1_index : end_p1_index+1]
