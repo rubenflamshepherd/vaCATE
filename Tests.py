@@ -328,8 +328,8 @@ def test_analysis(file_name, analysis_data):
             answer = answer_exp.analyses[index]
             for counter in range(0, len(question.r2s)):
                 assert_equals(
-                    "{0:.10f}".format(question.r2s[counter]),
-                    "{0:.10f}".format(answer.r2s[counter]))
+                    "{0:.9f}".format(question.r2s[counter]),
+                    "{0:.9f}".format(answer.r2s[counter]))
 
         assert_equals(question.run.SA, answer.SA)
         assert_equals(question.run.name, answer.name)
@@ -401,8 +401,8 @@ def test_analysis(file_name, analysis_data):
                 "{0:.7f}".format(question.phase2.k),
                 "{0:.7f}".format(answer.phase2.k))
             assert_equals(
-                "{0:.3f}".format(question.phase2.r0),
-                "{0:.3f}".format(answer.phase2.r0))
+                "{0:.2f}".format(question.phase2.r0),
+                "{0:.2f}".format(answer.phase2.r0))
             assert_equals(
                 "{0:.4f}".format(question.phase2.efflux),
                 "{0:.4f}".format(answer.phase2.efflux))
@@ -434,8 +434,8 @@ def test_analysis(file_name, analysis_data):
                 "{0:.7f}".format(question.phase1.k),
                 "{0:.7f}".format(answer.phase1.k))
             assert_equals(
-                "{0:.5f}".format(question.phase1.r0),
-                "{0:.5f}".format(answer.phase1.r0))
+                "{0:.4f}".format(question.phase1.r0),
+                "{0:.4f}".format(answer.phase1.r0))
             assert_equals(
                 "{0:.6f}".format(question.phase1.efflux),
                 "{0:.6f}".format(answer.phase1.efflux))

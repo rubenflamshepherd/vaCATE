@@ -201,7 +201,7 @@ class DialogFrame(wx.Frame):
         inner_box.AddSpacer((150, 15))
         inner_box.Add(static_txt2, 0, wx.CENTER)
         inner_box.AddSpacer((150, 15))
-        
+
         # Adding main program buttons to main spacer 'inner_box'
         button_box1.AddSpacer(7, 10)
         button_box1.Add(btn1, 0, wx.CENTER)
@@ -225,7 +225,7 @@ class DialogFrame(wx.Frame):
         # Adding disclaimer text to main spacer 'inner_box' (under buttons)
         inner_box.Add(static_txt3, 0, wx.CENTER)
         inner_box.Add(static_txt4, 0, wx.CENTER)
-        inner_box.AddSpacer((150, 10))        
+        inner_box.AddSpacer((150, 10))
         inner_panel.SetSizer(inner_box)
 
         hbox.Add(inner_panel, 0, wx.ALL | wx.ALIGN_CENTER)
