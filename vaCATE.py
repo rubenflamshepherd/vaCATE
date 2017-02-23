@@ -97,7 +97,6 @@ class AboutDialog(wx.Dialog):
         inner_box.AddSpacer((150, 6))
         inner_box.Add(static_txt7, 0, wx.CENTER)
         inner_box.Add(static_txt8, 0, wx.CENTER)
-        inner_box.Add(static_txt9, 0, wx.CENTER)
         inner_box.AddSpacer((150, 6))
         
         inner_box.Add(line2, 0, wx.CENTER | wx.EXPAND)
