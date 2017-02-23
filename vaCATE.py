@@ -45,7 +45,7 @@ class AboutDialog(wx.Dialog):
         txt5 = "Prior to extraction of automated data analysis into a spreadsheet (.xlsx)"
         txt6 = "users are able to preview data and dynamically change the analysis."
         txt7 = "More detailed information about how to do this can be found at"
-        txt8 = "http://github.com/rubenflamshepherd/vaCATE/readme.md"
+        txt8 = "http://github.com/rubenflamshepherd/vaCATE/blob/master/README.md"
         txt10 = "Copyright 2017 Ruben Flam-Shepherd. All rights reserved."
         txt11 = "This work is licensed under a"
         txt12 = "Creative Commons Attribution 4.0 International License."
@@ -66,7 +66,7 @@ class AboutDialog(wx.Dialog):
             inner_panel, id=-1, label=txt7, style=wx.ALIGN_CENTER, name="")
         static_txt8 = wx.HyperlinkCtrl(
             inner_panel, id=-1, label=txt8,
-            url="http://github.com/rubenflamshepherd/vaCATE/readme.md", name="")
+            url="http://github.com/rubenflamshepherd/vaCATE/blob/master/README.md", name="")
         static_txt10 = wx.StaticText(
             inner_panel, id=-1, label=txt10, style=wx.ALIGN_CENTER, name="")
         static_txt11 = wx.StaticText(
@@ -97,7 +97,6 @@ class AboutDialog(wx.Dialog):
         inner_box.AddSpacer((150, 6))
         inner_box.Add(static_txt7, 0, wx.CENTER)
         inner_box.Add(static_txt8, 0, wx.CENTER)
-        inner_box.Add(static_txt9, 0, wx.CENTER)
         inner_box.AddSpacer((150, 6))
         
         inner_box.Add(line2, 0, wx.CENTER | wx.EXPAND)
