@@ -39,7 +39,7 @@ class AboutDialog(wx.Dialog):
 
         # Creating objects to place in window
         txt1 = "Visualized Automator of Compartment Analysis by Tracer Efflux Automator (vaCATE)"
-        txt2 = "Alpha Version 1.0 as of September 1, 2016"
+        txt2 = "Version 1.0 as of February 22, 2017"
         txt3 = "This program is designed to automate the output of parameters"
         txt4 = "extracted by CATE (as input into a generated template file)."
         txt5 = "Prior to extraction of automated data analysis into an Microsoft Excel (.xls)"
