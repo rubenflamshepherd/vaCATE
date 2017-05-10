@@ -39,7 +39,7 @@ class AboutDialog(wx.Dialog):
 
         # Creating objects to place in window
         txt1 = "Visualized Automator of Compartment Analysis by Tracer Efflux Automator (vaCATE)"
-        txt2 = "Version 1.0 as of February 22, 2017"
+        txt2 = "Version 1.0 as of May 10, 2017"
         txt3 = "This program is designed to automate the output of parameters"
         txt4 = "extracted by CATE (as input into a generated template file)."
         txt5 = "Prior to extraction of automated data analysis into a spreadsheet (.xlsx)"
@@ -48,7 +48,7 @@ class AboutDialog(wx.Dialog):
         txt8 = "http://github.com/rubenflamshepherd/vaCATE/readme.md"
         txt10 = "Copyright 2017 Ruben Flam-Shepherd. All rights reserved."
         txt11 = "This work is licensed under a"
-        txt12 = "Creative Commons Attribution 4.0 International License."
+        txt12 = "GNU General Purpose License version 3.0"
                 
         static_txt1 = wx.StaticText(
             inner_panel, id=-1, label=txt1, style=wx.ALIGN_CENTER, name="")
@@ -66,14 +66,14 @@ class AboutDialog(wx.Dialog):
             inner_panel, id=-1, label=txt7, style=wx.ALIGN_CENTER, name="")
         static_txt8 = wx.HyperlinkCtrl(
             inner_panel, id=-1, label=txt8,
-            url="http://github.com/rubenflamshepherd/vaCATE/readme.md", name="")
+            url="http://github.com/rubenflamshepherd/vaCATE/README.md", name="")
         static_txt10 = wx.StaticText(
             inner_panel, id=-1, label=txt10, style=wx.ALIGN_CENTER, name="")
         static_txt11 = wx.StaticText(
             inner_panel, id=-1, label=txt11, style=wx.ALIGN_CENTER, name="")
         static_txt12 = wx.HyperlinkCtrl(
             inner_panel, id=-1, label=txt12,
-            url="http://creativecommons.org/licenses/by/4.0/", name="")
+            url="https://www.gnu.org/licenses/gpl-3.0.en.html", name="")
         btn1 = wx.Button(inner_panel, id=1, label="Close")
         
         line1 = wx.StaticLine(inner_panel, -1, style=wx.LI_HORIZONTAL)
