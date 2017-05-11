@@ -6,7 +6,7 @@ Python program for compartmental analysis by tracer efflux (CATE).
 To analyze CATE data, data sets must be influx into a template file. The template file can be generated from the initial window presented by vaCATE by pressing the "Generate CATE Template" button.
 
 Template Rules:
-1) Every bold field must be contain information (i.e., rows 1-7 as labeled in columns 1-2).
+1) Every bold field must contain information (i.e., rows 1-7 as labeled in columns 1-2).
 3) Do not provide titles for an empty column.
 4) For Elution time (Column under cell B8), seconds should be expressed as fractions of a minute (e.g., 30 sec = 0.5).
 5) The 'Vial #" Field is optional.
