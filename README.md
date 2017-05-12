@@ -21,7 +21,7 @@ For inquires please contact me either here on github or at ruben dot flam dot sh
 ___
 ## Accounting for Shifting Data Series’ (Expanded)
 
-The data-validation step presented in the 'Curve-Stripping' section of Flam-Shepherd et al. (2017) poses some interesting challenges from a software engineering perspective. Most poignantly, data points used as boundaries for earlier, more rapidly exchanging phases may be removed. Additionally, a sufficient number of data points may be removed such that compartmental analysis is rendered impossible (i.e., the boundaries delineating a phase contain less than two data points).
+The data-validation step the curve-stripping module poses some interesting challenges from a software engineering perspective. Most poignantly, data points used as boundaries for earlier, more rapidly exchanging phases may be removed. Additionally, a sufficient number of data points may be removed such that compartmental analysis is rendered impossible (i.e., the boundaries delineating a phase contain less than two data points).
 
 To account for these possibilities, several steps are taken. Firstly, the series of elution time points from which negative log operations have potentially been removed (see above) is stored separately (in the ‘elut_ends_parsed’ Analysis attribute) from the original elution series (which is stored in the ‘elut_ends’ attribute). This strict separation makes it explicit when calculations are using a data series that may be missing expected points. Secondly, as the range and contents of the data series being used can vary depending on the phase being examined and the aforementioned removal of data points, indices of data series are not used outside of local scopes. Instead, explicit elution time points are used for phase boundaries. Whenever an index becomes required, the relevant elution time point is converted to an index that is specific to the data series in question. This is done by the x_to_index() method in the Operations module.
 
@@ -44,8 +44,5 @@ For objective regressions, check_obj_input() limits user input to integers betwe
 
 __Figure S2.__  Sequential filters used to determine the validity of user-entered phase boundaries 
 for subjective regression in vaCATE.
-___
-## Works Cited
 
-Flam-Shepherd R, Britto D T, Kronzucker H J. (2017) vaCATE: A platform for automating data output from compartmental analysis by tracer efflux. Journal of Open Research Software (_submitted for publication_)
 
