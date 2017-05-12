@@ -1,4 +1,4 @@
-Visualized Automator of Compartment Analysis by Tracer Efflux (vaCATE)
+Visualized Automator of Compartmental Analysis by Tracer Efflux (vaCATE)
 ============
 ___
 ## Basic Operation
