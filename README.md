@@ -48,21 +48,21 @@ To account for these possibilities, several steps are taken. Firstly, the series
 
 The x_to_index() method is itself is one of the more important mechanisms through which errors are avoided. Given an elution time point, the type of boundary it represents, the local x-series of interest (constructed from ‘elut_ends_parsed’), and the larger, unparsed x-series (‘elut_ends’), x_to_index() first checks if this elution time point has been removed from the local x-series. If it hasn’t, returning the index in the local x-series at which it occurs is straightforward. However, if it has been removed, a different elution time point must be used so that the returned index corresponds to a point that exists in the local x-series. To find this index, a neighbouring elution time point is chosen from the larger x-series. To ensure the new elution time point being used is in the proper range, the boundary type of the original elution time point is considered. If the start of a phase boundary was represented, then the following elution time point in the larger x-series is chosen. Conversely, if the end of a phase boundary was represented, then the preceding elution time point in the larger x-series is chosen. This process is repeated until an elution time point that exists in our local x-series is chosen. The conversion of this point to an index is then straightforward.
 
-![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%20S1.png "Figure S1")
-
-__Figure S1.__  The extract_phase() method in the Operations module is used to return a Phase object given a set of boundaries (xs) and properly curve-stripped data-series’ (x_series and y_series).
+<p align="center">
+<img src="https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%20S1.png">
+<br><b>Figure S1. </b>The extract_phase() method in the Operations module is used to return a Phase object given a set of boundaries (xs) and properly curve-stripped data-series’ (x_series and y_series).<br>
+</p>
 
 The extract_phase() method also contains several error-checking mechanisms that work in conjunction with x_to_index(). To this end, the first thing done in the method is the confirmation that the data series to be analysed is of sufficient length (>1) for linear regression (Fig. S1; lines 174-181). If this check is failed (as would be the case if sufficient points have been removed in the parsing process) then compartmental analysis of the phase in question is not completed and a blank Phase object is returned. After this data-validation point, the elution points being passed as the boundaries for the phase in question (xs) are converted to indices corresponding to the local data series (x_series; Fig. S1; lines 183-189). These indices are then used to take list slices (x_phase and y_phase) of the local data series (Fig. 6; lines 191-192), demarcating the data series that will be used for the compartmental analysis. In the given description of x_to_index() (see above), it is possible for an elution time point representing the beginning of a phase boundary to be converted to an index that corresponds to an elution point that occurs later than the end of the phase (and vice versa for an elution time point that demarcates the end of a phase boundary). Because these indices are used to slice a list, this does not result in an error, as a list slice containing a start index occurring after an end index simply returns an empty list. The length of these list slices is then also checked, and compartmental analysis is only conducted if the length is sufficient (i.e., >1; Fig. S1; lines 194-206). If this check is failed, a blank Phase object is returned.
 
-<h3 align='center'>Screening User Input for Errors<h3>
+<h3 align='center'>Screening User Input for Errors</h3>
 
 As users are allowed to enter the parameters that are to be used for either subjective or objective analysis, the validity of this input must necessarily be screened to avoid unexpected bugs.  Screening is done by the check_obj_input() and check_subj_input() methods of the MainFrame class inside the Preview module (lines 663-685 and 827-874 respectively). Both of these methods implement the RegError class in the same module, which presents the user with a small dialog box containing a meaningful error message that provides feedback as to how the current user input is invalid.
 
 For objective regressions, check_obj_input() limits user input to integers between (inclusive) three and half of the length of the series (rounded down). For subjective regressions, check_subj_input() processes user input through three filters (Fig. 7). First, user input is determined to be either an elution time point or a blank value (“”). Then, the validity of the pairs of data being used to construct individual phase boundaries is determined. That is, both points must be either empty strings or elution time points, with the start of the phase occurring before the end of the phase. Finally, the validity of the phases relative to each other is determined. Specifically, boundaries of phases cannot overlap and boundaries for earlier, more rapidly-exchanging phases can only be defined if boundaries of later, more slowly-exchanging phases are also defined (i.e., boundaries of both Phase III and II must be defined if extraction of parameters from Phase I is required). 
 
-![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%20S2.png "Figure S2")
-
-__Figure S2.__  Sequential filters used to determine the validity of user-entered phase boundaries 
-for subjective regression in vaCATE.
-
-
+<p align="center">
+<img src="https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%20S2.png">
+<br><b>Figure S2. </b>Sequential filters used to determine the validity of user-entered phase boundaries 
+for subjective regression in vaCATE.<br>
+</p>
