@@ -3,7 +3,7 @@
 ___
 
 
-<h2 align='center'>Basic Operation</h2
+<h3 align='center'>Basic Operation</h2
 
 Python program for compartmental analysis by tracer efflux (CATE).
 
@@ -37,10 +37,10 @@ Once a properly filled in template is input to vaCATE, the analysis can be dyanm
 Using the installer (available at https://doi.org/10.6084/m9.figshare.4688503.v2) is recommended over cloning the repository. This is because vaCATE was initially created using wxPython 2.8.12.1, which is no longer available. Because of this, a local version of wxPython 3.03 is provided in the 'local' folder when using 'requirements.txt' to install dependencies. However, this results in some spacing issues in the initial window presented by vaCATE, which can be solved by simply resizing the window.
 
 For inquires please contact me either here on github or at ruben dot flam dot shepherd at gmail dot com.
-___
-# Supplemental Information to Paper (currently under submission to the Journal of Open Reseach Software)
-___
-## Accounting for Shifting Data Series’
+
+<h2 align='center'>Supplemental Information to Paper<br>(currently under submission to the Journal of Open Reseach Software)</h2
+
+<h3 align='center'>Accounting for Shifting Data Series’</h3>
 
 The data-validation step the curve-stripping module poses some interesting challenges from a software engineering perspective. Most poignantly, data points used as boundaries for earlier, more rapidly exchanging phases may be removed. Additionally, a sufficient number of data points may be removed such that compartmental analysis is rendered impossible (i.e., the boundaries delineating a phase contain less than two data points).
 
