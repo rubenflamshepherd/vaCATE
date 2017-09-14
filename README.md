@@ -38,7 +38,7 @@ Using the installer (available at https://doi.org/10.6084/m9.figshare.4688503.v2
 
 For inquires please contact me either here on github or at ruben dot flam dot shepherd at gmail dot com.
 
-<h2 align='center'>Supplemental Information to Paper<br>(currently under submission to the Journal of Open Reseach Software)</h2
+<h2 align='center'>Supplemental Information to Paper<br>(currently under submission to the Journal of Open Reseach Software)</h2>
 
 <h3 align='center'>Accounting for Shifting Data Series’</h3>
 
