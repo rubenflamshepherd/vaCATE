@@ -23,7 +23,9 @@ Using the installer is recommended over cloning the repository. This is because 
 
 For inquires please contact me either here on github or at ruben dot flam dot shepherd at gmail dot com.
 ___
-## Accounting for Shifting Data Series’ (Expanded)
+### Supplemental Information to Paper (currently under submission to the Journal of Open Reseach Software)
+___
+## Accounting for Shifting Data Series’
 
 The data-validation step the curve-stripping module poses some interesting challenges from a software engineering perspective. Most poignantly, data points used as boundaries for earlier, more rapidly exchanging phases may be removed. Additionally, a sufficient number of data points may be removed such that compartmental analysis is rendered impossible (i.e., the boundaries delineating a phase contain less than two data points).
 
