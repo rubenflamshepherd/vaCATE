@@ -1,4 +1,6 @@
 <p align="center">
+<h1>vaCATE</h1>
+<h1>-</h1>
 <h1>Visualized Automator of Compartmental Analysis by Tracer Efflux (vaCATE)</h1>
 </p>
 
