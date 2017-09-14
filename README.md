@@ -3,7 +3,7 @@
 ___
 
 
-<h2 align='center'>Basic Operation</p>
+<h2 align='center'>Basic Operation</h2
 
 Python program for compartmental analysis by tracer efflux (CATE).
 
