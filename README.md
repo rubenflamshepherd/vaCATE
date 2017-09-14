@@ -11,15 +11,13 @@ To analyze CATE data, data sets must be input into a template file. The template
 <img src="https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%201.png">
 <br><b>Figure 1. </b>Initial window presented by vaCATE.<br>
 </p>
-![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%201.png "Figure 1")
-
-__Figure 1.__  Initial window presented by vaCATE.
 
 Preconstructed template files for demostration purposes are available in the 'Tests' and 'Examples' subfolders in the folder that vaCATE was installed/cloned into. See Figure 2 below for an example.
 
-![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%202.png "Figure 2")
-
-__Figure 2.__  Partial example of a filled-in template file.
+<p align="center">
+<img src="https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%202.png">
+<br><b>Figure 2. </b>Partial example of a filled-in template file.<br>
+</p>
 
 Template Rules:
 1) Every bold field must contain information (i.e., rows 1-7 as labeled in columns 1-2).
@@ -29,8 +27,10 @@ Template Rules:
 
 Once a properly filled in template is input to vaCATE, the analysis can be dyanmically previewed before export into an Excel file (see Figure 3 below)
 
-![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%204.png "Figure 3")
-__Figure 3.__  Dynamic preview of analysis.
+<p align="center">
+<img src="https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%204.png">
+<br><b>Figure 3. </b>Dynamic preview of analysis.br>
+</p>
 
 Using the installer (available at https://doi.org/10.6084/m9.figshare.4688503.v2) is recommended over cloning the repository. This is because vaCATE was initially created using wxPython 2.8.12.1, which is no longer available. Because of this, a local version of wxPython 3.03 is provided in the 'local' folder when using 'requirements.txt' to install dependencies. However, this results in some spacing issues in the initial window presented by vaCATE, which can be solved by simply resizing the window.
 
