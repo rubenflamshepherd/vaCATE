@@ -7,11 +7,13 @@ Python program for compartmental analysis by tracer efflux (CATE).
 
 To analyze CATE data, data sets must be input into a template file. The template file can be generated from the initial window presented by vaCATE by pressing the "Generate CATE Template" button (Figure 1 below).
 
-![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%201.png "Figure 1 - Initial window presented by vaCATE")
+![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%201.png "Figure 1")
+__Figure 1.__  Initial window presented by vaCATE.
 
 Preconstructed template files for demostration purposes are available in the 'Tests' and 'Examples' subfolders in the folder that vaCATE was installed/cloned into. See Figure 2 below for an example.
 
-![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%202.png "Figure 2 - Partial example of a filled in template file")
+![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%202.png "Figure 2")
+__Figure 2.__  Partial example of a filled-in template file.
 
 Template Rules:
 1) Every bold field must contain information (i.e., rows 1-7 as labeled in columns 1-2).
@@ -21,7 +23,8 @@ Template Rules:
 
 Once a properly filled in template is input to vaCATE, the analysis can be dyanmically previewed before export into an Excel file (see Figure 3 below)
 
-![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%204.png "Figure 3 - Dynamic preview of data analysis")
+![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%204.png "Figure 3")
+__Figure 3.__  Dynamic preview of analysis.
 
 Using the installer (available at https://doi.org/10.6084/m9.figshare.4688503.v2) is recommended over cloning the repository. This is because vaCATE was initially created using wxPython 2.8.12.1, which is no longer available. Because of this, a local version of wxPython 3.03 is provided in the 'local' folder when using 'requirements.txt' to install dependencies. However, this results in some spacing issues in the initial window presented by vaCATE, which can be solved by simply resizing the window.
 
