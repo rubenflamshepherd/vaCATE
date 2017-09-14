@@ -1,6 +1,4 @@
-<p align="center">
 Visualized Automator of Compartmental Analysis by Tracer Efflux (vaCATE)
-<\p>
 ============
 ___
 ## Basic Operation
