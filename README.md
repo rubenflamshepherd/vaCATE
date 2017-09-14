@@ -1,9 +1,9 @@
-<h1 align='center'>vaCATE</h1>
 <h1 align='center'>Visualized Automator of Compartmental Analysis by Tracer Efflux (vaCATE)</h1>
 
-
 ___
-## Basic Operation
+
+
+<h2 align='center'>Basic Operation</p>
 
 Python program for compartmental analysis by tracer efflux (CATE).
 
