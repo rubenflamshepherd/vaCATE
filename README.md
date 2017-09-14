@@ -19,11 +19,15 @@ Preconstructed template files for demostration purposes are available in the 'Te
 
 ![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%202.png "Figure 2 - Partial example of a filled in template file")
 
+Once a properly filled in template is input to vaCATE, the analysis can be dyanmically previewed before export into an Excel file (see Figure 3 below)
+
+![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%204.png "Figure 3 - Dynamic preview of data analysis")
+
 Using the installer is recommended over cloning the repository. This is because vaCATE was initially created using wxPython 2.8.12.1, which is no longer available. Because of this, a local version of wxPython 3.03 is provided in the 'local' folder when using 'requirements.txt' to install dependencies. However, this results in some spacing issues in the initial window presented by vaCATE, which can be solved by simply resizing the window.
 
 For inquires please contact me either here on github or at ruben dot flam dot shepherd at gmail dot com.
 ___
-### Supplemental Information to Paper (currently under submission to the Journal of Open Reseach Software)
+# Supplemental Information to Paper (currently under submission to the Journal of Open Reseach Software)
 ___
 ## Accounting for Shifting Data Series’
 
