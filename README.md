@@ -5,7 +5,9 @@ ___
 
 Python program for compartmental analysis by tracer efflux (CATE).
 
-To analyze CATE data, data sets must be input into a template file. The template file can be generated from the initial window presented by vaCATE by pressing the "Generate CATE Template" button.
+To analyze CATE data, data sets must be input into a template file. The template file can be generated from the initial window presented by vaCATE by pressing the "Generate CATE Template" button (Figure 1 below).
+
+![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%2.png "Figure 1")
 
 Template Rules:
 1) Every bold field must contain information (i.e., rows 1-7 as labeled in columns 1-2).
