@@ -9,15 +9,15 @@ To analyze CATE data, data sets must be input into a template file. The template
 
 ![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%201.png "Figure 1 - Initial window presented by vaCATE")
 
+Preconstructed template files for demostration purposes are available in the 'Tests' and 'Examples' subfolders in the folder that vaCATE was in installed/cloned into. See Figure 2 below for an example.
+
+![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%202.png "Figure 2 - Partial example of a filled in template file")
+
 Template Rules:
 1) Every bold field must contain information (i.e., rows 1-7 as labeled in columns 1-2).
 3) Do not provide titles for an empty column.
 4) For Elution time (Column under cell B8), seconds should be expressed as fractions of a minute (e.g., 30 sec = 0.5).
 5) The 'Vial #" Field is optional.
-
-Preconstructed template files for demostration purposes are available in the 'Tests' and 'Examples' subfolders in the folder that vaCATE was in installed/cloned into. See Figure 2 below for an example.
-
-![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%202.png "Figure 2 - Partial example of a filled in template file")
 
 Once a properly filled in template is input to vaCATE, the analysis can be dyanmically previewed before export into an Excel file (see Figure 3 below)
 
