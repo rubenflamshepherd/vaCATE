@@ -63,6 +63,6 @@ For objective regressions, check_obj_input() limits user input to integers betwe
 
 <p align="center">
 <img src="https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%20S2.png">
-<br><b>Figure S2. </b>Sequential filters used to determine the validity of user-entered phase boundaries 
+<br><b>Figure S2. </b>Sequential filters used to determine the validity of<br> user-entered phase boundaries 
 for subjective regression in vaCATE.<br>
 </p>
