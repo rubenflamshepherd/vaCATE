@@ -9,7 +9,7 @@ To analyze CATE data, data sets must be input into a template file. The template
 
 <p align="center">
 <img src="https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%201.png">
-<b>Some Links:</b><br>
+<b>Figure 1. </b>Initial window presented by vaCATE.<br>
 </p>
 ![alt text](https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%201.png "Figure 1")
 
