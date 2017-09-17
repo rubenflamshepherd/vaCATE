@@ -17,7 +17,7 @@ To analyze CATE data, data sets must be input into a template file. The template
 Preconstructed template files for demostration purposes are available in the 'Tests' and 'Examples' subfolders in the folder that vaCATE was installed/cloned into. See Figure 2 below for an example.
 
 <p align="center">
-<img src="https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%202.png">
+<img width=200 src="https://github.com/rubenflamshepherd/vaCATE/blob/master/Images/Figure%202.png">
 <br><b>Figure 2. </b>Partial example of a filled-in template file.<br>
 </p>
 
