@@ -39,7 +39,7 @@ Once a properly filled in template is input to vaCATE, the analysis can be dyanm
 <br><b>Figure 3. </b>Dynamic preview of analysis.<br>
 </p>
 
-Using the installer ([available here](https://doi.org/10.6084/m9.figshare.4688503.v2)) is recommended over cloning the repository. This is because vaCATE was initially created using wxPython 2.8.12.1, which is no longer available on PyPI (Python Package Index). Because of this, a local version of wxPython 3.03 is provided in the 'local' folder when using 'requirements.txt' to install dependencies. However, this results in some spacing issues in the initial window presented by vaCATE, which can be solved by simply resizing the window.
+Using the installer ([available here](https://doi.org/10.6084/m9.figshare.4688503.v2)) is recommended over cloning the repository. This is because vaCATE was initially created using wxPython 2.8.12.1, which is no longer available on PyPI (Python Package Index) or elsewhere. Because of this, when cloning the repository and using 'requirements.txt' to install dependencies, wxPython 3.03 is provided in the 'local' folder. However, versioning differences result in some spacing issues in the initial window presented by vaCATE, which can be solved by simply resizing the window.
 
 For inquires please contact me either here on github or at ruben dot flam dot shepherd at gmail dot com.
 
