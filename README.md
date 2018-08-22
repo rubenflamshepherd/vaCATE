@@ -10,7 +10,7 @@ ___
 
 <h3 align='center'>Basic Operation</h3>
 
-Python program for compartmental analysis by tracer efflux (CATE).
+vaCATE is a Python program designed to automate and maximize data extraction from compartmental analysis by tracer efflux (CATE).
 
 To analyze CATE data, data sets must be input into a template file. The template file can be generated from the initial window presented by vaCATE by pressing the "Generate CATE Template" button (Figure 1 below).
 
