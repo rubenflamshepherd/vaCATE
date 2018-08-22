@@ -1,7 +1,7 @@
 <h1 align='center'>Visualized Automator of<br> Compartmental Analysis by Tracer Efflux (vaCATE)</h1>
 
+[As published in the Journal of Open Research Software](https://openresearchsoftware.metajnl.com/articles/10.5334/jors.175/)
 ___
-
 
 <h3 align='center'>Basic Operation</h2
 
@@ -38,7 +38,7 @@ Using the installer (available at https://doi.org/10.6084/m9.figshare.4688503.v2
 
 For inquires please contact me either here on github or at ruben dot flam dot shepherd at gmail dot com.
 
-<h2 align='center'>Supplemental Information to Paper<br>(currently under submission to the Journal of Open Reseach Software)</h2>
+<h2 align='center'>Supplemental Information to Paper<br>(as published in the Journal of Open Reseach Software)</h2>
 
 <h3 align='center'>Accounting for Shifting Data Series’</h3>
 
