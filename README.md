@@ -1,10 +1,12 @@
 <h1 align='center'>Visualized Automator of<br> Compartmental Analysis by Tracer Efflux (vaCATE)</h1>
 
-<h3 align='center' href='https://openresearchsoftware.metajnl.com/articles/10.5334/jors.175/'>As published in the Journal of Open Research Software 
+<h3 align='center' href='https://openresearchsoftware.metajnl.com/articles/10.5334/jors.175/'>
+As published in the Journal of Open Research Software 
 </h3>
+
 ___
 
-<h3 align='center'>Basic Operation</h>
+<h3 align='center'>Basic Operation</h3>
 
 Python program for compartmental analysis by tracer efflux (CATE).
 
