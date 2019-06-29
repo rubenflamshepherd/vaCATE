@@ -6,6 +6,8 @@ As published in the Journal of Open Research Software
 </a>
 </h3>
 
+<b>Abstract:</b> Compartmental analysis by tracer efflux (CATE) is fundamental to examinations of membrane transport, allowing study of solute movement among subcellular compartments with high temporal, spatial, and chemical resolution. CATE can provide a wealth of information about fluxes and pool sizes in complex systems, but is a mathematically intensive procedure, and there is a need for software designed to fully, easily, and dynamically analyse results from CATE experiments. Here we present vaCATE (Visualized Automation of Compartmental Analysis by Tracer Efflux), a software package that meets these criteria. A robust suite of test cases using CATE datasets from experiments with intact rice (Oryza sativa L.) root systems reveals the high fidelity of vaCATE and the ease with which parameters can be extracted, using a three-compartment model and a curve-stripping procedure to distinguish them on the basis of variable exchange rates. vaCATE was developed using Python 2.7 and can be used in most situations where compartmental analysis is required.
+
 ___
 
 <h3 align='center'>Basic Operation</h3>
